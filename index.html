@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#0b1017" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>Pocket Hackslash</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main id="app">
+      <header class="hud" aria-label="ゲーム情報">
+        <div class="brand">POCKET <span>HACKSLASH</span></div>
+        <div class="stats">
+          <div><small>HP</small><b id="hpText">100 / 100</b><i><em id="hpBar"></em></i></div>
+          <div><small>LV</small><b id="levelText">1</b></div>
+          <div><small>XP</small><b id="xpText">0 / 5</b></div>
+          <div><small>KILLS</small><b id="killsText">0</b></div>
+        </div>
+      </header>
+
+      <section class="game-shell">
+        <canvas id="game" aria-label="リアルタイムハクスラゲーム"></canvas>
+        <div id="message" class="message hidden" role="status"></div>
+        <button id="restart" class="restart hidden" type="button">もう一度</button>
+
+        <div id="stickZone" class="stick-zone" aria-label="移動スティック">
+          <div class="stick-base"><div id="stickKnob" class="stick-knob"></div></div>
+        </div>
+        <button id="attack" class="attack" type="button" aria-label="攻撃">斬</button>
+      </section>
+
+      <footer>
+        左側をドラッグして移動　右下の「斬」で攻撃
+      </footer>
+    </main>
+    <script type="module" src="./game.js"></script>
+  </body>
+</html>
