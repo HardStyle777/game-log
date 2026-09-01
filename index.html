@@ -1,7 +1,72 @@
 <!doctype html>
-<html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><meta name="theme-color" content="#090d12"><meta name="apple-mobile-web-app-capable" content="yes"><title>黄昏の継承者</title><link rel="manifest" href="./manifest.webmanifest"><link rel="stylesheet" href="./style.css"></head>
-<body><main id="app">
-<header class="hud"><div class="identity"><button id="formBadge" class="form-badge"><span id="formIcon">剣</span></button><div><small>灰風の草原</small><b id="formText">剣士 Lv1</b></div></div><div class="vitals"><div class="meter hp"><i><em id="hpBar"></em></i><b id="hpText">120 / 120</b></div><div class="meter cp"><i><em id="cpBar"></em></i><b id="cpText">50 / 50 CP</b></div><div class="xp">EXP <i><em id="xpBar"></em></i><b id="levelText">Lv1</b></div></div><div class="top-actions"><button id="lootButton">戦利品 <b id="lootCount">0</b></button><button id="buildButton">育成 <b id="pointCount">0</b></button></div></header>
-<section class="game-shell"><canvas id="game"></canvas><div class="quest"><small>現在の目的</small><b id="questText">魔物を 0 / 8 体倒す</b></div><div id="dropToast" class="drop-toast hidden"></div><div id="message" class="message hidden"></div><button id="restart" class="restart hidden">町で再起する</button><div id="stickZone" class="stick-zone"><div class="stick-base"><div id="stickKnob" class="stick-knob"></div></div></div><div class="combat"><button id="skill1" class="skill s1"><span id="skill1Icon">閃</span><small id="skill1Cost">10</small></button><button id="skill2" class="skill s2"><span id="skill2Icon">盾</span><small id="skill2Cost">14</small></button><button id="dodge" class="dodge">避</button><button id="attack" class="attack">斬</button><button id="transform" class="transform"><span>変身</span><b id="transformText">戦士へ</b></button></div></section>
-<nav class="bottom-nav"><button id="healButton">回復薬 <b id="potionCount">3</b></button><span id="goldText">0 G</span><span id="killText">討伐 0</span></nav></main>
-<div id="overlay" class="overlay hidden"><section class="panel"><header><div><small id="panelKicker">冒険者メニュー</small><h2 id="panelTitle">戦利品</h2></div><button id="closePanel">閉じる</button></header><div id="panelTabs" class="tabs"></div><div id="panelBody" class="panel-body"></div></section></div><script type="module" src="./game.js"></script></body></html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#090d12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>黄昏の継承者</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<div class="rotate-notice">
+  <div class="phone-icon">↻</div>
+  <b>iPhoneを横向きにしてください</b>
+  <small>このゲームは横画面用です</small>
+</div>
+<main id="app">
+  <header class="hud">
+    <div class="identity">
+      <button id="formBadge" class="form-badge" type="button"><span id="formIcon">剣</span></button>
+      <div><small>灰風の草原</small><b id="formText">剣士 Lv1</b></div>
+    </div>
+    <div class="vitals">
+      <div class="meter hp"><i><em id="hpBar"></em></i><b id="hpText">120 / 120</b></div>
+      <div class="meter cp"><i><em id="cpBar"></em></i><b id="cpText">50 / 50 CP</b></div>
+      <div class="xp">EXP <i><em id="xpBar"></em></i><b id="levelText">Lv1</b></div>
+    </div>
+    <div class="top-actions">
+      <button id="lootButton" type="button">装備 <b id="lootCount">0</b></button>
+      <button id="buildButton" type="button">育成 <b id="pointCount">0</b></button>
+    </div>
+  </header>
+
+  <section class="game-shell">
+    <canvas id="game" aria-label="リアルタイムハクスラゲーム"></canvas>
+    <div class="quest"><small>現在の目的</small><b id="questText">魔物を 0 / 8 体倒す</b></div>
+    <div class="auto-label"><i></i>通常攻撃 AUTO</div>
+    <div id="dropToast" class="drop-toast hidden"></div>
+    <div id="message" class="message hidden" role="status"></div>
+    <button id="restart" class="restart hidden" type="button">町で再起する</button>
+    <div id="stickZone" class="stick-zone" aria-label="移動スティック">
+      <div class="stick-base"><div id="stickKnob" class="stick-knob"></div></div>
+    </div>
+    <div class="combat">
+      <button id="skill1" class="skill s1" type="button"><span id="skill1Icon">閃</span><small id="skill1Cost">10</small></button>
+      <button id="skill2" class="skill s2" type="button"><span id="skill2Icon">盾</span><small id="skill2Cost">14</small></button>
+      <button id="dodge" class="dodge" type="button"><b>回避</b></button>
+      <button id="transform" class="transform" type="button"><span>変身</span><b id="transformText">戦士へ</b></button>
+    </div>
+  </section>
+
+  <nav class="bottom-nav">
+    <button id="healButton" type="button">回復薬 <b id="potionCount">3</b></button>
+    <span id="targetText">未警戒</span><span id="goldText">0 G</span><span id="killText">討伐 0</span>
+  </nav>
+</main>
+
+<div id="overlay" class="overlay hidden">
+  <section class="panel" role="dialog" aria-modal="true">
+    <header>
+      <div><small id="panelKicker">冒険者メニュー</small><h2 id="panelTitle">装備</h2></div>
+      <button id="closePanel" type="button">閉じる</button>
+    </header>
+    <div id="panelTabs" class="tabs"></div>
+    <div id="panelBody" class="panel-body"></div>
+  </section>
+</div>
+<script type="module" src="./game.js"></script>
+</body>
+</html>
