@@ -1,1 +1,9 @@
-{"name":"黄昏の継承者 - ハクスラ試作","short_name":"黄昏の継承者","start_url":"./","display":"standalone","background_color":"#05070a","theme_color":"#090d12","orientation":"any"}
+{
+  "name": "黄昏の継承者 - ハクスラ試作",
+  "short_name": "黄昏の継承者",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#05070a",
+  "theme_color": "#090d12",
+  "orientation": "landscape"
+}
