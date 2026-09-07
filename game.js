@@ -155,6 +155,23 @@ function pixelTerrain(){
  for(let gy=y0;gy<=y1;gy++)for(let gx=x0;gx<=x1;gx++){const h=hash2(gx+71,gy-41),x=gx*tile,y=gy*tile;if(h>.965){pixelRect(x+3,y+3,10,11,'#254c42');pixelRect(x+1,y+6,14,7,'#315e4b');pixelRect(x+6,y+13,3,5,'#6c5535')} }
 }
 function sheetRow(angle){const s=Math.sin(angle),c=Math.cos(angle);if(Math.abs(c)>Math.abs(s))return c<0?1:2;return s>=0?0:3}
+function drawHeroSword(p,phase){
+ const attacking=p.attackAnim>0,look=weaponLook(),tier=Math.min(5,Math.floor((currentWeapon()?.enemyLevel||1)/20)),len=42+tier*5+(look.glow?5:0);
+ let a=p.facing+2.45;
+ if(attacking){
+  if(phase<.22){const q=phase/.22;a=p.facing+2.45-q*.45}
+  else if(phase<.42){const q=(phase-.22)/.20;a=p.facing+2.0-q*2.55}
+  else if(phase<.67){const q=(phase-.42)/.25;a=p.facing-.55+q*2.25}
+  else {const q=(phase-.67)/.33;a=p.facing+1.70-q*.80}
+ }
+ const shift=!attacking?0:phase<.30?-6*(phase/.30):phase<.62?-6+27*((phase-.30)/.32):21*(1-(phase-.62)/.38),carrier=shift+(attacking?Math.sin(phase*Math.PI)*8:0);
+ ctx.save();ctx.translate(p.x+Math.cos(p.facing)*carrier,p.y-19+Math.sin(p.facing)*carrier);ctx.rotate(a);
+ // Arm and gauntlet move with the sword.  They are deliberately part of the pose, not an effect.
+ ctx.strokeStyle='#26384d';ctx.lineWidth=7;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-8,0);ctx.lineTo(2,0);ctx.stroke();ctx.strokeStyle='#b6d2dc';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(-4,0);ctx.lineTo(4,0);ctx.stroke();
+ ctx.shadowColor=look.glow?look.blade:'#132537';ctx.shadowBlur=look.glow?13:3;ctx.fillStyle=look.handle;ctx.fillRect(-4,-4,12,8);ctx.fillStyle='#d6ad54';ctx.fillRect(5,-8,4,16);
+ const g=ctx.createLinearGradient(7,0,len,0);g.addColorStop(0,'#73889a');g.addColorStop(.32,look.blade);g.addColorStop(.55,'#ffffff');g.addColorStop(.74,look.edge);g.addColorStop(1,'#4a6576');ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(8,-5);ctx.lineTo(len,0);ctx.lineTo(8,5);ctx.closePath();ctx.fill();ctx.strokeStyle='#203546';ctx.lineWidth=1.2;ctx.stroke();ctx.fillStyle='rgba(255,255,255,.78)';ctx.fillRect(11,-1.4,Math.max(8,len*.63),1.5);
+ ctx.restore();
+}
 function pixelPlayer(p){
  const moving=Math.hypot(p.vx||0,p.vy||0)>3||p.dash>0,attacking=p.attackAnim>0,phase=attacking?clamp(1-p.attackAnim/attackDuration(),0,1):0,step=moving?(Math.sin(p.animTime*.1)>.1?2:-2):0,look=weaponLook(),heavy=state.form==='warrior',lunge=attacking?Math.sin(phase*Math.PI)*8:0;
  // This sheet is four stable directions of the same character.  Do not rotate it:
@@ -163,8 +180,8 @@ function pixelPlayer(p){
   const frame=moving?Math.floor(p.animTime/7.5)%4:0,row=sheetRow(p.facing),sw=ART.swordsmanSheet.naturalWidth/4,sh=ART.swordsmanSheet.naturalHeight/4;
   const attackPush=!attacking?0:phase<.30?-6*(phase/.30):phase<.62?-6+27*((phase-.30)/.32):21*(1-(phase-.62)/.38),attackTilt=!attacking?0:phase<.30?-.065*(phase/.30):.075*Math.sin((phase-.30)/.70*Math.PI);
   ctx.save();ctx.translate(p.x+Math.cos(p.facing)*(lunge+attackPush),p.y+Math.sin(p.facing)*(lunge+attackPush));ctx.rotate(attackTilt);if(attacking)ctx.scale(1.015,1.015);if(p.invuln>0&&Math.floor(p.invuln*18)%2===0)ctx.globalAlpha=.45;
-  ctx.shadowColor=attacking?'#8de8ff':'#1b5b95';ctx.shadowBlur=attacking?13:5;ctx.drawImage(ART.swordsmanSheet,frame*sw,row*sh,sw,sh,-52,-88,104,112);ctx.restore();
-  if(attacking){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.facing);ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.78;ctx.strokeStyle='#e9fcff';ctx.shadowColor='#5edfff';ctx.shadowBlur=16;ctx.lineWidth=3.5;ctx.beginPath();ctx.arc(4,-8,48+phase*20,-1.18,1.16);ctx.stroke();ctx.strokeStyle='#ffcf74';ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(4,-8,57+phase*24,-1.12,1.12);ctx.stroke();ctx.restore()}
+  ctx.shadowColor=attacking?'#8de8ff':'#1b5b95';ctx.shadowBlur=attacking?13:5;ctx.drawImage(ART.swordsmanSheet,frame*sw,row*sh,sw,sh,-39,-74,78,88);ctx.restore();drawHeroSword(p,phase);
+  if(attacking){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.facing);ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.72;ctx.strokeStyle='#e9fcff';ctx.shadowColor='#5edfff';ctx.shadowBlur=15;ctx.lineWidth=3;ctx.beginPath();ctx.arc(3,-10,42+phase*17,-1.05,1.08);ctx.stroke();ctx.strokeStyle='#ffcf74';ctx.lineWidth=1.15;ctx.beginPath();ctx.arc(3,-10,50+phase*19,-1.06,1.07);ctx.stroke();ctx.restore()}
   if(p.guard>0){ctx.save();ctx.translate(p.x,p.y);ctx.strokeStyle='#a8f2ff';ctx.shadowColor='#75dfff';ctx.shadowBlur=18;ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(0,-8,29,0,TAU);ctx.stroke();ctx.restore()}return;
  }
  ctx.save();ctx.translate(p.x,p.y+10);pixelRect(-13,-2,26,5,'#263c39');pixelRect(-9,2,18,3,'#1d302e');ctx.restore();
