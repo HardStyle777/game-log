@@ -19,7 +19,7 @@ function load(){try{const s=JSON.parse(localStorage.getItem(SAVE));return s&&s.v
 function bonus(){const b={str:0,agi:0,vit:0,luck:0,int:0,wis:0,cha:0,damage:0,speed:0,defPct:0,hp:0,hpPct:0,hit:0,evade:0,crit:0,life:0,cp:0,drop:0,atk:0,def:0};Object.values(state.equipment).forEach(it=>{if(!it)return;if(it.baseStat==='攻撃')b.atk+=it.baseValue;if(it.baseStat==='防御')b.def+=it.baseValue;if(it.baseStat==='HP')b.hp+=it.baseValue;if(it.baseStat==='CP')b.cp+=it.baseValue;if(it.baseStat==='命中')b.hit+=it.baseValue;if(it.baseStat==='抵抗')b.wis+=it.baseValue;it.options.forEach(o=>b[o.key]=(b[o.key]||0)+o.value)});return b}
 function derived(){const b=bonus(),s={};Object.keys(state.stats).forEach(k=>s[k]=state.stats[k]+(b[k]||0));const maxHp=Math.floor((105+s.vit*3+b.hp)*(1+b.hpPct/100)),maxCp=35+s.cha*2+b.cp,attack=(5+s.str*.72+b.atk)*(state.form==='sword'?1:1.35)*(1+b.damage/100),defense=(s.vit*.32+b.def)*(1+b.defPct/100);return Object.assign({},s,b,{maxHp,maxCp,attack,defense,move:72+Math.min(16,s.agi*.21),attackCd:(state.form==='sword'?.46:.76)/(1+Math.min(1,b.speed/100)),hitChance:Math.min(.98,.78+s.agi*.003+b.hit/100),evadeChance:Math.min(.48,s.agi*.0015+s.luck*.001+b.evade/100),critChance:Math.min(.5,.04+s.agi*.0015+b.crit/100),doubleChance:Math.min(.12,.005+s.luck*.00045),dropChance:Math.min(.55,.18+s.luck*.0012+b.drop/100),lifeSteal:Math.min(.1,b.life/100)})}
 function attackDuration(){const speed=Math.min(1,derived().speed/100),base=state.form==='sword'?.58:.86,min=state.form==='sword'?.34:.5;return Math.max(min,base/(1+speed*.65))}
-function reset(){const d=derived();world={w:0,h:0,mapW:0,mapH:0,time:0,paused:false,over:false,spawn:3,shake:0,camera:{x:0,y:0,zoom:.96},enemies:[],drops:[],fx:[],texts:[],player:{x:0,y:0,r:9,hp:d.maxHp,cp:d.maxCp,facing:0,targetId:null,attackCd:0,skill1Cd:0,skill2Cd:0,dodgeCd:0,transformCd:0,invuln:0,guard:0,guardMax:0,dash:0,dashX:1,dashY:0,vx:0,vy:0,animTime:0,attackAnim:0,action:'idle',autoCharge:0}};resize();for(let i=0;i<14;i++)spawn(true);updateHud()}
+function reset(){const d=derived();world={w:0,h:0,mapW:0,mapH:0,time:0,paused:false,over:false,spawn:3,shake:0,camera:{x:0,y:0,zoom:1.18},enemies:[],drops:[],fx:[],texts:[],player:{x:0,y:0,r:9,hp:d.maxHp,cp:d.maxCp,facing:0,targetId:null,attackCd:0,skill1Cd:0,skill2Cd:0,dodgeCd:0,transformCd:0,invuln:0,guard:0,guardMax:0,dash:0,dashX:1,dashY:0,vx:0,vy:0,animTime:0,attackAnim:0,action:'idle',autoCharge:0}};resize();for(let i=0;i<14;i++)spawn(true);updateHud()}
 function resize(){const r=canvas.getBoundingClientRect(),w=Math.round(r.width*10)/10,h=Math.round(r.height*10)/10;if(w<2||h<2)return;const d=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(w*d);canvas.height=Math.round(h*d);ctx.setTransform(d,0,0,d,0,0);world.w=w;world.h=h;if(!world.mapW){world.mapW=Math.max(1800,w*2.15);world.mapH=Math.max(1000,h*2.3)}if(!world.player.x){world.player.x=world.mapW/2;world.player.y=world.mapH/2}const vw=w/world.camera.zoom,vh=h/world.camera.zoom;world.camera.x=clamp(world.player.x-vw/2,0,Math.max(0,world.mapW-vw));world.camera.y=clamp(world.player.y-vh/2,0,Math.max(0,world.mapH-vh))}
 function spawn(initial){if(!world.mapW)return;let x,y,tries=0;do{x=35+Math.random()*(world.mapW-70);y=75+Math.random()*(world.mapH-120);tries++}while(Math.hypot(x-world.player.x,y-world.player.y)<125&&tries<40);const lv=clamp(Math.floor(1+state.level*.45+world.time/38),1,100),elite=Math.random()<.08,hp=Math.floor((18+lv*4)*(elite?2.4:1));world.enemies.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),x,y,homeX:x,homeY:y,r:elite?12:9,hp,maxHp:hp,level:lv,speed:elite?17:14,vx:0,vy:0,cd:.5+Math.random(),hit:0,elite,broken:0,mode:'idle',think:1+Math.random()*2,roamX:x,roamY:y,alert:0,step:Math.random()*18,face:1,facing:Math.random()*TAU,attackAnim:0,attackPending:0})}
 function nearest(range){let best=null,dist=range;world.enemies.forEach(e=>{const d=Math.max(0,Math.hypot(e.x-world.player.x,e.y-world.player.y)-world.player.r-e.r);if(d<dist){best=e;dist=d}});return best}
@@ -138,12 +138,48 @@ function drawTerrain2D(){
  }
  const mist=ctx.createLinearGradient(c.x,c.y,c.x,c.y+viewH);mist.addColorStop(0,'rgba(217,240,220,.13)');mist.addColorStop(.55,'rgba(255,255,255,0)');mist.addColorStop(1,'rgba(12,31,30,.12)');ctx.fillStyle=mist;ctx.fillRect(c.x,c.y,viewW,viewH);
 }
+function pixelRect(x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(Math.round(x),Math.round(y),w,h)}
+function pixelLine(x1,y1,x2,y2,color,thick=2){const n=Math.max(1,Math.ceil(Math.max(Math.abs(x2-x1),Math.abs(y2-y1))/2));for(let i=0;i<=n;i++){const t=i/n;pixelRect(x1+(x2-x1)*t,y1+(y2-y1)*t,thick,thick,color)}}
+function pixelFacing(angle){return Math.round(angle/(Math.PI/2))*Math.PI/2}
+function currentWeapon(){return state.equipment[state.form==='sword'?'swordMain':'warriorMain']}
+function weaponLook(){const it=currentWeapon(),op=it?.options.length||0,tier=Math.min(5,Math.floor((it?.enemyLevel||1)/20));const steel=['#bac7c9','#9bd3ee','#e9d36f','#b991ef'][op]||'#bac7c9';return{blade:steel,edge:op>=2?'#fff4ac':'#eff7f2',handle:tier>=3?'#704931':'#8b6038',len:15+tier*2+(op===3?3:0),glow:op>=2}}
+function pixelTerrain(){
+ const c=world.camera,z=c.zoom,viewW=world.w/z,viewH=world.h/z,tile=16,x0=Math.floor(c.x/tile)-1,x1=Math.ceil((c.x+viewW)/tile)+1,y0=Math.floor(c.y/tile)-1,y1=Math.ceil((c.y+viewH)/tile)+1;
+ pixelRect(0,0,world.mapW,world.mapH,'#54745a');
+ for(let gy=y0;gy<=y1;gy++)for(let gx=x0;gx<=x1;gx++){
+  const h=hash2(gx,gy),x=gx*tile,y=gy*tile,grass=h>.66?'#4b6a52':h<.24?'#5d7d61':'#55775a';pixelRect(x,y,tile,tile,grass);
+  if(h>.8){pixelRect(x+3,y+4,2,3,'#89a66d');pixelRect(x+10,y+9,2,2,'#355c48')}if(h<.055){pixelRect(x+5,y+7,6,4,'#6e7f70');pixelRect(x+7,y+5,3,2,'#8a998a')}
+ }
+ for(let x=0;x<world.mapW;x+=tile){const y=world.mapH*.64+Math.sin(x*.006)*54+Math.sin(x*.014)*20;pixelRect(x,y,16,34,'#a38c5f');pixelRect(x,y+5,16,5,'#c4ac78')}
+ for(let gy=y0;gy<=y1;gy++)for(let gx=x0;gx<=x1;gx++){const h=hash2(gx+71,gy-41),x=gx*tile,y=gy*tile;if(h>.965){pixelRect(x+3,y+3,10,11,'#254c42');pixelRect(x+1,y+6,14,7,'#315e4b');pixelRect(x+6,y+13,3,5,'#6c5535')} }
+}
+function pixelPlayer(p){
+ const moving=Math.hypot(p.vx||0,p.vy||0)>3||p.dash>0,attacking=p.attackAnim>0,phase=attacking?clamp(1-p.attackAnim/attackDuration(),0,1):0,step=moving?(Math.sin(p.animTime*.1)>.1?2:-2):0,look=weaponLook(),heavy=state.form==='warrior',lunge=attacking?Math.sin(phase*Math.PI)*5:0;
+ ctx.save();ctx.translate(p.x,p.y+10);pixelRect(-13,-2,26,5,'#263c39');pixelRect(-9,2,18,3,'#1d302e');ctx.restore();
+ ctx.save();ctx.translate(p.x+Math.cos(p.facing)*lunge,p.y+Math.sin(p.facing)*lunge);ctx.rotate(pixelFacing(p.facing));if(p.invuln>0&&Math.floor(p.invuln*18)%2===0)ctx.globalAlpha=.45;
+ // boots and cloak
+ pixelRect(-7,4,5,8+step,'#1f2935');pixelRect(3,4,5,8-step,'#1f2935');pixelRect(-10,-10,12,17,'#244363');pixelRect(-12,-8,4,13,'#1a314b');pixelRect(-8,-12,13,15,heavy?'#70472e':'#3f6f9b');pixelRect(-6,-10,10,5,'#88b9d2');
+ // shield is a visible equipment silhouette
+ const shieldY=p.guard>0?-11:-7;pixelRect(4,shieldY,7,12,p.guard>0?'#61c5da':'#8d6c49');pixelRect(5,shieldY+2,5,8,p.guard>0?'#c9f7ff':'#c6a66c');
+ // head, hair and one bright visor pixel
+ pixelRect(-7,-22,12,11,'#d5a780');pixelRect(-9,-24,12,6,'#5b382f');pixelRect(-7,-18,3,6,'#5b382f');pixelRect(1,-18,3,2,'#eaf7ed');
+ // weapon pose: pixel blade is intentionally larger and changes colour by the equipped weapon
+ let a,b;if(attacking&&phase<.38){a=[-1,-14];b=[6,-29]}else if(attacking){a=[3,-11];b=[look.len+6,-6]}else{a=[2,-14];b=[look.len,-24]}
+ pixelLine(a[0]-2,a[1]+3,a[0]+2,a[1]-1,look.handle,3);if(look.glow){ctx.shadowColor=look.blade;ctx.shadowBlur=8}pixelLine(a[0],a[1],b[0],b[1],look.blade,3);pixelLine(a[0]+1,a[1]-1,b[0]+1,b[1]-1,look.edge,1);ctx.shadowBlur=0;
+ if(p.guard>0){ctx.strokeStyle='#a8f2ff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-8,24,0,TAU);ctx.stroke()}ctx.restore();
+}
+function pixelEnemy(e){
+ const moving=e.mode==='aggro'||e.mode==='return'||e.mode==='wander',attacking=e.attackAnim>0,phase=attacking?clamp(1-e.attackAnim/.7,0,1):0,leg=moving?(Math.sin(e.step*.2)>.1?2:-2):0,lunge=attacking?Math.sin(phase*Math.PI)*7:0,fur=e.elite?'#684b7c':e.mode==='aggro'?'#7b4c50':'#465d60';
+ ctx.save();ctx.translate(e.x,e.y+e.r+6);pixelRect(-14,-2,27,4,'#233638');ctx.restore();ctx.save();ctx.translate(e.x+Math.cos(e.facing)*lunge,e.y+Math.sin(e.facing)*lunge);ctx.rotate(pixelFacing(e.facing));if(e.hit>0)ctx.globalAlpha=.5;
+ pixelRect(-14,-3,5,4,'#293f40');pixelRect(-19,-7,6,3,'#293f40');pixelRect(-8,3,5,8+leg,'#273a3d');pixelRect(3,3,5,8-leg,'#273a3d');pixelRect(-9,-8,18,13,fur);pixelRect(-6,-11,12,4,'#61757a');pixelRect(7,-11,10,11,fur);pixelRect(10,-16,4,6,'#273a3d');pixelRect(16,-15,4,6,'#273a3d');pixelRect(15,-7,2,2,'#f1c86d');pixelRect(17,-2,4,2,'#dfe7dc');if(attacking){pixelRect(17,-4,6,4,'#e27762')}ctx.restore();
+ pixelRect(e.x-e.r*1.25,e.y+e.r+4,e.r*2.5,3,'#26161a');pixelRect(e.x-e.r*1.25,e.y+e.r+4,e.r*2.5*Math.max(0,e.hp/e.maxHp),3,e.broken>0?'#dfad45':'#e24c5d');if(e.mode==='aggro'){ctx.strokeStyle='#f0797088';ctx.lineWidth=1;ctx.beginPath();ctx.arc(e.x,e.y,e.r+8,0,TAU);ctx.stroke()}if(e.elite){ctx.fillStyle='#efd1ff';ctx.font='900 7px system-ui';ctx.textAlign='center';ctx.fillText('エリート Lv'+e.level,e.x,e.y-e.r*1.8-7)}
+}
 function render2D(){
  const w=world.w,h=world.h,p=world.player,c=world.camera,z=c.zoom;
- ctx.save();ctx.clearRect(0,0,w,h);ctx.translate((Math.random()-.5)*world.shake,(Math.random()-.5)*world.shake);ctx.save();ctx.scale(z,z);ctx.translate(-c.x,-c.y);
- drawTerrain2D();attackGuide2D(p);
+ ctx.imageSmoothingEnabled=false;ctx.save();ctx.clearRect(0,0,w,h);ctx.translate((Math.random()-.5)*world.shake,(Math.random()-.5)*world.shake);ctx.save();ctx.scale(z,z);ctx.translate(-c.x,-c.y);
+ pixelTerrain();attackGuide2D(p);
  const actors=[...world.enemies.map(e=>({kind:'enemy',e,y:e.y})),{kind:'player',e:p,y:p.y}].sort((a,b)=>a.y-b.y);
- actors.forEach(a=>a.kind==='enemy'?enemy2D(a.e):player2D(a.e));world.drops.forEach(drawDrop);world.fx.filter(f=>!f.delay||f.delay<=0).forEach(drawFx);
+ actors.forEach(a=>a.kind==='enemy'?pixelEnemy(a.e):pixelPlayer(a.e));world.drops.forEach(drawDrop);world.fx.filter(f=>!f.delay||f.delay<=0).forEach(drawFx);
  world.texts.forEach(t=>{ctx.globalAlpha=Math.min(1,t.life*2);ctx.fillStyle=t.color;ctx.font='900 11px system-ui';ctx.textAlign='center';ctx.shadowColor='#000';ctx.shadowBlur=3;ctx.fillText(t.value,t.x,t.y)});ctx.globalAlpha=1;ctx.restore();
  const px=(p.x-c.x)*z,py=(p.y-c.y)*z,shade=ctx.createRadialGradient(px,py,45,px,py,Math.max(w,h)*.83);shade.addColorStop(0,'rgba(255,255,255,0)');shade.addColorStop(1,'rgba(6,16,17,.39)');ctx.fillStyle=shade;ctx.fillRect(0,0,w,h);ctx.restore();miniMap2D();
 }
