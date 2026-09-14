@@ -1,0 +1,13 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+test('live screen loop awards drops, buys, equips and saves progress',async()=>{
+ const gradient={addColorStop(){}},ctx=new Proxy({createLinearGradient:()=>gradient,createRadialGradient:()=>gradient},{get:(o,k)=>o[k]??(()=>{}),set:(o,k,v)=>(o[k]=v,true)}),els={},storage=new Map(),errors=[];let raf;
+ const element=id=>els[id]??=(id==='battle'?{getContext:()=>ctx}:{dataset:{},classList:{toggle(){}},textContent:'',innerHTML:''});
+ const box={console:{error:e=>errors.push(e.message)},document:{getElementById:element,querySelectorAll:()=>[],addEventListener(){}},localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},requestAnimationFrame:fn=>raf=fn,GameCore:{loot:require('./balanced_loot.cjs'),combat:require('./live_combat.cjs'),shop:require('./town_shop.cjs'),enemies:require('./enemies.cjs').enemies},SwordArt:{load:async()=>({}),combo:()=>()=>{},other:()=>()=>{}}};
+ vm.createContext(box);vm.runInContext(fs.readFileSync(path.join(__dirname,'../game.js'),'utf8'),box);await new Promise(setImmediate);assert.equal(els.start.disabled,false);els.start.onclick();
+ for(let t=0;t<240000;t+=100){raf(t);if(vm.runInContext('town',box))els.start.onclick();}
+ const result=vm.runInContext('({wins:s.wins,kills:s.kills,bag:s.bag.length,level:s.level,gold:s.gold})',box);assert.equal(errors.length,0,errors.join('\n'));assert.ok(result.wins>10);assert.ok(result.kills>=result.wins);assert.ok(result.bag>3,'natural drops appear');assert.ok(result.level>1);
+ els.town.onclick();for(let t=240000;t<280000&&!vm.runInContext('town',box);t+=100)raf(t);assert.equal(vm.runInContext('town',box),true);
+ const before=vm.runInContext('({gold:s.gold,potions:s.state.potions})',box);els.buy.onclick();const after=vm.runInContext('({gold:s.gold,potions:s.state.potions})',box);assert.equal(before.gold-after.gold,(after.potions-before.potions)*10);
+ const id=vm.runInContext('s.bag.find(x=>!s.gear.includes(x.id)&&x.req<=s.level)?.id',box);if(id!==undefined){els.equipment.onclick({target:{closest:()=>({dataset:{equip:String(id)}})}});assert.equal(vm.runInContext('s.gear.includes('+id+')',box),true);}
+ els.save.onclick();const saved=JSON.parse([...storage.values()][0]);assert.equal(saved.kills,vm.runInContext('s.kills',box));assert.ok(saved.wins>=result.wins);assert.deepEqual(saved.queue,['triple','thrust','sweep','leap','heal_potion']);console.log('240 simulated seconds:',result);
+});
