@@ -1,0 +1,5 @@
+const els=['physical','fire','water','wind','earth','light','dark'];
+const types=['cold','freeze','stun','petrify','confuse','sleep','charm','knockback','weaponBreak','armorBreak','blind','curse','instant'];
+function enemies(level,boss,count=1){const stage=Math.floor(level/10),element=els[stage%7];return Array.from({length:count},(_,i)=>({hp:(50+level*15)*(boss?7:count===1?1:.64),atk:(7+level*.67)*(boss?1.5:count===1?1:.57),def:(5+level*.10)*(boss?1.2:1),interval:boss?1.8:2.2+i*.3,element,boss,hit:.96,evade:stage%5===0?.12:0,crit:stage%4===0?.15:.03,crush:stage%11===0?.04:0,cpDrain:stage%6===0?8:0,hpRegen:stage%9===0?(50+level*15)*.002:0,resist:{[element]:.25,[els[(stage+2)%7]]:-.15},statusResist:{state:boss?.4:stage%4===0?.25:0},procs:level>=30?[{type:types[stage%types.length],chance:types[stage%types.length]==='instant'?.005:.12,duration:2}]:[]}));}
+
+module.exports={enemies};
