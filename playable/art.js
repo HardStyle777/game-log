@@ -1,5 +1,13 @@
 window.SwordArt={};
-SwordArt.load=async function(url){const im=new Image();im.src=url;await im.decode();const c=document.createElement('canvas');c.width=im.width;c.height=im.height;const g=c.getContext('2d');g.drawImage(im,0,0);const d=g.getImageData(0,0,c.width,c.height);for(let i=0;i<d.data.length;i+=4)if(Math.min(d.data[i],d.data[i+1],d.data[i+2])>232)d.data[i+3]=0;g.putImageData(d,0,0);return c;};
+SwordArt.load=async function(url){const im=new Image();im.src=url;await im.decode();const c=document.createElement('canvas');c.width=im.width;c.height=im.height;const g=c.getContext('2d');g.drawImage(im,0,0);const d=g.getImageData(0,0,c.width,c.height);SwordArt.removeMatte(d,c.width,c.height);g.putImageData(d,0,0);return c;};
+
+// Remove only the connected white backdrop; unmatte its antialiased contour.
+SwordArt.removeMatte=function(image,w,h){const d=image.data,n=w*h,bg=new Uint8Array(n),q=new Int32Array(n);let head=0,tail=0;
+const push=i=>{if(i<0||i>=n||bg[i])return;const j=i*4;if(Math.min(d[j],d[j+1],d[j+2])<=232)return;bg[i]=1;q[tail++]=i;};
+for(let x=0;x<w;x++){push(x);push((h-1)*w+x);}for(let y=0;y<h;y++){push(y*w);push(y*w+w-1);}
+while(head<tail){const i=q[head++],x=i%w;if(x)push(i-1);if(x<w-1)push(i+1);push(i-w);push(i+w);}
+for(let i=0;i<n;i++){const j=i*4;if(bg[i]){d[j+3]=0;continue;}const x=i%w,y=Math.floor(i/w);let edge=false;for(let dy=-1;dy<=1&&!edge;dy++)for(let dx=-1;dx<=1;dx++){if(x+dx>=0&&x+dx<w&&y+dy>=0&&y+dy<h&&bg[i+dy*w+dx]){edge=true;break;}}if(!edge)continue;const low=Math.min(d[j],d[j+1],d[j+2]);if(low<=140)continue;const a=Math.min(1,(255-low)/115);for(let c=0;c<3;c++)d[j+c]=Math.max(0,Math.min(255,(d[j+c]-255*(1-a))/Math.max(.01,a)));d[j+3]=Math.round(d[j+3]*a);}
+};
 SwordArt.combo=function(g,sprite){let f=0;
 const crops=[[0,0,390,331,310,329],[390,0,385,331,680,329],[780,0,365,331,1037,329],[1152,0,384,331,1428,329],[0,332,401,349,301,677],[402,332,370,349,672,677],[782,330,360,351,1034,677],[1152,332,384,349,1450,677],[0,688,390,320,335,993],[391,688,383,320,678,993],[780,688,385,320,1063,993],[1165,688,371,320,1433,993]];
 const durations=[200,65,85,85,65,65,85,90,130,60,160,220];const names=['振り下ろしの構え','第一撃','低い振り抜き','斬り上げへ切り返し','下から斬り上げ','上へ振り抜く','頭上へ','剣を返す','最後の溜め','第三撃','深く振り抜く','回収'];
