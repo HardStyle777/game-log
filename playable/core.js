@@ -231,11 +231,11 @@ function* stream({player:p,enemies,state={},seed=1,maxSeconds=180}){
  const crit=rnd()<clamp((p.crit||0)-(e.critResist||0));
  const flat=(p.minAttack||0)+rnd()*Math.max(0,(p.maxAttack||0)-(p.minAttack||0));
  const element=s.element||'physical';
- const raw=Math.max(0,element==='physical'?(p.atk||0)+flat:(p.magicPower||0))*(s.mult??1)/(s.hitFractions?.length||1)*(crit?Math.max(1,p.critMult||1.5):1)*(active(ps,'weaponBreak')?.7:1)*(active(ps,'berserk')?1.2:1);
+ const raw=Math.max(0,element==='physical'?(p.atk||0)+flat:s.powerSource==='weapon'?((p.atk||0)+flat)*(1+(p.stats?.知識||0)/500):(p.magicPower||0))*(s.mult??1)/(s.hitFractions?.length||1)*(crit?Math.max(1,p.critMult||1.5):1)*(active(ps,'weaponBreak')?.7:1)*(active(ps,'berserk')?1.2:1);
  let damage=mitigate(raw,element,e,e.statuses);
  for(const [el,v]of Object.entries(p.elementDamage||{})){const amt=(v[0]+rnd()*(v[1]-v[0]))*(1-resist(e.resist,el));if(el==='earth'){const duration=Math.max(.1,p.poisonDuration||2);e.poisonRate=amt/duration*(1-clamp((e.statusResist?.poison||0)+(e.statusResist?.state||0)+(e.statusResist?.all||0)));e.poisonUntil=t+duration;}else damage+=amt/(s.hitFractions?.length||1);}
  
- const actual=Math.min(e.hp,Math.max(0,damage));e.hp-=actual;events.push({type:"hit",id:s.id,target:foes.indexOf(e),damage:actual,crit,time:t});if(actual>0)delete e.statuses.sleep;hp=Math.min(maxHp,hp+actual*clamp(p.life));proc(p.procs,e);if(p.crush&&rnd()<clamp(p.crush)*(1-clamp(e.crushResist)))e.hp-=Math.max(0,e.hp)*.25;
+ const actual=Math.min(e.hp,Math.max(0,damage));e.hp-=actual;events.push({type:"hit",id:s.id,target:foes.indexOf(e),damage:actual,element,crit,time:t});if(actual>0)delete e.statuses.sleep;hp=Math.min(maxHp,hp+actual*clamp(p.life));proc(p.procs,e);proc(s.procs,e);if(p.crush&&rnd()<clamp(p.crush)*(1-clamp(e.crushResist)))e.hp-=Math.max(0,e.hp)*.25;
  }if(s.basic)cp=Math.min(maxCp,cp+8*(1+(p.cpBonus||0)));
  }
  if(pending.s?.hitFractions&&!pending.recovery){pending.hit++;if(pending.hit<pending.s.hitFractions.length)pending.done=pending.start+(pending.end-pending.start)*pending.s.hitFractions[pending.hit];else{pending.recovery=true;pending.done=pending.end;}}else pending=null;}

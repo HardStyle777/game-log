@@ -7,3 +7,10 @@ test('triple hits three separate times and preserves total physical multiplier',
 test('ordered actions rotate and cursor survives encounter boundaries',()=>{const p={hp:100,atk:1,cp:100,ordered:true,actions:['a','b','c'].map(id=>({id,cast:.2,cooldown:0}))};const {events}=run(p);assert.deepEqual(events.filter(e=>e.type==='cast').slice(0,6).map(e=>e.id),['a','b','c','a','b','c']);const v=run(p,1,{cursor:2});assert.equal(v.events[0].id,'c');});
 test('unusable potion is skipped, low HP potion heals gradually',()=>{const p={hp:100,cp:100,atk:1,ordered:true,actions:[{id:'potion',type:'potion',cast:.5,cooldown:15,healRatio:.3,hpBelow:.4},{id:'sword',cast:1,cost:0}]};assert.equal(run(p,1,{hp:100,potions:2}).events[0].id,'sword');const v=run(p,1,{hp:30,potions:2});assert.equal(v.events[0].id,'potion');assert.equal(v.result.state.potions,1);assert.ok(v.result.hp>30&&v.result.hp<60);assert.ok(v.result.state.hots.length);});
 test('killing strike completes its recovery without extra idle delay',()=>{const p={hp:100,cp:0,atk:1000,absoluteHit:true,ordered:true,actions:[{id:'hit',cast:1,hitFractions:[.4]}]};const b=live.battle({player:p,enemies:[{hp:10,atk:0}],seed:1});assert.equal(b.win,true);assert.equal(b.seconds,1);});
+test('elemental weapon skills use resistance instead of defense and apply their status',()=>{
+ for(const element of ['fire','water','wind']){
+ const p={hp:100,cp:100,atk:40,absoluteHit:true,stats:{知識:0},ordered:true,actions:[{id:element,element,powerSource:'weapon',mult:2,cast:1,cooldown:10,hitFractions:[.4],procs:[{type:'cold',chance:1,duration:2}]}]};
+ const first=resistance=>{const g=live.stream({player:p,enemies:[{hp:1000,atk:0,def:10000,resist:{[element]:resistance}}],maxSeconds:1,seed:1});let x;do{x=g.next();const v=x.done?x.value.view:x.value;if(v.events.some(e=>e.type==='hit'))return v;}while(!x.done);};
+ const weak=first(-.15),strong=first(.25);assert.equal(weak.events.find(e=>e.type==='hit').damage,92);assert.equal(strong.events.find(e=>e.type==='hit').damage,60);assert.equal(weak.events.find(e=>e.type==='hit').element,element);assert.ok(weak.foes[0].statuses.cold>0);
+ }
+});
