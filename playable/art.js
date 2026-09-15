@@ -6,7 +6,7 @@ SwordArt.removeMatte=function(image,w,h){const d=image.data,n=w*h,bg=new Uint8Ar
 const push=i=>{if(i<0||i>=n||bg[i])return;const j=i*4;if(Math.min(d[j],d[j+1],d[j+2])<=232)return;bg[i]=1;q[tail++]=i;};
 for(let x=0;x<w;x++){push(x);push((h-1)*w+x);}for(let y=0;y<h;y++){push(y*w);push(y*w+w-1);}
 while(head<tail){const i=q[head++],x=i%w;if(x)push(i-1);if(x<w-1)push(i+1);push(i-w);push(i+w);}
-for(let i=0;i<n;i++){const j=i*4;if(bg[i]){d[j+3]=0;continue;}const x=i%w,y=Math.floor(i/w);let edge=false;for(let dy=-1;dy<=1&&!edge;dy++)for(let dx=-1;dx<=1;dx++){if(x+dx>=0&&x+dx<w&&y+dy>=0&&y+dy<h&&bg[i+dy*w+dx]){edge=true;break;}}if(!edge)continue;const low=Math.min(d[j],d[j+1],d[j+2]);if(low<=140)continue;const a=Math.min(1,(255-low)/115);for(let c=0;c<3;c++)d[j+c]=Math.max(0,Math.min(255,(d[j+c]-255*(1-a))/Math.max(.01,a)));d[j+3]=Math.round(d[j+3]*a);}
+for(let i=0;i<n;i++){const j=i*4;if(bg[i]){d[j+3]=0;continue;}const x=i%w,y=Math.floor(i/w);let distance=3;for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){if(x+dx>=0&&x+dx<w&&y+dy>=0&&y+dy<h&&bg[i+dy*w+dx])distance=Math.min(distance,Math.max(Math.abs(dx),Math.abs(dy)));}if(distance>2)continue;const low=Math.min(d[j],d[j+1],d[j+2]),floor=distance===1?85:125;if(low<=floor)continue;const a=Math.min(1,(255-low)/(255-floor));for(let c=0;c<3;c++)d[j+c]=Math.max(0,Math.min(255,(d[j+c]-255*(1-a))/Math.max(.01,a)));d[j+3]=Math.round(d[j+3]*a);}
 };
 SwordArt.combo=function(g,sprite){let f=0;
 const crops=[[0,0,390,331,310,329],[390,0,385,331,680,329],[780,0,365,331,1037,329],[1152,0,384,331,1428,329],[0,332,401,349,301,677],[402,332,370,349,672,677],[782,330,360,351,1034,677],[1152,332,384,349,1450,677],[0,688,390,320,335,993],[391,688,383,320,678,993],[780,688,385,320,1063,993],[1165,688,371,320,1433,993]];
