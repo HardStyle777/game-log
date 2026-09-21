@@ -44,6 +44,9 @@ a=a[a.index('const crops='):a.index("root.querySelector('[data-step]')")]
 a=a.replace("if(!ready)return;",'').replace("g.fillStyle='#101b2b';g.fillRect(0,0,600,400);g.fillStyle='#233945';g.fillRect(0,360,600,40);",'').replace("status.textContent=(i+1)+' / 12　'+names[i];",'')
 b=b[b.index('const rects='):b.index('function play(')]
 b=b.replace('if(!ready)return;skill=k;frame=f;', '').replace("g.fillStyle='#101b2b';g.fillRect(0,0,600,400);g.fillStyle='#233945';g.fillRect(0,356,600,44);",'').replace("status.textContent=names[k]+'　'+(f+1)+' / 4';",'')
+# One world-space foot anchor for every skill; source preview lunges must not reset it.
+a=a.replace('380+', '340+')
+b=b.replace('g.translate(340+dx,356)', 'g.translate(340,360)')
 renderer='''window.SwordArt={};
 SwordArt.load=async function(url){const im=new Image();im.src=url;await im.decode();const c=document.createElement('canvas');c.width=im.width;c.height=im.height;const g=c.getContext('2d');g.drawImage(im,0,0);const d=g.getImageData(0,0,c.width,c.height);SwordArt.removeMatte(d,c.width,c.height);g.putImageData(d,0,0);return c;};
 

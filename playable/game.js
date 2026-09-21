@@ -15,7 +15,7 @@ const motionProfiles={
  leap:{source:[210,220,100,290],flow:[80,220,100,80],hits:[2]}
 };
 function motionProfile(id){return motionProfiles[id==='flame'?'leap':id==='frost'?'sweep':id==='thunder'||id==='basic'?'thrust':id];}
-function poseTime(id,elapsed){const m=motionProfile(id);if(!m)return 0;let t=Math.max(0,Math.min(1,elapsed))*m.flow.reduce((a,b)=>a+b,0),offset=0;for(let i=0;i<m.flow.length;i++){if(t<=m.flow[i])return offset+t/m.flow[i]*m.source[i];t-=m.flow[i];offset+=m.source[i];}return offset-0.001;}
+function poseTime(id,elapsed){const m=motionProfile(id);if(!m)return 0;let t=Math.max(0,Math.min(1,elapsed))*m.flow.reduce((a,b)=>a+b,0),offset=0;for(let i=0;i<m.flow.length;i++){if(t<=m.flow[i]){if(i===m.flow.length-1)return offset-.001;if(i===0&&id!=='triple')return m.source[0]+Math.min(m.source[1]-.001,t/m.flow[i]*m.source[1]);return offset+t/m.flow[i]*m.source[i];}t-=m.flow[i];offset+=m.source[i];}return offset-0.001;}
 for(const [id,spec] of Object.entries(specs)){const m=motionProfile(id);if(!m)continue;const duration=m.flow.reduce((a,b)=>a+b,0);spec.cast=duration/1000;spec.hitFractions=m.hits.map(i=>m.flow.slice(0,i).reduce((a,b)=>a+b,0)/duration);}
 const KEY='swordsman-integrated-v1';
 function fresh(){const gear=slots.map((slot,id)=>({id,slot,baseLevel:1,quality:1,req:1,ops:[]}));return{version:1,level:1,xp:0,gold:200,materials:0,kills:0,wins:0,losses:0,seconds:0,cleared:0,nextId:3,rng:123456789,gear:gear.map(x=>x.id),bag:gear,enhance:{weapon:0,armor:0,charm:0},queue:['triple','thrust','sweep','leap','heal_potion'],healAt:.4,zone:'balanced',autoBuy:false,state:{potions:20},log:[]};}
