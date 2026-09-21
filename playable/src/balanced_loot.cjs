@@ -43,7 +43,7 @@ function item(r,level,id,noOP=false,magicFind=0,uniqueFind=0,zone='balanced'){
  const uniqueRoll=r();const unique=!noOP&&uniqueRoll<Math.min(.2,.002*(1+uniqueFind));
  return{id,slot:actualSlot,baseLevel,baseTier:'normal',quality:quality*(unique?1.2:1),unique,req:noOP?baseLevel:requirement(baseLevel,ops),ops:noOP?[]:ops};
 }
-function player(level,gear,enhance){const p=basePlayer(level,gear,enhance);p.attackSpeed=Math.min(2.5,p.attackSpeed);p.life=Math.min(.2,p.life);return p;}
+function player(level,gear,enhance,allocation){const p=basePlayer(level,gear,enhance,allocation);p.attackSpeed=Math.min(2.5,p.attackSpeed);p.life=Math.min(.2,p.life);return p;}
 function chooseZone(gear){return [...gear].sort((a,b)=>a.baseLevel*a.quality-b.baseLevel*b.quality)[0].slot;}
 function preview(base,donor,donorIndex,targetIndex,resources){
  const op=donor.ops[donorIndex];let reason='';

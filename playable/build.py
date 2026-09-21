@@ -5,6 +5,13 @@ out=root/'playable'
 source=root/'restored' if (root/'restored').exists() else root
 for f in ['full_op_source.json','full_op_model.cjs','balanced_loot.cjs','town_shop.cjs']:
  shutil.copy(source/f,out/'src'/f)
+# Optional shared character allocation; keep legacy simulations unchanged.
+f=out/'src/full_op_model.cjs'
+m=f.read_text().replace('function player(level,gear,enhance={weapon:0,armor:0,charm:0})','function player(level,gear,enhance={weapon:0,armor:0,charm:0},allocation)')
+m=m.replace(' const b={},fixed={}', " if(allocation){let remaining=4*Math.max(0,level-1);for(const k of stats){const n=Math.min(remaining,Math.max(0,Math.floor(Number(allocation[k])||0)));s[k]=10+n;remaining-=n;}}\n const b={},fixed={}")
+f.write_text(m)
+f=out/'src/balanced_loot.cjs'
+f.write_text(f.read_text().replace('function player(level,gear,enhance){const p=basePlayer(level,gear,enhance);','function player(level,gear,enhance,allocation){const p=basePlayer(level,gear,enhance,allocation);'))
 s=(source/'revised_combat.cjs').read_text().replace('function battle(', 'function* stream(')
 s=s.replace('const casts={},ps=',"let cursor=state.cursor||0,events=[];\n const snapshot=()=>({seconds:t,hp:Math.max(0,hp),cp,potions,cursor,action:pending?.s?.id||null,foes:foes.map(e=>({hp:Math.max(0,e.hp),maxHp:e.maxHp,element:e.element,statuses:{...e.statuses}})),events:events.splice(0)});\n const casts={},ps=")
 s=s.replace('({win,reason,seconds:', '({view:snapshot(),win,reason,seconds:').replace('state:{hp:', 'state:{cursor,hp:')
@@ -35,7 +42,7 @@ s=s.replace('else damage+=amt;', 'else damage+=amt/(s.hitFractions?.length||1);'
 s=s.replace("element==='physical'?(p.atk||0)+flat:(p.magicPower||0)", "element==='physical'?(p.atk||0)+flat:s.powerSource==='weapon'?((p.atk||0)+flat)*(1+(p.stats?.知識||0)/500):(p.magicPower||0)")
 s=s.replace('damage:actual,crit,time:t', 'damage:actual,element,crit,time:t')
 s=s.replace('proc(p.procs,e);', 'proc(p.procs,e);proc(s.procs,e);')
-s=s.replace("cast:1,targets:1,basic:true,hitFractions:p.ordered?[.46]:undefined","cast:1,targets:1,basic:true,hitFractions:p.ordered?[145/375]:undefined")
+s=s.replace("cast:1,targets:1,basic:true,hitFractions:p.ordered?[.46]:undefined","cast:1,targets:1,basic:true,hitFractions:p.ordered?[165/405]:undefined")
 (out/'src/live_combat.cjs').write_text(s)
 j=(source/'balanced_journey.cjs').read_text(); (out/'src/enemies.cjs').write_text(j[j.index('const els='):j.index("const {score}=")]+ '\nmodule.exports={enemies};')
 # Generate renderer directly from approved previews; no redrawn poses or substituted swings.

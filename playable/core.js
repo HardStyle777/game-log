@@ -39,8 +39,9 @@ function pick(r,arr){let x=r()*arr.reduce((s,o)=>s+o.weight,0);for(const o of ar
 const natural=master.filter(o=>o.kind!=='system');
 function requirement(base,ops){const reqs=ops.map(o=>o.req).sort((a,b)=>b-a);return base+Math.floor((reqs[0]||0)+(reqs[1]||0)*2/3+(reqs[2]||0)/3);}
 function item(r,level,id,noOP=false,magicFind=0,uniqueFind=0){const slot=['weapon','armor','charm'][Math.floor(r()*3)],baseLevel=Math.max(1,Math.floor(level*(.65+r()*.30)));const countRoll=r();let n=countRoll<.2?0:countRoll<.66?1:countRoll<.93?2:3;if(n===0&&r()<Math.min(.9,.8*magicFind))n=1;const ops=[],used=new Set();for(let i=0;i<n;i++){const op=pick(r,natural.filter(o=>!used.has(o.family)));used.add(op.family);ops.push(roll(op,r));}const quality=.9+r()*.2;const unique=r()<Math.min(.2,.002*(1+uniqueFind));return{id,slot,baseLevel,quality:quality*(unique?1.2:1),unique,req:noOP?baseLevel:requirement(baseLevel,ops),ops:noOP?[]:ops};}
-function player(level,gear,enhance={weapon:0,armor:0,charm:0}){
+function player(level,gear,enhance={weapon:0,armor:0,charm:0},allocation){
  const s={力:10+Math.floor((level-1)*1.5),敏捷:10+Math.floor((level-1)*.5),健康:10+level-1,知恵:10,知識:10,威厳:10,運:10};s.運+=4*(level-1)-(s.力-10+s.敏捷-10+s.健康-10);
+ if(allocation){let remaining=4*Math.max(0,level-1);for(const k of stats){const n=Math.min(remaining,Math.max(0,Math.floor(Number(allocation[k])||0)));s[k]=10+n;remaining-=n;}}
  const b={},fixed={},p={resist:{},absorb:{},statusResist:{},elementDamage:{},procs:[],skills:[],classId:0};let skill=0;
  const add=(o,k,v)=>o[k]=(o[k]||0)+v;
  for(const op of gear.flatMap(g=>g.ops)){
@@ -130,7 +131,7 @@ function item(r,level,id,noOP=false,magicFind=0,uniqueFind=0,zone='balanced'){
  const uniqueRoll=r();const unique=!noOP&&uniqueRoll<Math.min(.2,.002*(1+uniqueFind));
  return{id,slot:actualSlot,baseLevel,baseTier:'normal',quality:quality*(unique?1.2:1),unique,req:noOP?baseLevel:requirement(baseLevel,ops),ops:noOP?[]:ops};
 }
-function player(level,gear,enhance){const p=basePlayer(level,gear,enhance);p.attackSpeed=Math.min(2.5,p.attackSpeed);p.life=Math.min(.2,p.life);return p;}
+function player(level,gear,enhance,allocation){const p=basePlayer(level,gear,enhance,allocation);p.attackSpeed=Math.min(2.5,p.attackSpeed);p.life=Math.min(.2,p.life);return p;}
 function chooseZone(gear){return [...gear].sort((a,b)=>a.baseLevel*a.quality-b.baseLevel*b.quality)[0].slot;}
 function preview(base,donor,donorIndex,targetIndex,resources){
  const op=donor.ops[donorIndex];let reason='';
@@ -207,7 +208,7 @@ function* stream({player:p,enemies,state={},seed=1,maxSeconds=180}){
  const eligible=s=>s.ready<=t+1e-8&&(s.type==='potion'?potions>0&&potionReady<=t&&hp/maxHp<=clamp(s.hpBelow??.4):cp>=Math.max(0,s.cost||0));
  let s;
  if(p.ordered){for(let n=0;n<skills.length;n++){const i=(cursor+n)%skills.length;if(eligible(skills[i])){s=skills[i];cursor=(i+1)%skills.length;break;}}}else s=skills.find(eligible);
- if(!s)s={id:'basic',mult:1,cast:1,targets:1,basic:true,hitFractions:p.ordered?[145/375]:undefined};
+ if(!s)s={id:'basic',mult:1,cast:1,targets:1,basic:true,hitFractions:p.ordered?[165/405]:undefined};
  if(s.type==='potion'){potions--;potionsUsed++;potionReady=t+Math.max(.1,s.cooldown??15);s.ready=potionReady;}
  else{cp-=Math.max(0,s.cost||0);s.ready=t+Math.max(0,s.cooldown||0)*(1-clamp(p.cdr,0,.6));}
  const slow=active(ps,'cold')?1.5:1;
