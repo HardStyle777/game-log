@@ -35,6 +35,7 @@ s=s.replace('else damage+=amt;', 'else damage+=amt/(s.hitFractions?.length||1);'
 s=s.replace("element==='physical'?(p.atk||0)+flat:(p.magicPower||0)", "element==='physical'?(p.atk||0)+flat:s.powerSource==='weapon'?((p.atk||0)+flat)*(1+(p.stats?.知識||0)/500):(p.magicPower||0)")
 s=s.replace('damage:actual,crit,time:t', 'damage:actual,element,crit,time:t')
 s=s.replace('proc(p.procs,e);', 'proc(p.procs,e);proc(s.procs,e);')
+s=s.replace("cast:1,targets:1,basic:true,hitFractions:p.ordered?[.46]:undefined","cast:1,targets:1,basic:true,hitFractions:p.ordered?[145/375]:undefined")
 (out/'src/live_combat.cjs').write_text(s)
 j=(source/'balanced_journey.cjs').read_text(); (out/'src/enemies.cjs').write_text(j[j.index('const els='):j.index("const {score}=")]+ '\nmodule.exports={enemies};')
 # Generate renderer directly from approved previews; no redrawn poses or substituted swings.

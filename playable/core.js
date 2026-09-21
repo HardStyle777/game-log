@@ -207,7 +207,7 @@ function* stream({player:p,enemies,state={},seed=1,maxSeconds=180}){
  const eligible=s=>s.ready<=t+1e-8&&(s.type==='potion'?potions>0&&potionReady<=t&&hp/maxHp<=clamp(s.hpBelow??.4):cp>=Math.max(0,s.cost||0));
  let s;
  if(p.ordered){for(let n=0;n<skills.length;n++){const i=(cursor+n)%skills.length;if(eligible(skills[i])){s=skills[i];cursor=(i+1)%skills.length;break;}}}else s=skills.find(eligible);
- if(!s)s={id:'basic',mult:1,cast:1,targets:1,basic:true,hitFractions:p.ordered?[.46]:undefined};
+ if(!s)s={id:'basic',mult:1,cast:1,targets:1,basic:true,hitFractions:p.ordered?[145/375]:undefined};
  if(s.type==='potion'){potions--;potionsUsed++;potionReady=t+Math.max(.1,s.cooldown??15);s.ready=potionReady;}
  else{cp-=Math.max(0,s.cost||0);s.ready=t+Math.max(0,s.cooldown||0)*(1-clamp(p.cdr,0,.6));}
  const slow=active(ps,'cold')?1.5:1;
