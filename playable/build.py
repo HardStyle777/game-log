@@ -55,6 +55,7 @@ b=b.replace('if(!ready)return;skill=k;frame=f;', '').replace("g.fillStyle='#101b
 a=a.replace('380+', '340+')
 b=b.replace('g.translate(340+dx,356)', 'g.translate(340,360)')
 renderer='''window.SwordArt={};
+SwordArt.layout={x:340,ground:360,targetBodyHeight:240,scales:{combo:.88,other:.88,basic:.74,support:.76}};
 SwordArt.load=async function(url){const im=new Image();im.src=url;await im.decode();const c=document.createElement('canvas');c.width=im.width;c.height=im.height;const g=c.getContext('2d');g.drawImage(im,0,0);const d=g.getImageData(0,0,c.width,c.height);SwordArt.removeMatte(d,c.width,c.height);g.putImageData(d,0,0);return c;};
 
 // Remove only the connected white backdrop; unmatte its antialiased contour.
@@ -75,6 +76,12 @@ renderer=renderer.replace('return(time,idle=false)=>{let f=0', 'return(time,idle
 renderer=renderer.replace('const rects=', 'let showEffects=true;\nconst rects=')
 renderer=renderer.replace('if(f===2){g.save()', 'if(showEffects&&f===2){g.save()')
 renderer=renderer.replace('return(k,time,idle=false)=>{let f=0', 'return(k,time,idle=false,options={})=>{showEffects=options.effects!==false;let f=0')
+# Preserve the calibrated per-sheet scale normalization if this generator is
+# used again.  The checked-in renderer additionally keeps its effects in the
+# same transformed coordinate space.
+renderer=renderer.replace('const [x,y,w,h,ax,ay]=crops[i];', 'const [x,y,w,h,ax,ay]=crops[i],scale=SwordArt.layout.scales.combo;')
+renderer=renderer.replace("340+(x-ax)*.88,360+(y-ay)*.88,w*.88,h*.88", "SwordArt.layout.x+(x-ax)*scale,SwordArt.layout.ground+(y-ay)*scale,w*scale,h*scale")
+renderer=renderer.replace('scale=.8', 'scale=SwordArt.layout.scales.other')
 (out/'art.js').write_text(renderer)
 # Browser CommonJS loader bundles exact source modules with no network dependencies.
 mods=['full_op_model.cjs','balanced_loot.cjs','town_shop.cjs','live_combat.cjs','enemies.cjs']
