@@ -24,7 +24,7 @@ let s=fresh(),loadWarning='';try{const raw=localStorage.getItem(KEY);if(raw){con
 const statNames=['力','敏捷','健康','知恵','知識','威厳','運'];
 if(!s.allocation){const n=s.level-1;s.allocation={力:Math.floor(n*1.5),敏捷:Math.floor(n*.5),健康:n,知恵:0,知識:0,威厳:0,運:4*n-Math.floor(n*1.5)-Math.floor(n*.5)-n};}
 function unspent(){return Math.max(0,4*(s.level-1)-Object.values(s.allocation).reduce((a,b)=>a+b,0));}
-let normalAttackOnly=false,heroMotion=null,forestImage=null,monsterImage=null,supportDraw=null,hurtStamp=-99;
+let normalAttackOnly=false,heroMotion=null,forestImage=null,monsterImage=null,supportDraw=null,hurtStamp=-99,townPose="idle";
 const skillIcons={triple:"⚔",thrust:"➶",sweep:"◒",leap:"➹",heal_potion:"✚",flame:"♨",frost:"❄",thunder:"ϟ"};
 const skillNames={triple:"三連斬",thrust:"突き",sweep:"横薙ぎ",leap:"飛び込み",heal_potion:"回復薬",flame:"焔の刃",frost:"氷牙",thunder:"雷光"};
 let liveCooldowns={};
@@ -35,15 +35,15 @@ function player(){const q=loot.player(s.level,s.gear.map(id=>s.bag.find(x=>x.id=
 function log(msg){s.log.unshift(msg);s.log=s.log.slice(0,80);}
 function notice(msg){$('notice').textContent=msg;}
 function persist(manual=false){if(loadWarning){if(manual)notice(loadWarning);return;}try{localStorage.setItem(KEY,JSON.stringify(s));if(manual)notice(gen?'直前の戦闘終了時点を保存しました。今の戦闘は終了時に保存します。':'保存しました。');}catch{notice('保存できませんでした。ブラウザの空き容量を確認してください。');}}
-function beginBattle(){p=player();boss=s.level>=(s.cleared+1)*100;enemyLv=boss?(s.cleared+1)*100:Math.max(1,Math.min(Math.floor(s.level/10)*10,(s.cleared+1)*100-10));foes=enemies(enemyLv,boss,boss?1:1+Math.floor(random()*3));gen=combat.stream({player:p,enemies:foes,state:s.state,seed:Math.floor(random()*4294967296)});fightTime=0;totalBase=s.seconds;next=gen.next();floating=[];town=false;}
+function beginBattle(){townPose="idle";p=player();boss=s.level>=(s.cleared+1)*100;enemyLv=boss?(s.cleared+1)*100:Math.max(1,Math.min(Math.floor(s.level/10)*10,(s.cleared+1)*100-10));foes=enemies(enemyLv,boss,boss?1:1+Math.floor(random()*3));gen=combat.stream({player:p,enemies:foes,state:s.state,seed:Math.floor(random()*4294967296)});fightTime=0;totalBase=s.seconds;next=gen.next();floating=[];town=false;}
 function accept(v){view=v;for(const e of v.events){if(e.type==='cast'){action={...e,born:totalBase+e.time};liveCooldowns[e.id]=totalBase+e.time+(specs[e.id]?.cooldown||0); $('caption').textContent=specs[e.id]?.name||'通常攻撃 · 斜め振り下ろし';}else{if(e.type==='hurt'){hurtStamp=totalBase+e.time;heroMotion?.hurt(hurtStamp);}floating.push({...e,born:totalBase+e.time});if(e.type==='hit'&&specs[e.id]?.element)elementBursts.push({...e,born:totalBase+e.time});}}}
 function finish(result){accept(result.view);s.state=result.state;s.seconds=totalBase+result.seconds;gen=null;next=null;
- if(result.win){s.wins++;s.kills+=foes.length;s.gold+=foes.length*(2+Math.floor(enemyLv/50))*(boss?5:1);let finds=0;
+ if(result.win){townPose="victory";s.wins++;s.kills+=foes.length;s.gold+=foes.length*(2+Math.floor(enemyLv/50))*(boss?5:1);let finds=0;
   for(let i=0;i<foes.length;i++){if(random()<.03)s.state.potions++;if(random()<.1){const it=loot.item(random,enemyLv,s.nextId++,false,p.magicFind,p.uniqueFind,s.zone);if(it.req<=s.level+100){s.bag.push(it);finds++;log('拾得：'+slotName[it.slot]+' 必要Lv.'+it.req+' '+(it.ops.map(o=>o.name).join(' / ')||'ノーマル・OPなし'));}}if(s.zone==='materials'&&random()<.15)s.materials++;}
   if(boss){s.cleared++;log('Lv.'+enemyLv+' の守護者を撃破 · '+result.seconds.toFixed(1)+'秒');}
   s.xp+=(boss?20:foes.length)*Math.min(1.2,enemyLv/s.level);const old=s.level;while(s.level<1000&&s.xp>=8+Math.floor(s.level/25)){s.xp-=8+Math.floor(s.level/25);s.level++;}if(s.level!==old)log('Lv.'+s.level+' に成長');
   notice('勝利 · '+result.seconds.toFixed(1)+'秒'+(finds?' · 装備 '+finds+'個を拾得':''));
- }else{s.losses++;log('Lv.'+enemyLv+' で'+(result.reason==='timeout'?'時間切れ':'敗北')+'。町で回復');s.state={potions:s.state.potions};goingTown=true;notice('町に帰還しました。装備・行動順・回復薬を見直せます。');}
+ }else{townPose="defeat";s.losses++;log('Lv.'+enemyLv+' で'+(result.reason==='timeout'?'時間切れ':'敗北')+'。町で回復');s.state={potions:s.state.potions};goingTown=true;notice('町に帰還しました。装備・行動順・回復薬を見直せます。');}
  if(s.cleared>=10){running=false;goingTown=true;log('Lv.1000の守護者を撃破。旅を踏破！');notice('踏破おめでとう！ プレイ時間 '+(s.seconds/3600).toFixed(2)+'時間');}
  persist();if(goingTown){enterTown();}else if(running)beginBattle();renderUI();}
 function enterTown(){town=true;running=false;goingTown=false;gen=null;next=null;action=null;heroAdvance=0;heroMotion?.reset();p=player();view={hp:s.state.hp??p.hp,cp:s.state.cp??p.cp,potions:s.state.potions,foes:[],seconds:0,events:[]};if(s.autoBuy){const tx=shop.purchase({gold:s.gold,potions:s.state.potions});s.gold=tx.gold;s.state.potions=tx.potions;view.potions=tx.potions;if(tx.bought)log('町で回復薬を'+tx.bought+'個補充');}persist();renderUI();$('caption').textContent='町 · 次の冒険に備える';}
@@ -75,7 +75,8 @@ function draw(now){g.clearRect(0,0,900,460);const bg=g.createLinearGradient(0,0,
  g.save();g.translate(5+heroAdvance,14);g.fillStyle='#05111266';g.beginPath();g.ellipse(290,354,60,9,0,0,7);g.fill();g.restore();
  if(supportDraw&&clock-hurtStamp>=0&&clock-hurtStamp<.12){g.save();g.translate(5+heroAdvance,14);supportDraw('hurt',clock-hurtStamp);g.restore();}
  else if(supportDraw&&a?.id==='heal_potion'&&elapsed<1){g.save();g.translate(5+heroAdvance,14);supportDraw('potion',elapsed);g.restore();}
- else if(supportDraw&&!a){g.save();g.translate(5+heroAdvance,14);supportDraw(running&&heroAdvance<139?'walk':'idle',clock);g.restore();}
+ else if(supportDraw&&running&&heroAdvance<139){g.save();g.translate(5+heroAdvance,14);supportDraw('walk',clock);g.restore();}
+ else if(supportDraw&&!a){g.save();g.translate(5+heroAdvance,14);supportDraw(town?townPose:'idle',clock);g.restore();}
  else heroMotion.draw({id:a?.id,progress:elapsed,now:clock,x:5+heroAdvance,y:14,state:town?'idle':'combat'});
  (view?.foes||[]).forEach((e,i)=>enemy(e,i,now));
  const stamp=gen?totalBase+fightTime:s.seconds;elementBursts=elementBursts.filter(e=>stamp-e.born<1.1);for(const e of elementBursts){const age=stamp-e.born;if(age>=0)ElementArt.draw(g,e.element,610+e.target*88,315-e.target*15,age*1000);}floating=floating.filter(e=>stamp-e.born<.65);for(const e of floating){const age=stamp-e.born;if(age<0)continue;const x=e.type==='hurt'?270:610+e.target*88,y=e.type==='hurt'?180:230-e.target*15;g.globalAlpha=Math.max(0,1-age/.65);g.fillStyle=e.type==='hurt'?'#f1b1a0':e.element&&e.element!=='physical'?colors[e.element]:e.crit?'#ffe6a1':'#ffffff';g.font=(e.crit?'bold 25':'bold 20')+'px sans-serif';g.textAlign='center';g.fillText(e.type==='miss'?'MISS':Math.round(e.damage),x,y-age*50);if(e.type==='hit'&&age<.2){g.strokeStyle='#fff2be';g.shadowColor='#efbd68';g.shadowBlur=15;g.lineWidth=2;for(let i=0;i<6;i++){const ang=i*Math.PI/3;g.beginPath();g.moveTo(x+Math.cos(ang)*8,315+Math.sin(ang)*8);g.lineTo(x+Math.cos(ang)*(15+age*110),315+Math.sin(ang)*(15+age*110));g.stroke();}g.shadowBlur=0;}g.globalAlpha=1;}}
