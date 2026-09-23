@@ -1,13 +1,52 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#101a22"><title>剣士の旅 — 戦闘版</title><link rel="stylesheet" href="style.css?v=compare1"></head><body><main>
-<header><div><small>SWORDSMAN / IDLE JOURNEY</small><h1>剣士の旅</h1></div><span id="level">Lv.1</span></header>
-<section class="arena"><div class="location"><span id="place">旅のはじまり</span><span id="clock">00:00</span></div><canvas id="battle" width="900" height="460" aria-label="剣士と敵のリアルタイム戦闘"></canvas><div id="caption">剣士を準備しています…</div></section>
-<section class="vitals"><div><label>HP <span id="hpText"></span></label><meter id="hp" min="0" max="1" value="1"></meter></div><div><label>CP <span id="cpText"></span></label><meter id="cp" min="0" max="1" value="1"></meter></div><div class="wallet"><span id="money"></span><span id="potionCount"></span></div></section>
-<div class="experience"><label>EXP <span id="xpText"></span></label><meter id="xp" min="0" max="1" value="0"></meter></div>
-<div class="controls"><button id="start" class="primary" disabled>準備中</button><button id="town">町へ</button><button id="save">保存</button></div>
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#102423">
+<title>剣士の旅</title>
+<link rel="stylesheet" href="style.css?v=journey-ui1">
+</head>
+<body>
+<main>
+<header class="masthead"><div><small>SWORDSMAN / IDLE JOURNEY</small><h1>剣士の旅<span class="title-rule" aria-hidden="true"></span></h1></div><span id="level">Lv.1</span></header>
+<section class="arena" aria-label="戦闘画面">
+<div class="location"><span id="place">旅のはじまり</span><span id="clock">00:00</span></div>
+<canvas id="battle" width="900" height="460" aria-label="剣士と敵のリアルタイム戦闘"></canvas>
+<div class="arena-caption"><span class="combat-mark" aria-hidden="true">✦</span><div id="caption">剣士を準備しています…</div><span id="activeSkill" class="activity-label">待機</span></div>
+</section>
+<section class="status-frame" aria-label="主人公の状態">
+<div class="vitals"><div><label for="hp">HP <span id="hpText"></span></label><meter id="hp" min="0" max="1" value="1"></meter></div><div><label for="cp">CP <span id="cpText"></span></label><meter id="cp" min="0" max="1" value="1"></meter></div></div>
+<div class="experience"><label for="xp">EXP <span id="xpText"></span></label><meter id="xp" min="0" max="1" value="0"></meter></div>
+<div class="wallet"><span id="money"></span><span id="potionCount"></span></div>
+</section>
+<div class="controls"><button id="start" class="primary" disabled>準備中</button><button id="town">町へ</button><button id="save" class="save-button">保存</button></div>
 <p id="notice" role="status">素材の読み込み後に「冒険を始める」を押してください。</p>
-<nav><button data-tab="actions" class="selected">行動順</button><button data-tab="equipment">装備</button><button data-tab="shop">店・育成</button><button data-tab="journal">記録</button></nav>
-<section id="actions" class="panel"><h2>スキルと回復薬を並べる</h2><button id="elementPreset">炎・氷・雷の行動順をセット</button><p class="muted">炎は飛び込み、氷は3体への薙ぎ払い＋鈍足、雷は突き＋確率で気絶。雷は風属性として敵の耐性を計算します。</p><p>上から順に繰り返します。CP不足・再使用待ち・回復不要の行動は飛ばし、使えるものがなければ通常攻撃します。</p><button id="normalOnly">通常攻撃だけで試す</button><p class="muted">町で切替できます。行動順を保存したまま、斜め振り下ろしだけを確認できます。試用中は回復薬も使いません。</p><div id="queue"></div><label class="setting">回復薬を使うHP <select id="healAt"><option value="0.3">30%以下</option><option value="0.4">40%以下</option><option value="0.6">60%以下</option><option value="0.8">80%以下</option></select></label><p class="muted">順番の変更は次の戦闘から反映。回復薬は6秒かけて最大HPの30%を回復します。</p></section>
-<section id="equipment" class="panel" hidden><h2>装備と拾得品</h2><h3>キャラクターのステータス</h3><p class="muted">町でポイントを配分できます。職業で共通の配分です。変身機能は準備中。これまでの配分は引き継いでいます。</p><div id="allocation"></div><div id="stats"></div><div id="gear"></div><h3>持ち物 <span id="bagCount"></span></h3><p class="muted">必要レベルに届くと装備できます。不要な装備は素材にできます。</p><div id="bag"></div></section>
-<section id="shop" class="panel" hidden><h2>旅支度の店</h2><p id="shopState">町で買い物できます。</p><button id="buy">回復薬を30個まで補充 · 1個10G</button><label class="setting"><input id="autoBuy" type="checkbox">町で自動補充（5個以下／100Gを残す）</label><h3>装備の育成</h3><div id="enhance"></div><label class="setting">狩場 <select id="zone"><option value="balanced">均等</option><option value="weapon">武器</option><option value="armor">防具</option><option value="charm">装飾</option><option value="materials">素材</option></select></label></section>
-<section id="journal" class="panel" hidden><h2>冒険の記録</h2><div id="summary"></div><ol id="log"></ol><p class="muted">この端末のブラウザに保存されます。画面を閉じた時間は進みません。</p></section>
-<footer>戦闘統合版 1 · 斜め斬り確認 v2</footer></main><script src="core.js?v=stats1"></script><script src="art.js?v=stats1"></script><script src="elements.js"></script><script src="compare.js?v=stats1"></script><script src="game.js?v=diagonal2"></script></body></html>
+<aside class="loot-strip" aria-label="最新の拾得品"><span class="loot-symbol" aria-hidden="true">◇</span><div><small>最新のドロップ</small><div id="latestDrop">旅で見つけた装備がここに届きます。</div></div></aside>
+<section id="actions" class="panel">
+<div class="section-heading"><div><small>ACTION ORDER</small><h2>技をつなぐ</h2></div><span class="section-note">上から順に繰り返す</span></div>
+<div id="actionStrip" class="action-strip" aria-label="現在の行動順"></div>
+<details class="queue-editor"><summary>行動順を編集</summary><div id="queue"></div></details>
+<label class="setting recovery-setting" for="healAt"><span>回復薬を使うHP</span><select id="healAt"><option value="0.3">30%以下</option><option value="0.4">40%以下</option><option value="0.6">60%以下</option><option value="0.8">80%以下</option></select></label>
+<p class="muted">使えない技は飛ばして次へ。回復薬は6秒かけてHPを30%回復します。</p>
+<details class="configuration"><summary>行動順のセット・試し斬り</summary><button id="elementPreset">炎・氷・雷の行動順をセット</button><p class="muted">炎は飛び込み、氷は3体への薙ぎ払いと鈍足、雷は突きと確率で気絶。雷は風属性として計算します。</p><button id="normalOnly">通常攻撃だけで試す</button><a id="motionPreview" class="preview-link" href="motion-review.html">モーションを確認</a><p class="muted">町で切替できます。設定した行動順は残ります。試用中は回復薬も使いません。</p><p class="muted">CP不足・再使用待ち・回復不要の行動は飛ばします。使える技がなければ通常攻撃。順番の変更は次の戦闘から反映します。</p></details>
+</section>
+<section id="equipment" class="panel" hidden>
+<div class="section-heading"><div><small>CHARACTER & EQUIPMENT</small><h2>装備と成長</h2></div></div>
+<details class="character-sheet" open><summary>キャラクターのステータス</summary><p class="muted">町でポイントを配分できます。職業で共通の配分です。変身機能は準備中。</p><div id="allocation"></div></details>
+<div id="stats"></div><h3>身につけている装備</h3><div id="gear"></div>
+<h3 class="bag-heading">持ち物 <span id="bagCount"></span></h3><p class="muted">必要レベルに届くと装備できます。不要な装備は素材にできます。</p><div id="bag"></div>
+</section>
+<section id="shop" class="panel" hidden>
+<div class="section-heading"><div><small>TOWN / WORKSHOP</small><h2>旅支度の店</h2></div></div>
+<p id="shopState">町で買い物できます。</p><button id="buy" class="shop-buy">回復薬を30個まで補充 · 1個10G</button><label class="setting"><input id="autoBuy" type="checkbox"><span>町で自動補充<br><small class="muted">5個以下のとき・100Gを残す</small></span></label>
+<h3>装備の育成</h3><div id="enhance"></div><label class="setting recovery-setting" for="zone"><span>狩場で狙うもの</span><select id="zone"><option value="balanced">均等</option><option value="weapon">武器</option><option value="armor">防具</option><option value="charm">装飾</option><option value="materials">素材</option></select></label>
+</section>
+<section id="journal" class="panel" hidden>
+<div class="section-heading"><div><small>JOURNEY RECORD</small><h2>冒険の記録</h2></div></div><div id="summary"></div><ol id="log"></ol><p class="muted">この端末のブラウザに保存されます。画面を閉じた時間は進みません。</p>
+</section>
+<footer>戦闘統合版 · 旅の画面 v1</footer>
+<nav class="bottom-nav" aria-label="ゲームメニュー"><button data-tab="actions" class="selected"><span aria-hidden="true">⚔</span>冒険</button><button data-tab="equipment"><span aria-hidden="true">♜</span>装備・能力</button><button data-tab="shop"><span aria-hidden="true">⌂</span>店・育成</button><button data-tab="journal"><span aria-hidden="true">☷</span>記録</button></nav>
+</main>
+<script src="core.js?v=stats1"></script><script src="art.js?v=journey1"></script><script src="elements.js"></script><script src="compare.js?v=stats1"></script><script src="motion.js?v=journey1"></script><script src="diagonal.js?v=journey1"></script><script src="support.js?v=journey1"></script><script src="game.js?v=journey1"></script>
+</body></html>

@@ -69,6 +69,12 @@ SwordArt.combo=function(g,sprite){let f=0;
 SwordArt.other=function(g,sprite){
 '''+b+'''return(k,time,idle=false)=>{let f=0,left=time;while(f<3&&left>=times[k][f])left-=times[k][f++];draw(k,idle?0:f,time);};};
 '''
+renderer=renderer.replace('let f=0;\nconst crops=', 'let f=0,showEffects=true;\nconst crops=')
+renderer=renderer.replace('trails(t);}', 'if(showEffects)trails(t);}')
+renderer=renderer.replace('return(time,idle=false)=>{let f=0', 'return(time,idle=false,options={})=>{showEffects=options.effects!==false;let f=0')
+renderer=renderer.replace('const rects=', 'let showEffects=true;\nconst rects=')
+renderer=renderer.replace('if(f===2){g.save()', 'if(showEffects&&f===2){g.save()')
+renderer=renderer.replace('return(k,time,idle=false)=>{let f=0', 'return(k,time,idle=false,options={})=>{showEffects=options.effects!==false;let f=0')
 (out/'art.js').write_text(renderer)
 # Browser CommonJS loader bundles exact source modules with no network dependencies.
 mods=['full_op_model.cjs','balanced_loot.cjs','town_shop.cjs','live_combat.cjs','enemies.cjs']
