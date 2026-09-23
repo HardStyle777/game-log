@@ -1,4 +1,9 @@
 window.SwordArt={};
+// Every sheet was illustrated at a different native size.  These are not
+// arbitrary per-skill zooms: they convert each sheet to the same ~240 px
+// standing body height on the battle stage.  All renderers share the same
+// heel contact point so changing skills cannot make the hero grow or shrink.
+SwordArt.layout={x:340,ground:360,targetBodyHeight:240,scales:{combo:.88,other:.88,basic:.74,support:.76}};
 SwordArt.load=async function(url){const im=new Image();im.src=url;await im.decode();const c=document.createElement('canvas');c.width=im.width;c.height=im.height;const g=c.getContext('2d');g.drawImage(im,0,0);const d=g.getImageData(0,0,c.width,c.height);SwordArt.removeMatte(d,c.width,c.height);g.putImageData(d,0,0);return c;};
 
 // Remove only the connected white backdrop; unmatte its antialiased contour.
@@ -32,12 +37,12 @@ function trails(t){
  if((f>=1&&f<=2)||(f>=4&&f<=6)||(f>=9&&f<=10)){const p=blades[f];g.save();g.globalCompositeOperation='lighter';g.strokeStyle='#fff8d0';g.lineWidth=2;g.shadowColor='#ffc75f';g.shadowBlur=9;g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(p[2],p[3]);g.stroke();g.restore();}
 }
 
-function draw(i,t=starts[i]+durations[i]*.5){f=i;g.imageSmoothingEnabled=false;const [x,y,w,h,ax,ay]=crops[i];g.drawImage(sprite,x,y,w,h,340+(x-ax)*.88,360+(y-ay)*.88,w*.88,h*.88);if(showEffects)trails(t);}
+function draw(i,t=starts[i]+durations[i]*.5){f=i;g.imageSmoothingEnabled=false;const [x,y,w,h,ax,ay]=crops[i],scale=SwordArt.layout.scales.combo;g.drawImage(sprite,x,y,w,h,SwordArt.layout.x+(x-ax)*scale,SwordArt.layout.ground+(y-ay)*scale,w*scale,h*scale);if(showEffects)trails(t);}
 return(time,idle=false,options={})=>{showEffects=options.effects!==false;let f=0,left=time;while(f<11&&left>=durations[f])left-=durations[f++];draw(idle?11:f,idle?-1000:time);};};
 SwordArt.other=function(g,sprite){
 let showEffects=true;
 const rects=[[0,60,370,307,290,361],[390,60,411,307,674,361],[780,100,467,267,1077,361],[1200,60,336,307,1455,361],[0,399,384,271,307,662],[414,394,338,276,607,653],[766,420,477,250,1077,663],[1190,393,346,277,1455,666],[0,690,370,303,153,978],[410,671,280,314,587,980],[767,690,382,303,991,982],[1165,737,371,256,1350,978]];
 const times=[[260,65,150,240],[230,85,160,260],[210,220,100,290]],names=['踏み込み突き','低い横薙ぎ','跳び込み斬り'];
-function draw(k,f,t=0){const i=k*4+f,[x,y,w,h,ax,ay]=rects[i],scale=.8,dx=k===2?[0,20,45,60][f]:k===0?[0,8,22,0][f]:0;g.imageSmoothingEnabled=false;g.save();g.translate(340,360);if(f===2&&k<2){g.beginPath();const bx=k===0?800:770,edge=k===0?1135:1115,sy=k===0?192:540,sh=k===0?26:29;g.rect((bx-ax)*scale,(y-ay)*scale,(edge-bx)*scale,h*scale);g.rect((edge-ax)*scale,(sy-ay)*scale,(x+w-edge)*scale,sh*scale);g.clip();}g.drawImage(sprite,x,y,w,h,(x-ax)*scale,(y-ay)*scale,w*scale,h*scale);g.restore();
-if(showEffects&&f===2){g.save();g.globalCompositeOperation='lighter';g.shadowColor='#ffc957';g.shadowBlur=10;g.strokeStyle='#fff4c2';g.lineWidth=2;g.beginPath();if(k===0){g.moveTo(381,231);g.lineTo(498,231);}else if(k===1){g.ellipse(353,272,107,18,-.06,.15,2.6);}else{g.moveTo(402,243);g.lineTo(499,329);}g.stroke();g.restore();}}
+function draw(k,f,t=0){const i=k*4+f,[x,y,w,h,ax,ay]=rects[i],scale=SwordArt.layout.scales.other,dx=k===2?[0,20,45,60][f]:k===0?[0,8,22,0][f]:0;g.imageSmoothingEnabled=false;g.save();g.translate(SwordArt.layout.x,SwordArt.layout.ground);if(f===2&&k<2){g.beginPath();const bx=k===0?800:770,edge=k===0?1135:1115,sy=k===0?192:540,sh=k===0?26:29;g.rect((bx-ax)*scale,(y-ay)*scale,(edge-bx)*scale,h*scale);g.rect((edge-ax)*scale,(sy-ay)*scale,(x+w-edge)*scale,sh*scale);g.clip();}g.drawImage(sprite,x,y,w,h,(x-ax)*scale,(y-ay)*scale,w*scale,h*scale);g.restore();
+if(showEffects&&f===2){const effectRatio=scale/.8;g.save();g.translate(SwordArt.layout.x,SwordArt.layout.ground);g.scale(effectRatio,effectRatio);g.translate(-SwordArt.layout.x,-SwordArt.layout.ground);g.globalCompositeOperation='lighter';g.shadowColor='#ffc957';g.shadowBlur=10;g.strokeStyle='#fff4c2';g.lineWidth=2;g.beginPath();if(k===0){g.moveTo(381,231);g.lineTo(498,231);}else if(k===1){g.ellipse(353,272,107,18,-.06,.15,2.6);}else{g.moveTo(402,243);g.lineTo(499,329);}g.stroke();g.restore();}}
 return(k,time,idle=false,options={})=>{showEffects=options.effects!==false;let f=0,left=time;while(f<3&&left>=times[k][f])left-=times[k][f++];draw(k,idle?0:f,time);};};
