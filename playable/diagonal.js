@@ -6,14 +6,14 @@ const blades=[[280,249,376,89],[548,161,742,42],[974,166,1123,238],[1265,347,114
 function create(g,sprite){
  return function(progress,{effects=true}={}){
  const p=Math.max(0,Math.min(1,progress));let i=0;while(i<6&&p>=starts[i+1])i++;
- const f=frames[i],col=f%4,row=Math.floor(f/4),[ax,ay]=anchors[f],scale=.8;
+ const f=frames[i],col=f%4,row=Math.floor(f/4),[ax,ay]=anchors[f],layout=window.SwordArt?.layout||{x:340,ground:360,scales:{basic:.74}},scale=layout.scales.basic;
  g.imageSmoothingEnabled=false;
- const sx=f===3?1140:col*384,sw=f===2?364:f===3?396:384;g.drawImage(sprite,sx,row*512,sw,512,340+(sx-(col*384+ax))*scale,360+(row*512-ay)*scale,sw*scale,512*scale);
+ const sx=f===3?1140:col*384,sw=f===2?364:f===3?396:384;g.drawImage(sprite,sx,row*512,sw,512,layout.x+(sx-(col*384+ax))*scale,layout.ground+(row*512-ay)*scale,sw*scale,512*scale);
  // Last poses never generate an endless glowing arc. The cut traverses the actual endpoints.
  if(effects&&p>=165/405&&p<.64){
  const u=1,fade=Math.min(1,(.64-p)/.20);
  const point=t=>({x:365-301*t,y:163+161*t});
- g.save();g.globalCompositeOperation='lighter';
+ const effectRatio=scale/.8;g.save();g.translate(layout.x,layout.ground);g.scale(effectRatio,effectRatio);g.translate(-layout.x,-layout.ground);g.globalCompositeOperation='lighter';
  for(const [w,c,a]of [[23,'#bc7413',.20],[11,'#ffcf67',.65],[3,'#fff9dc',.95]]){
  g.beginPath();const lo=Math.max(0,u-.85);for(let n=0;n<=30;n++){const t=lo+(u-lo)*n/30,q=point(t);if(n)g.lineTo(q.x+20*Math.sin(t*Math.PI),q.y);else g.moveTo(q.x,q.y);}g.strokeStyle=c;g.lineWidth=w;g.globalAlpha=fade*a;g.lineCap='round';g.shadowColor='#ffc456';g.shadowBlur=w*.6;g.stroke();}
  g.restore();
