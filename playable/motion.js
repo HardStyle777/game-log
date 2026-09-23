@@ -24,9 +24,10 @@ function sample(id,progress){
  const time=clip.source[i]+Math.min(.999999,t/clip.weights[i])*(next-clip.source[i]);
  return {kind:clip.kind,row:clip.row,frame:clip.frames[i],sourceTime:time,progress:p,finished:progress>=1,effects:progress>=0&&progress<1};
 }
-function create(g,{combo,other,basic}={}){
+function create(g,{combo,other,basic,support}={}){
  if(typeof combo!=='function'||typeof other!=='function')throw Error('HeroMotion needs combo and other renderers');
- let last=null,hurtAt=-Infinity;
+ let last=null,hurtAt=-Infinity,activeToken=null,bridgeFrom=null,bridgeAt=-Infinity;
+ const bridgeSeconds=.105;
  function stance(){combo(0,true,{effects:false});}
  function drawPose(s){
   if(s.kind==='basic'){
@@ -34,15 +35,19 @@ function create(g,{combo,other,basic}={}){
    else stance(); // Never silently substitute a horizontal attack for diagonal.
   }else if(s.kind==='combo')combo(s.sourceTime,false,{effects:s.effects});
   else if(s.kind==='other')other(s.row,s.sourceTime,false,{effects:s.effects});
+  else if(s.kind==='potion'&&typeof support==='function')support('potion',s.progress);
   else stance();
+ }
+ function paint(s,alpha=1){
+  g.save();g.globalAlpha*=clamp(alpha);drawPose(s);g.restore();
  }
  return {
   setBasic(fn){basic=fn;},
-  reset(){last=null;hurtAt=-Infinity;},
+  reset(){last=null;hurtAt=-Infinity;activeToken=null;bridgeFrom=null;bridgeAt=-Infinity;},
   hurt(now){hurtAt=now;},
   /* now/duration are seconds. x/y are absolute scene root offsets, not skill
    * offsets. Caller owns proximity and motion towards the next live target. */
-  draw({id=null,progress=0,now=0,x=0,y=0,state='combat',approach=0}={}){
+  draw({id=null,progress=0,now=0,x=0,y=0,state='combat',approach=0,token=null}={}){
    g.save();g.translate(x,y);
    const hurtAge=now-hurtAt;
    if(hurtAge>=0&&hurtAge<.16){
@@ -54,14 +59,22 @@ function create(g,{combo,other,basic}={}){
     // the entire sprite into a rigid cardboard fall.
     g.globalAlpha*=.72;other(2,530,false,{effects:false});last=null;
    }else if(id){
-    const s=sample(id,progress);drawPose(s);last=s;
+    const s=sample(id,progress),nextToken=token??id;
+    // A cast token distinguishes consecutive uses of the same skill. Keep the
+    // previous terminal pose and dissolve it into the next opening pose; this
+    // avoids a one-frame ready-stance snap between autonomous actions.
+    if(nextToken!==activeToken){bridgeFrom=last?{...last,effects:false}:null;bridgeAt=now;activeToken=nextToken;}
+    const bridge=bridgeFrom?clamp((now-bridgeAt)/bridgeSeconds):1;
+    if(bridgeFrom&&bridge<1){const mix=smooth(bridge);paint(bridgeFrom,1-mix);paint(s,mix);}
+    else{bridgeFrom=null;paint(s);}
+    last={...s,effects:false};
     if(s.kind==='potion'&&progress<1){
      const p=clamp(progress);g.save();g.globalCompositeOperation='lighter';
      g.strokeStyle='#baf7c9';g.lineWidth=2;g.globalAlpha*=Math.sin(Math.PI*p);
      for(let i=0;i<5;i++){const px=265+i*20,py=335-((p*115+i*17)%115);g.beginPath();g.moveTo(px-3,py);g.lineTo(px+3,py);g.moveTo(px,py-3);g.lineTo(px,py+3);g.stroke();}g.restore();
     }
    }else if(state==='combat'&&last&&last.kind!=='potion'){
-    drawPose({...last,effects:false});
+    paint({...last,effects:false});
    }else{
     // Breathing is subpixel and vertical only, never a repeating horizontal
     // snap. Approach translation is supplied by the scene; no false walk cycle.
