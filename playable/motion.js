@@ -22,7 +22,7 @@ function sample(id,progress){
  // tail. At completion the renderer turns off effects rather than freezing them.
  const next=clip.source[i+1]??(clip.kind==='combo'?1090:clip.source[i]+clip.weights[i]);
  const time=clip.source[i]+Math.min(.999999,t/clip.weights[i])*(next-clip.source[i]);
- return {kind:clip.kind,row:clip.row,frame:clip.frames[i],sourceTime:time,progress:p,finished:progress>=1,effects:progress>=0&&progress<1};
+ return {id,kind:clip.kind,row:clip.row,frame:clip.frames[i],sourceTime:time,progress:p,finished:progress>=1,effects:progress>=0&&progress<1};
 }
 function create(g,{combo,other,basic,support}={}){
  if(typeof combo!=='function'||typeof other!=='function')throw Error('HeroMotion needs combo and other renderers');
@@ -39,7 +39,7 @@ function create(g,{combo,other,basic,support}={}){
   else stance();
  }
  function paint(s,alpha=1){
-  g.save();g.globalAlpha*=clamp(alpha);drawPose(s);g.restore();
+  g.save();g.globalAlpha*=clamp(alpha);drawPose(s);if(s.effects&&root.SkillFX)root.SkillFX.cast(g,s.id,s.progress);g.restore();
  }
  return {
   setBasic(fn){basic=fn;},
@@ -47,7 +47,7 @@ function create(g,{combo,other,basic,support}={}){
   hurt(now){hurtAt=now;},
   /* now/duration are seconds. x/y are absolute scene root offsets, not skill
    * offsets. Caller owns proximity and motion towards the next live target. */
-  draw({id=null,progress=0,now=0,x=0,y=0,state='combat',approach=0,token=null}={}){
+  draw({id=null,progress=0,now=0,x=0,y=0,state='combat',approach=0,token=null,effects=true}={}){
    g.save();g.translate(x,y);
    const hurtAge=now-hurtAt;
    if(hurtAge>=0&&hurtAge<.16){
@@ -59,7 +59,7 @@ function create(g,{combo,other,basic,support}={}){
     // the entire sprite into a rigid cardboard fall.
     g.globalAlpha*=.72;other(2,530,false,{effects:false});last=null;
    }else if(id){
-    const s=sample(id,progress),nextToken=token??id;
+    const s=sample(id,progress),nextToken=token??id;s.effects=s.effects&&effects;
     // A cast token distinguishes consecutive uses of the same skill. Keep the
     // previous terminal pose and dissolve it into the next opening pose; this
     // avoids a one-frame ready-stance snap between autonomous actions.
