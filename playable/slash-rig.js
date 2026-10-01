@@ -14,21 +14,35 @@ function elbow(shoulder,wrist,pole){
  return add(add(shoulder,mul(u,along)),mul(perpendicular,height));
 }
 function sample(progress){
- const p=clamp(progress),t=smooth((p-.16)/.56);
- // The hand travels around the outside of the torso: front during passage,
- // then behind the leg only after it has cleared the silhouette on the left.
- const hand=[48-106*t,173-73*t,34+54*Math.sin(Math.PI*t)-65*t*t];
- const angle=.62+3.30*t,dir=unit([Math.cos(angle),Math.sin(angle),.18-.48*t]);
+ const p=clamp(progress);
+ // One diagonal cutting plane: blade projects forwards, then descends.
+ // Timing/coordinates are an animation study, not captured reference motion.
+ const keys=[
+  [0, [12,143,65],-.25],
+  [.16,[20,221,8],-1.95],
+  [.29,[15,211,30],-1.20],
+  [.43,[-2,176,74],-.10],
+  [.56,[-22,133,68],.85],
+  [.72,[-37,101,38],1.85],
+  [1,[-37,101,38],1.85]
+ ];
+ let i=0;while(i<keys.length-2&&p>keys[i+1][0])i++;
+ const a=keys[i],b=keys[i+1],u=smooth((p-a[0])/(b[0]-a[0]));
+ const hand=mix(a[1],b[1],u),angle=a[2]+(b[2]-a[2])*u;
+ const dir=[-.6*Math.sin(angle),-.8*Math.sin(angle),Math.cos(angle)];
  const rear=add(hand,mul(dir,-18)),guard=add(hand,mul(dir,8)),tip=add(guard,mul(dir,123));
- const twist=-.36+.78*smooth(t),hipTwist=-.16+.40*smooth(t);
- const rotate=(x,y,z,a)=>[x*Math.cos(a)+z*Math.sin(a)+5*t,y,z*Math.cos(a)-x*Math.sin(a)];
+ const t=smooth((p-.16)/.56),step=smooth((p-.18)/.33);
+ const twist=-.18+.30*t,hipTwist=-.10+.16*step;
+ const bodyShift=7*step,bodyDrop=3*step;
+ const rotate=(x,y,z,a)=>[x*Math.cos(a)+z*Math.sin(a),y-bodyDrop,z*Math.cos(a)-x*Math.sin(a)+bodyShift];
  const shoulderL=rotate(-27,158,0,twist),shoulderR=rotate(27,158,0,twist);
  const hipL=rotate(-16,94,0,hipTwist),hipR=rotate(16,94,0,hipTwist);
- const elbowL=elbow(shoulderL,rear,[-.5,-1,.8]);
- const elbowR=elbow(shoulderR,hand,[.6,-1,.8]);
- return {p,t,hand,rear,guard,tip,dir,shoulderL,shoulderR,elbowL,elbowR,hipL,hipR,
-  head:[5*t,194,0],ankleL:[-37,7,8],ankleR:[42,7,-9],kneeL:[-32+5*t,48,18],kneeR:[32+5*t,48,-4],
-  phase:p<.16?'構え':p<.36?'始動':p<.55?'斜めに通過':p<.72?'奥へ振り抜く':'振り抜き保持'};
+ const elbowL=elbow(shoulderL,rear,[-.7,-.5,.65]);
+ const elbowR=elbow(shoulderR,hand,[.7,-.5,.65]);
+ return {p,t,hand,rear,guard,tip,dir,shoulderL,shoulderR,elbowL,elbowR,hipL,hipR,twist,hipTwist,bodyShift,bodyDrop,
+  head:[0,194-bodyDrop,bodyShift],ankleL:[-32,7,-23],ankleR:[34,7+5*Math.sin(Math.PI*step),-18+58*step],
+  kneeL:[-28,48-bodyDrop,0],kneeR:[30,48-bodyDrop,8+30*step],
+  phase:p<.16?'頭上へ振りかぶる':p<.29?'上段から始動':p<.56?'前方を斜めに切り下ろす':p<.72?'反対側へ振り抜く':'振り抜き保持'};
 }
 function project(point,{yaw=0,scale=1,x=0,y=0}={}){
  const [a,b,c]=point,depth=c*Math.cos(yaw)-a*Math.sin(yaw);
@@ -47,7 +61,8 @@ function draw(g,p,{x=300,y=360,scale=1.25,yaw=0,effects=false,guides=true}={}){
  segment(add(pose.ankleL,[-9,-4,0]),add(pose.ankleL,[12,-4,0]),'#a6b1b6',11);
  segment(add(pose.ankleR,[-9,-4,0]),add(pose.ankleR,[12,-4,0]),'#899aa7',11);
  // Body volume is multiple depth-sorted columns, rather than a flat overlay.
- for(let z=-12;z<=12;z+=6)for(let a=-20;a<=20;a+=5)segment([a+5*pose.t,100,z],[a*Math.cos(-.36+.78*pose.t)+5*pose.t,157,z-a*Math.sin(-.36+.78*pose.t)],'#245e71',8);
+ const bodyPoint=(a,y,z,angle)=>[a*Math.cos(angle)+z*Math.sin(angle),y-pose.bodyDrop,z*Math.cos(angle)-a*Math.sin(angle)+pose.bodyShift];
+ for(let z=-12;z<=12;z+=6)for(let a=-20;a<=20;a+=5)segment(bodyPoint(a,100,z,pose.hipTwist),bodyPoint(a,157,z,pose.twist),'#245e71',8);
  segment(add(pose.head,[0,-14,0]),add(pose.head,[0,9,0]),'#c9bdab',32);
  segment(add(pose.head,[-2,9,-1]),add(pose.head,[2,16,-1]),'#283949',32);
  segment(pose.shoulderL,pose.elbowL,'#589ebf',15);segment(pose.elbowL,pose.rear,'#7ebbd3',12);

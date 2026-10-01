@@ -9,20 +9,22 @@ test('continuous cut preserves both arms, grip spacing and blade length',()=>{
   prev=p;
  }
 });
-test('hands cross from shoulder side to opposite hip and finish behind the leg plane',()=>{
- const a=r.sample(.16),b=r.sample(.72);
- assert.ok(a.hand[0]>a.shoulderR[0]);assert.ok(b.hand[0]<b.hipL[0]-25);
- assert.ok(b.hand[1]<a.hand[1]-65);assert.ok(b.hand[2]<b.ankleL[2]-25);
- assert.ok(a.tip[0]>a.head[0]+90);assert.ok(b.tip[0]<b.hipL[0]-90);
- let prev=a;for(let i=1;i<=500;i++){const s=r.sample(.16+.56*i/500);assert.ok(s.hand[0]<=prev.hand[0]);assert.ok(s.hand[1]<=prev.hand[1]);prev=s;}
+test('overhead preparation precedes forward diagonal descent',()=>{
+ const start=r.sample(0),a=r.sample(.16),middle=r.sample(.43),end=r.sample(.72);
+ assert.ok(a.hand[1]>a.head[1]+20);
+ assert.ok(a.hand[1]>start.hand[1]+60);
+ assert.ok(middle.tip[2]>middle.hand[2]+100);
+ assert.ok(end.tip[0]<end.hand[0]&&end.tip[1]<end.hand[1]);
+ assert.ok(end.hand[0]<end.hipL[0]&&end.hand[1]<a.hand[1]-100);
+ assert.ok(end.ankleR[2]>a.ankleR[2]+40);
 });
 test('blade clears approximate torso and head volumes throughout the cut',()=>{
  for(let i=0;i<=1000;i++){
   const p=r.sample(i/1000);
   for(let j=0;j<=80;j++){
    const q=p.guard.map((v,k)=>v+(p.tip[k]-v)*j/80);
-   const torso=((q[0]-5*p.t)/28)**2+((q[1]-130)/40)**2+(q[2]/18)**2;
-   const head=((q[0]-p.head[0])/20)**2+((q[1]-p.head[1])/27)**2+(q[2]/20)**2;
+   const torso=(q[0]/30)**2+((q[1]-(130-p.bodyDrop))/40)**2+((q[2]-p.bodyShift)/22)**2;
+   const head=((q[0]-p.head[0])/20)**2+((q[1]-p.head[1])/27)**2+((q[2]-p.head[2])/20)**2;
    assert.ok(torso>1&&head>1,`blade intersects proxy at ${i}, ${j}`);
   }
  }
