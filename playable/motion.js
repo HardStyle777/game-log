@@ -11,10 +11,11 @@ const clips={
  sweep:{kind:'other',row:1,frames:[0,1,2,3],source:[0,230,315,475],weights:[80,85,160,80]},
  leap:{kind:'other',row:2,frames:[0,1,2,3],source:[0,210,430,530],weights:[80,220,100,80]}
 };
-const aliases={flame:'leap',frost:'sweep',thunder:'thrust'};
+const aliases={wave:'sweep',break:'leap',counter:'thrust',warrior_heavy:'leap',warrior_sweep:'sweep',flame:'leap',frost:'sweep',thunder:'thrust'};
 function sample(id,progress){
  const p=clamp(progress),clip=clips[aliases[id]||id];
  if(id==='basic')return {kind:'basic',progress:p,finished:progress>=1,effects:progress>=0&&progress<1};
+ if(id==='guard'||id==='focus')return {id,kind:'idle',progress:p,effects:progress>=0&&progress<1};
  if(!clip)return {kind:id==='heal_potion'?'potion':'idle',progress:p,finished:progress>=1,effects:false};
  const total=clip.weights.reduce((a,b)=>a+b,0);let t=p*total,i=0;
  while(i<clip.weights.length-1&&t>=clip.weights[i])t-=clip.weights[i++];
