@@ -14,6 +14,7 @@ const clips={
 const aliases={wave:'sweep',break:'leap',counter:'thrust',warrior_heavy:'leap',warrior_sweep:'sweep',flame:'leap',frost:'sweep',thunder:'thrust'};
 function sample(id,progress){
  const p=clamp(progress),clip=clips[aliases[id]||id];
+ if(id==='break'&&root.BreakSlash)return {id,kind:'break',progress:p,finished:progress>=1,effects:progress>=0&&progress<1};
  if(id==='basic')return {kind:'basic',progress:p,finished:progress>=1,effects:progress>=0&&progress<1};
  if(id==='guard'||id==='focus')return {id,kind:'idle',progress:p,effects:progress>=0&&progress<1};
  if(!clip)return {kind:id==='heal_potion'?'potion':'idle',progress:p,finished:progress>=1,effects:false};
@@ -31,7 +32,8 @@ function create(g,{combo,other,basic,support}={}){
  const bridgeSeconds=.105;
  function stance(){combo(0,true,{effects:false});}
  function drawPose(s){
-  if(s.kind==='basic'){
+  if(s.kind==='break'){root.BreakSlash.draw(g,s.progress,{effects:s.effects});
+  }else if(s.kind==='basic'){
    if(typeof basic==='function')basic(s.progress,{effects:s.effects});
    else stance(); // Never silently substitute a horizontal attack for diagonal.
   }else if(s.kind==='combo')combo(s.sourceTime,false,{effects:s.effects});
