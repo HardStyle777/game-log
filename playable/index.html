@@ -23,7 +23,7 @@
 <section id="actions" class="panel ornament">
 <div class="section-heading"><h2>行動順</h2><span class="section-note">順に繰り返す</span></div>
 <button id="form">戦士へ変身</button><p class="muted">戦士は大切断・旋風斬りの基本構成。変身は行動終了時、再使用5秒。剣士の盾はスキル発動時の仮表示です。</p><div id="actionStrip" class="action-strip" aria-label="現在の行動順"></div>
-<a class="preview-link" href="motion-review.html?v=allskills1">未習得でも全12技の演出を確認</a><details class="queue-editor"><summary>行動順を編集</summary><div id="queue"></div>
+<a class="preview-link" href="motion-review.html?v=allskills1">未習得でも全12技の演出を確認</a><a class="preview-link" href="break-preview.html">崩し斬り · 動作と音の実演</a><label class="setting"><input id="skillSound" type="checkbox">崩し斬りの効果音</label><details class="queue-editor"><summary>行動順を編集</summary><div id="queue"></div>
 <label class="setting"><input id="autoPotion" type="checkbox">回復薬を別枠で自動使用</label><label class="setting recovery-setting" for="healAt"><span>回復薬を使うHP</span><select id="healAt"><option value="0.3">30%以下</option><option value="0.4">40%以下</option><option value="0.6">60%以下</option><option value="0.8">80%以下</option></select></label>
 <p class="muted">使えない技は飛ばして次へ。回復薬は6秒かけてHPを30%回復します。</p>
 <details class="configuration"><summary>行動順のセット・試し斬り</summary><button id="elementPreset">炎・氷・雷の行動順をセット</button><p class="muted">炎は飛び込み、氷は3体への薙ぎ払いと鈍足、雷は突きと確率で気絶。雷は風属性として計算します。</p><button id="normalOnly">通常攻撃だけで試す</button><a id="motionPreview" class="preview-link" href="motion-review.html">モーションを確認</a><p class="muted">町で切替できます。設定した行動順は残ります。試用中は回復薬も使いません。</p><p class="muted">CP不足・再使用待ち・回復不要の行動は飛ばします。使える技がなければ通常攻撃。順番の変更は次の戦闘から反映します。</p></details></details>
@@ -48,5 +48,5 @@
 <footer><span id="clock">00:00</span> · 戦闘終了時に自動保存</footer>
 <nav class="bottom-nav" aria-label="ゲームメニュー"><button data-tab="actions" class="selected"><span class="atlas icon-compass" aria-hidden="true"></span>冒険</button><button data-tab="equipment"><span class="atlas icon-helmet" aria-hidden="true"></span>装備</button><button data-tab="growth"><span class="atlas icon-growth" aria-hidden="true"></span>育成</button><button data-tab="journal"><span class="atlas icon-scroll" aria-hidden="true"></span>記録</button></nav>
 </main>
-<script src="skills.js?v=training1"></script><script src="core.js?v=training1"></script><script src="art.js?v=size1"></script><script src="elements.js"></script><script src="compare.js?v=stats1"></script><script src="skill-fx.js?v=training1"></script><script src="motion.js?v=training1"></script><script src="diagonal.js?v=blade2"></script><script src="support.js?v=size1"></script><script src="game.js?v=navfix1"></script>
+<script src="skills.js?v=training1"></script><script src="core.js?v=training1"></script><script src="art.js?v=size1"></script><script src="elements.js"></script><script src="compare.js?v=stats1"></script><script src="skill-fx.js?v=break2"></script><script src="slash-rig.js?v=break1"></script><script src="break-slash.js?v=break2"></script><script src="skill-audio.js?v=break2"></script><script src="motion.js?v=break2"></script><script src="diagonal.js?v=blade2"></script><script src="support.js?v=size1"></script><script src="game.js?v=break2"></script>
 </body></html>
