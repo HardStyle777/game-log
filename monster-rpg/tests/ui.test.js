@@ -47,3 +47,14 @@ test('landscape layout defines side controls, safe areas, full-screen dialogs an
  assert.match(css,/\.dpad \[data-dir=down\]\{[^}]*grid-row:3/);assert.match(css,/\.scene\{position:fixed/);
  assert.match(fs.readFileSync('dist/game.js','utf8'),/ctx.setTransform\(mapZoom,0,0,mapZoom,0,0\)/);
 });
+test('learned technique equipment and battle move selection persist via actual handlers',()=>{
+ const s=engine.makeState();s.party=[engine.createMonster(0,28)];let ui=boot({state:s,battle:null});ui.click('partyBtn');ui.data('data-tech')[0].click();
+ assert.equal(ui.data('data-learned').length,8);ui.data('data-learned').find(el=>el.dataset.learned==='2').click();ui.data('data-slot')[0].click();assert.equal(ui.read().state.party[0].moves[0],2);
+ const saved=ui.read(),b=engine.encounter(saved.state,0);saved.state.party[0].hp-=50;ui=boot({state:saved.state,battle:b});ui.click('battleMoves');
+ assert.equal(ui.data('data-move').length,4);ui.data('data-move').find(el=>el.dataset.move==='2').click();ui.flush();assert.equal(ui.read().battle.turn,1);assert.ok(ui.read().battle.log.some(x=>x.includes('芽吹きの祈り')));
+ const resumed=boot(ui.read());assert.equal(resumed.read().state.party[0].moves[0],2);assert.ok(resumed.scene().innerHTML.includes('battle-actions'));
+});
+test('a legacy save immediately migrates move slots and preserves its backup',()=>{
+ const s=engine.makeState();delete s.party[0].moves;const raw=JSON.stringify({state:s,battle:null}),ui=boot(raw,raw);
+ assert.deepEqual(ui.read().state.party[0].moves,[0,1]);assert.equal(ui.backup(),raw);
+});
