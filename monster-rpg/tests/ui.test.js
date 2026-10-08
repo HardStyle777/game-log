@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';import vm from 'node:vm';import fs from 'node:fs';import * as engine from '../dist/engine.js';
 // DOM contract harness: executes production UI handlers without a browser runtime.
-function boot(saved,backup,soundPref){const nodes=new Map(),timers=[];const storage=new Map();if(saved!==undefined&&saved!==null)storage.set('lumina-save-v1',typeof saved==='string'?saved:JSON.stringify(saved));if(backup!==undefined&&backup!==null)storage.set('lumina-save-v1-backup',typeof backup==='string'?backup:JSON.stringify(backup));if(soundPref)storage.set('lumina-sound-v1',soundPref);
-class Element{constructor(tag='DIV',attrs={}){this.tagName=tag.toUpperCase();this.attrs=attrs;this.dataset={};this.children=[];this.listeners={};this.className='';this.classList={add:()=>{},remove:()=>{}};for(const [k,v]of Object.entries(attrs))if(k.startsWith('data-'))this.dataset[k.slice(5).replace(/-([a-z])/g,(_,c)=>c.toUpperCase())]=v;this.id=attrs.id;if(this.id)nodes.set(this.id,this);}set innerHTML(html){this.html=html;for(const c of this.children)if(c.id)nodes.delete(c.id);this.children=[];for(const match of html.matchAll(/<([a-zA-Z]+)\b([^>]*)>/g)){const attrs={};for(const a of match[2].matchAll(/([\w-]+)="([^"]*)"/g))attrs[a[1]]=a[2];if(/\bdisabled\b/.test(match[2]))attrs.disabled=true;const el=new Element(match[1],attrs);el.disabled=attrs.disabled;this.children.push(el);}}get innerHTML(){return this.html;}querySelectorAll(sel){const a=sel.match(/^\[([^\]]+)\]$/)?.[1];return this.children.filter(c=>a&&Object.hasOwn(c.attrs,a));}addEventListener(event,fn){this.listeners[event]=fn;}setPointerCapture(){}click(){if(!this.disabled)this.onclick?.({target:this,preventDefault(){}});}getContext(){return new Proxy({},{get:(_,k)=>()=>{}});}getBoundingClientRect(){return {width:390,height:390};}}
+function boot(saved,backup,soundPref,prefs={}){const nodes=new Map(),timers=[];const storage=new Map();if(saved!==undefined&&saved!==null)storage.set('lumina-save-v1',typeof saved==='string'?saved:JSON.stringify(saved));if(backup!==undefined&&backup!==null)storage.set('lumina-save-v1-backup',typeof backup==='string'?backup:JSON.stringify(backup));if(soundPref)storage.set('lumina-sound-v1',soundPref);for(const[k,v]of Object.entries(prefs))storage.set(k,v);
+class Element{constructor(tag='DIV',attrs={}){this.tagName=tag.toUpperCase();this.attrs=attrs;this.dataset={};this.children=[];this.style={};this.listeners={};this.className='';this.classList={add:()=>{},remove:()=>{}};for(const [k,v]of Object.entries(attrs))if(k.startsWith('data-'))this.dataset[k.slice(5).replace(/-([a-z])/g,(_,c)=>c.toUpperCase())]=v;this.id=attrs.id;if(this.id)nodes.set(this.id,this);}set innerHTML(html){this.html=html;for(const c of this.children)if(c.id)nodes.delete(c.id);this.children=[];for(const match of html.matchAll(/<([a-zA-Z]+)\b([^>]*)>/g)){const attrs={};for(const a of match[2].matchAll(/([\w-]+)="([^"]*)"/g))attrs[a[1]]=a[2];if(/\bdisabled\b/.test(match[2]))attrs.disabled=true;const el=new Element(match[1],attrs);el.disabled=attrs.disabled;this.children.push(el);}}get innerHTML(){return this.html;}querySelectorAll(sel){const a=sel.match(/^\[([^\]]+)\]$/)?.[1];return this.children.filter(c=>a&&Object.hasOwn(c.attrs,a));}addEventListener(event,fn){this.listeners[event]=fn;}setPointerCapture(){}click(){if(!this.disabled)this.onclick?.({target:this,preventDefault(){}});}getContext(){return new Proxy({},{get:(_,k)=>()=>{}});}getBoundingClientRect(){return {width:390,height:390};}}
 const doc=new Element();doc.innerHTML=fs.readFileSync('dist/index.html','utf8');doc.getElementById=id=>nodes.get(id);doc.hidden=false;doc.createElement=tag=>new Element(tag);doc.querySelectorAll=Element.prototype.querySelectorAll.bind(doc);const noop=()=>{};
 class FakeAudio{constructor(src){this.src=src;}play(){return Promise.resolve();}pause(){}}
 const context={...engine,document:doc,window:{addEventListener:noop},navigator:{},Image:class{constructor(){this.complete=false;}},Audio:FakeAudio,localStorage:{getItem:key=>storage.get(key)??null,setItem:(key,val)=>storage.set(key,val)},setTimeout:(fn)=>{timers.push(fn);return 1;},clearTimeout:noop,setInterval:()=>1,clearInterval:noop,console,Date,Math,JSON,Number,Object,Array,URL,Blob};vm.createContext(context);const code=fs.readFileSync('dist/game.js','utf8').replace(/^import[^\n]+\n/,'');vm.runInContext(code,context);return {nodes,scene:()=>nodes.get('scene'),read:()=>JSON.parse(storage.get('lumina-save-v1')),backup:()=>storage.get('lumina-save-v1-backup'),stored:key=>storage.get(key),click:id=>{assert.ok(nodes.get(id),id+' exists');nodes.get(id).click();},data:(key)=>nodes.get('scene').querySelectorAll('['+key+']'),flush:()=>{while(timers.length)timers.shift()();},context};}
@@ -13,3 +13,37 @@ test('corrupt current save restores backup and repairs current without overwriti
 test('sound preference survives reload and a direct tap unlocks playback',async()=>{const ui=boot(null,null,'on');assert.equal(ui.nodes.get('sound').textContent,'音 再開');ui.click('sound');assert.equal(ui.stored('lumina-sound-v1'),'off');ui.click('sound');assert.equal(ui.stored('lumina-sound-v1'),'on');await Promise.resolve();assert.equal(ui.nodes.get('sound').textContent,'音 ON');});
 test('each guardian presents its own tactical dialogue before battle',()=>{for(let r=0;r<4;r++){const s=engine.makeState();s.badges=Array.from({length:r},(_,i)=>i);s.x=[13,39,14,39][r];s.y=[8,14,28,30][r];s.region=r;const ui=boot({state:s,battle:null});ui.click('interact');assert.ok(ui.scene().innerHTML.includes(engine.REGIONS[r].challenge),`guardian ${r}`);assert.ok(ui.nodes.get('challenge'));}});
 test('canvas swipe moves exactly one tile using production pointer handlers',()=>{const s=engine.makeState();s.x=8;s.y=10;const ui=boot({state:s,battle:null}),canvas=ui.nodes.get('world');canvas.listeners.pointerdown({pointerId:7,clientX:80,clientY:100});canvas.listeners.pointerup({pointerId:7,clientX:140,clientY:102,preventDefault(){}});assert.equal(ui.read().state.x,9);assert.equal(ui.read().state.y,10);assert.equal(ui.read().state.steps,1);});
+test('stick rotates while held, ignores a second pointer, and stops on release',()=>{
+ const s=engine.makeState();s.x=8;s.y=10;const ui=boot({state:s,battle:null}),stick=ui.nodes.get('joystick');
+ stick.getBoundingClientRect=()=>({left:0,top:0,width:136,height:136});
+ const event=(id,x,y)=>({pointerId:id,clientX:x,clientY:y,preventDefault(){}});
+ stick.listeners.pointerdown(event(1,120,68));assert.equal(ui.read().state.x,9);
+ stick.listeners.pointermove(event(2,68,120));assert.equal(vm.runInContext('stickDir[0]',ui.context),1);
+ stick.listeners.pointermove(event(1,68,120));vm.runInContext('movedAt=0;tickStick()',ui.context);
+ assert.equal(ui.read().state.x,9);assert.equal(ui.read().state.y,11);
+ stick.listeners.pointerup(event(1,68,120));vm.runInContext('movedAt=0;tickStick()',ui.context);
+ assert.equal(ui.read().state.steps,2);assert.equal(ui.nodes.get('stickKnob').style.transform,'translate(0px, 0px)');
+});
+test('stick dead zone, pointer cancel and hidden-page handling stop movement',()=>{
+ const s=engine.makeState();s.x=8;s.y=10;const ui=boot({state:s,battle:null}),stick=ui.nodes.get('joystick');
+ stick.getBoundingClientRect=()=>({left:0,top:0,width:136,height:136});
+ const e=(x,y)=>({pointerId:1,clientX:x,clientY:y,preventDefault(){}});
+ stick.listeners.pointerdown(e(70,70));vm.runInContext('movedAt=0;tickStick()',ui.context);assert.equal(ui.read().state.steps,0);
+ stick.listeners.pointermove(e(300,68));assert.match(ui.nodes.get('stickKnob').style.transform,/43\.52px/);
+ stick.listeners.pointercancel(e(300,68));assert.equal(vm.runInContext('stickPointer',ui.context),null);
+ stick.listeners.pointerdown(e(120,68));ui.context.document.hidden=true;ui.context.document.listeners.visibilitychange();
+ assert.equal(vm.runInContext('stickPointer',ui.context),null);
+});
+test('zoom and controller preferences persist without changing the game save',()=>{
+ const s=engine.makeState();const ui=boot({state:s,battle:null});
+ assert.equal(ui.nodes.get('zoomBtn').textContent,'拡大 1.5×');assert.equal(ui.nodes.get('joystick').hidden,false);
+ ui.click('zoomBtn');ui.click('controlMode');assert.equal(ui.stored('lumina-zoom-v1'),'1');assert.equal(ui.stored('lumina-control-v1'),'dpad');
+ assert.equal(ui.nodes.get('joystick').hidden,true);assert.ok(ui.context.document.querySelectorAll('[data-dir]').every(el=>!el.hidden));
+ const resumed=boot(ui.read(),null,null,{'lumina-zoom-v1':'1','lumina-control-v1':'dpad'});
+ assert.equal(resumed.nodes.get('zoomBtn').textContent,'拡大 1×');assert.equal(resumed.nodes.get('joystick').hidden,true);assert.equal(resumed.read().state.party[0].id,s.party[0].id);
+});
+test('landscape layout defines side controls, safe areas, full-screen dialogs and cross-shaped dpad',()=>{
+ const css=fs.readFileSync('dist/style.css','utf8');assert.match(css,/@media\(orientation:landscape\)/);assert.match(css,/grid-template-columns:150px minmax\(0,1fr\) 146px/);
+ assert.match(css,/\.dpad \[data-dir=down\]\{[^}]*grid-row:3/);assert.match(css,/\.scene\{position:fixed/);
+ assert.match(fs.readFileSync('dist/game.js','utf8'),/ctx.setTransform\(mapZoom,0,0,mapZoom,0,0\)/);
+});
