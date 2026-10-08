@@ -1,0 +1,21 @@
+{
+  "composer": "Original procedural composition for Lumina Island",
+  "source": "scripts/generate_audio.py",
+  "sample_rate": 22050,
+  "tracks": [
+    "field",
+    "battle",
+    "ending"
+  ],
+  "effects": [
+    "capture",
+    "victory",
+    "heal",
+    "evolve",
+    "step",
+    "attack",
+    "skill",
+    "defeat",
+    "click"
+  ]
+}
