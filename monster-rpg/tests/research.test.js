@@ -7,6 +7,11 @@ test('research unlocks after ending, counts unique species and awards each miles
  s.ended=true;assert.ok(claimResearch(s,'dex-4'));assert.equal(s.postgame.medals,5);assert.equal(claimResearch(s,'dex-4'),false);
  const resumed=JSON.parse(JSON.stringify(s));assert.ok(validState(resumed));assert.equal(claimResearch(resumed,'dex-4'),false);assert.equal(claimResearch(s,'unknown'),false);
 });
+test('the 32-species milestone appears only when implemented and survives claiming',()=>{
+ const s=makeState();s.ended=true;s.caught=Array.from({length:32},(_,i)=>i);const goal=researchGoals(s).find(g=>g.key==='dex-32');
+ assert.deepEqual({progress:goal.progress,goal:goal.goal,medals:goal.medals,ready:goal.ready},{progress:32,goal:32,medals:40,ready:true});assert.ok(claimResearch(s,'dex-32'));assert.equal(s.postgame.medals,40);
+ const resumed=JSON.parse(JSON.stringify(s));assert.ok(validState(resumed));assert.equal(claimResearch(resumed,'dex-32'),false);
+});
 test('element and star collection rewards fund training without allowing duplicate rewards',()=>{
  const s=makeState();s.ended=true;s.caught=[0,4];s.party.push(createMonster(2,3,true));
  assert.ok(claimResearch(s,'type-0'));assert.equal(s.postgame.medals,8);assert.ok(claimResearch(s,'star'));assert.equal(s.postgame.medals,20);
