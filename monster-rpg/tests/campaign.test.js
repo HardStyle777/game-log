@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {makeState,migrateCampaign,campaignObjective,campaignDiscover,campaignRepair,advanceCampaign,validState,SHORE_CLUES,HIGHLAND_REPAIRS,createMonster,encounter,act} from '../dist/engine.js';
+import {makeState,migrateCampaign,campaignObjective,campaignDiscover,campaignRepair,campaignAlignMirror,advanceCampaignV4 as advanceCampaign,completeFinalCampaign,validState,SHORE_CLUES,HIGHLAND_REPAIRS,STARSHADOW_MIRRORS,createMonster,encounter,act} from '../dist/engine.js';
 
 test('chapters one and two require new actions and grant each reward once',()=>{
  const s=makeState(),startBalls=s.balls,startPotions=s.potions,startCoins=s.coins;
@@ -91,8 +91,45 @@ test('chapters five and six require ordered repairs, highland wins and Akane bad
  assert.equal(s.coins,startCoins+850);
  assert.equal(s.balls,startBalls+10);
  assert.equal(s.potions,startPotions+5);
- assert.equal(advanceCampaign(s),null);
+ assert.match(campaignObjective(s),/第7章/);
  assert.ok(validState(s));
+});
+
+test('chapters seven and eight require ordered mirrors, Yor badge and final victory',()=>{
+ const s=makeState(),startCoins=s.coins,startBalls=s.balls,startPotions=s.potions;
+ s.badges=[0,1,2];s.campaign={schema:4,chapter:7,step:0,baseWins:20,baseCaptures:8,claimed:[1,2,3,4,5,6],discoveries:[],regionWins:5};
+ assert.equal(advanceCampaign(s).changed,true);
+ assert.match(campaignObjective(s),/月影の鏡/);
+ assert.equal(campaignAlignMirror(s,1),false);
+ assert.equal(campaignAlignMirror(s,0),true);
+ assert.equal(campaignAlignMirror(s,0),false);
+ assert.equal(campaignAlignMirror(s,1),true);
+ assert.equal(campaignAlignMirror(s,2),true);
+ assert.equal(s.campaign.discoveries.length,STARSHADOW_MIRRORS.length);
+ assert.equal(advanceCampaign(s).changed,true);
+ assert.match(campaignObjective(s),/ヨル/);
+ s.badges.push(3);
+ const seventh=advanceCampaign(s);
+ assert.equal(seventh.reward,'650コイン・捕獲クリスタル8個・回復薬4個');
+ assert.equal(s.campaign.chapter,8);
+ assert.equal(advanceCampaign(s).changed,true);
+ assert.match(campaignObjective(s),/守護竜/);
+ s.ended=true;
+ assert.equal(completeFinalCampaign(s),true);
+ assert.equal(completeFinalCampaign(s),false);
+ assert.equal(s.campaign.chapter,9);
+ assert.deepEqual(s.campaign.claimed,[1,2,3,4,5,6,7,8]);
+ assert.equal(s.coins,startCoins+1650);
+ assert.equal(s.balls,startBalls+18);
+ assert.equal(s.potions,startPotions+9);
+ assert.ok(validState(s));
+});
+
+test('final battle victory completes chapter eight automatically',()=>{
+ const s=makeState();s.badges=[0,1,2,3];s.party=[createMonster(6,40,false,{vitality:3,force:3},0)];s.campaign={schema:4,chapter:8,step:1,baseWins:30,baseCaptures:10,claimed:[1,2,3,4,5,6,7],discoveries:[],regionWins:5};
+ const b=encounter(s,3,true,true);for(const foe of [b.enemy,...b.roster])foe.hp=1;
+ let turns=0;while(!b.result&&turns++<10)act(s,b,'attack');
+ assert.equal(b.result,'win');assert.equal(s.ended,true);assert.equal(s.campaign.chapter,9);assert.ok(s.campaign.claimed.includes(8));assert.match(b.log.join(' '),/第8章完了/);
 });
 
 test('only ordinary highland victories count toward chapter six training',()=>{
@@ -106,8 +143,8 @@ test('legacy cleared saves migrate without replaying chapter rewards',()=>{
  const s=makeState();delete s.campaign;s.ended=true;s.badges=[0,1,2,3];s.coins=777;s.balls=9;
  assert.ok(validState(s));
  migrateCampaign(s);
- assert.deepEqual(s.campaign.claimed,[1,2,3,4,5,6]);
- assert.equal(s.campaign.chapter,7);
+ assert.deepEqual(s.campaign.claimed,[1,2,3,4,5,6,7,8]);
+ assert.equal(s.campaign.chapter,9);
  assert.equal(s.coins,777);
  assert.equal(s.balls,9);
  assert.equal(advanceCampaign(s),null);
@@ -117,7 +154,7 @@ test('version 30 campaign records gain schema and discoveries without losing pro
  const s=makeState();s.badges=[0];s.campaign={chapter:3,step:1,baseWins:8,baseCaptures:3,claimed:[1,2]};
  assert.ok(validState(s));
  migrateCampaign(s);
- assert.equal(s.campaign.schema,3);
+ assert.equal(s.campaign.schema,4);
  assert.deepEqual(s.campaign.discoveries,[]);
  assert.equal(s.campaign.chapter,3);
  assert.ok(validState(s));
