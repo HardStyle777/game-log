@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {makeState,migrateCampaign,campaignObjective,campaignDiscover,campaignRepair,campaignAlignMirror,advanceCampaignV4 as advanceCampaign,completeFinalCampaign,validState,SHORE_CLUES,HIGHLAND_REPAIRS,STARSHADOW_MIRRORS,createMonster,encounter,act} from '../dist/engine.js';
+import {makeState,migrateCampaign,campaignObjective,campaignDiscover,campaignRepair,campaignAlignMirror,campaignTiming,advanceCampaignV5 as advanceCampaign,completeFinalCampaign,validState,SHORE_CLUES,HIGHLAND_REPAIRS,STARSHADOW_MIRRORS,createMonster,encounter,act} from '../dist/engine.js';
 
 test('chapters one and two require new actions and grant each reward once',()=>{
  const s=makeState(),startBalls=s.balls,startPotions=s.potions,startCoins=s.coins;
@@ -28,6 +28,15 @@ test('chapters one and two require new actions and grant each reward once',()=>{
  assert.equal(s.balls,startBalls+6);
  assert.match(campaignObjective(s),/第3章/);
  assert.ok(validState(s));
+});
+
+test('chapter timing records active play seconds once and leaves legacy history unknown',()=>{
+ const s=makeState();s.playSeconds=120;advanceCampaign(s);s.playSeconds=600;s.captures++;advanceCampaign(s);
+ let timing=campaignTiming(s);assert.equal(timing[0].seconds,600);assert.equal(timing[1].current,true);assert.equal(timing[1].currentSeconds,0);
+ s.playSeconds=1800;s.wins+=3;advanceCampaign(s);s.badges.push(0);advanceCampaign(s);timing=campaignTiming(s);
+ assert.equal(timing[1].seconds,1200);assert.equal(timing[2].current,true);assert.equal(s.campaign.chapterStartedAt,1800);
+ const old=makeState();delete old.campaign;old.ended=true;old.badges=[0,1,2,3];old.playSeconds=24000;migrateCampaign(old);timing=campaignTiming(old);
+ assert.ok(timing.every(v=>v.seconds===null));assert.ok(timing.every(v=>!v.current));assert.equal(old.campaign.chapterStartedAt,24000);
 });
 
 test('chapters three and four require map discoveries, training and Nagi badge',()=>{
