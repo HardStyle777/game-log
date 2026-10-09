@@ -108,3 +108,18 @@ test('cleared save explores a seeded rift, resumes after battle and banks reward
 });
 test('walking rift chest uses the interaction handler once and stays collected after reload',()=>{const s=engine.makeState();s.ended=true;s.badges=[0,1,2,3];engine.startRift(s);engine.enterRiftWalk(s);const chest=engine.riftLayout(s.postgame.rift).chests[0];s.postgame.rift.walk.x=chest.x;s.postgame.rift.walk.y=chest.y;let ui=boot({state:s,battle:null});assert.equal(ui.nodes.get('mapBtn').textContent,'探索記録');ui.click('interact');assert.equal(ui.read().state.postgame.rift.pending,2);assert.deepEqual(ui.read().state.postgame.rift.walk.opened,[0]);ui.click('interact');assert.equal(ui.read().state.postgame.rift.pending,2);ui=boot(ui.read());ui.click('interact');assert.equal(ui.read().state.postgame.rift.pending,2);ui.click('mapBtn');assert.ok(ui.nodes.get('riftExplore'));assert.equal(ui.nodes.get('riftBattle'),undefined);ui.click('riftExplore');assert.equal(ui.scene().className,'scene');});
 test('rift terrain uses production movement feedback and persists its one-shot result',()=>{const s=engine.makeState();s.seed=77;s.ended=true;s.badges=[0,1,2,3];engine.startRift(s);engine.enterRiftWalk(s);const run=s.postgame.rift,map=engine.riftLayout(run),p=map.terrains.find(v=>v.type==='vein'),n=[[1,0],[-1,0],[0,1],[0,-1]].map(([dx,dy])=>({x:p.x-dx,y:p.y-dy,dx,dy})).find(v=>map.cells[v.y]?.[v.x]);run.walk.x=n.x;run.walk.y=n.y;const pending=run.pending,ui=boot({state:s,battle:null});vm.runInContext(`move(${n.dx},${n.dy})`,ui.context);assert.equal(ui.read().state.postgame.rift.pending,pending+1);assert.equal(ui.nodes.get('toast').textContent,'星脈を発見！ 未確定メダル +1');assert.deepEqual(ui.read().state.postgame.rift.walk.triggered,[`${p.x},${p.y}`]);const resumed=boot(ui.read());assert.deepEqual(resumed.read().state.postgame.rift.walk.triggered,[`${p.x},${p.y}`]);});
+test('elder advances the first two story chapters and the objective survives reload',()=>{
+ const s=engine.makeState();s.x=8;s.y=5;let ui=boot({state:s,battle:null});
+ assert.match(ui.nodes.get('objective').textContent,/第1章/);
+ ui.click('interact');assert.ok(ui.scene().innerHTML.includes('消えた森の足音'));
+ ui.click('storyClose');vm.runInContext('state.captures++;save();update()',ui.context);
+ assert.match(ui.nodes.get('objective').textContent,/報告/);
+ ui.click('interact');assert.ok(ui.scene().innerHTML.includes('第1章　完了'));
+ assert.equal(ui.read().state.campaign.chapter,2);
+ ui.click('storyClose');vm.runInContext('state.wins+=3;save();update()',ui.context);
+ ui.click('interact');assert.ok(ui.scene().innerHTML.includes('若葉の紋章'));
+ ui.click('storyClose');vm.runInContext('state.badges.push(0);save();update()',ui.context);
+ ui.click('interact');assert.ok(ui.scene().innerHTML.includes('第2章　完了'));
+ assert.equal(ui.read().state.campaign.chapter,3);
+ ui=boot(ui.read());assert.equal(ui.read().state.campaign.chapter,3);assert.ok(engine.validState(ui.read().state));
+});
