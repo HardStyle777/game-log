@@ -1,5 +1,5 @@
 import {validRiftWalk,resetRiftWalk} from './rift-map.js';
-export {riftLayout,enterRiftWalk,moveRiftWalk,riftAtExit,collectRiftChest} from './rift-map.js';
+export {riftLayout,riftTerrainAt,enterRiftWalk,moveRiftWalk,riftAtExit,collectRiftChest} from './rift-map.js';
 export const TYPES=['草','炎','水','雷','岩','風','光','影'];
 const MOVE_NAMES=[
  ['若葉カッター','大樹の一撃','芽吹きの祈り','絡みつくツタ','葉の結界','生命の根','森の集中','毒花の粉'],
