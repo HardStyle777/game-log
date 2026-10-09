@@ -58,6 +58,7 @@ export const CAMPAIGN_CHAPTERS=[
  {id:7,name:'星影の記憶'},
  {id:8,name:'灯台の守護竜'}
 ];
+export const CAMPAIGN_LEVEL_RANGES=[[1,3],[3,6],[6,9],[9,11],[11,14],[14,16],[16,20],[20,25]];
 export const SHORE_CLUES=[
  {x:32,y:8,name:'波間の木箱',text:'木箱には灯台と同じ星形の金具が残っている。島の外からではなく、灯台から流れ着いたようだ。'},
  {x:43,y:8,name:'青い貝の歌',text:'青い貝を耳に当てると、波の奥から途切れた旋律が聞こえる。浜のモンスターたちが同じ方向を見ている。'},
@@ -86,6 +87,9 @@ function ensureCampaignTiming(s){migrateCampaign(s);const c=s.campaign;if(!Array
 function finishChapterTiming(s,chapter){const c=ensureCampaignTiming(s);if(chapter>=1&&chapter<=8&&c.chapterSeconds[chapter-1]===null)c.chapterSeconds[chapter-1]=Math.max(0,Math.round(s.playSeconds-c.chapterStartedAt));c.chapterStartedAt=s.playSeconds;}
 export function campaignTiming(s){const c=ensureCampaignTiming(s);return CAMPAIGN_CHAPTERS.map((chapter,i)=>({id:chapter.id,name:chapter.name,seconds:c.chapterSeconds[i],current:c.chapter===chapter.id,currentSeconds:c.chapter===chapter.id?Math.max(0,Math.round(s.playSeconds-c.chapterStartedAt)):null}));}
 export function advanceCampaignV5(s){ensureCampaignTiming(s);const before=s.campaign.chapter,result=advanceCampaignV4(s);if(result?.changed&&s.campaign.chapter!==before)finishChapterTiming(s,before);return result;}
+export function campaignReadiness(s){migrateCampaign(s);const chapter=Math.min(8,Math.max(1,s.campaign.chapter)),range=CAMPAIGN_LEVEL_RANGES[chapter-1],levels=s.party.map(m=>m.level);return {chapter,min:range[0],max:range[1],average:levels.reduce((a,b)=>a+b,0)/levels.length,ready:levels.filter(level=>level>=range[0]).length,total:levels.length};}
+export function chapterGrowthSupport(s,chapter){const target=CAMPAIGN_LEVEL_RANGES[chapter-1]?.[1];if(!target)return {count:0,target:null};let count=0;for(const m of s.party){if(m.level>=target)continue;const before=m.level;addXP(m,xpToNext(m.level)-m.xp);if(m.level>before){count++;if(!s.caught.includes(m.id))s.caught.push(m.id);if(!s.seen.includes(m.id))s.seen.push(m.id);}}return {count,target};}
+export function advanceCampaignV6(s){const before=s.campaign?.chapter??1,result=advanceCampaignV5(s);if(result?.changed&&s.campaign.chapter!==before){const support=chapterGrowthSupport(s,before);if(support.count)result.training=`仲間${support.count}体が1レベル成長（章の目安 Lv.${support.target}まで）`;}return result;}
 export function completeFinalCampaign(s){migrateCampaign(s);const c=ensureCampaignTiming(s);if(!s.ended||c.chapter!==8||c.step!==1||c.claimed.includes(8))return false;finishChapterTiming(s,8);c.claimed.push(8);c.chapter=9;c.step=0;s.coins+=1000;s.balls+=10;s.potions+=5;return true;}
 export function migratePostgame(s){if(s.postgame===undefined)s.postgame={medals:0,bestFloor:0,runs:0,tower:null};const defaults={riftBest:0,riftRuns:0,rift:null,guardianRanks:[0,0,0,0],guardianWins:0};for(const [key,value] of Object.entries(defaults))if(s.postgame[key]===undefined)s.postgame[key]=Array.isArray(value)?[...value]:value;return s;}
 export function heal(s){[...s.party,...s.box].forEach(m=>{m.hp=maxHP(m);m.energy=4;});}

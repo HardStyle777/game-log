@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {makeState,migrateCampaign,campaignObjective,campaignDiscover,campaignRepair,campaignAlignMirror,campaignTiming,advanceCampaignV5 as advanceCampaign,completeFinalCampaign,validState,SHORE_CLUES,HIGHLAND_REPAIRS,STARSHADOW_MIRRORS,createMonster,encounter,act} from '../dist/engine.js';
+import {makeState,migrateCampaign,campaignObjective,campaignDiscover,campaignRepair,campaignAlignMirror,campaignTiming,campaignReadiness,advanceCampaignV6 as advanceCampaign,completeFinalCampaign,validState,SHORE_CLUES,HIGHLAND_REPAIRS,STARSHADOW_MIRRORS,createMonster,encounter,act} from '../dist/engine.js';
 
 test('chapters one and two require new actions and grant each reward once',()=>{
  const s=makeState(),startBalls=s.balls,startPotions=s.potions,startCoins=s.coins;
@@ -37,6 +37,17 @@ test('chapter timing records active play seconds once and leaves legacy history 
  assert.equal(timing[1].seconds,1200);assert.equal(timing[2].current,true);assert.equal(s.campaign.chapterStartedAt,1800);
  const old=makeState();delete old.campaign;old.ended=true;old.badges=[0,1,2,3];old.playSeconds=24000;migrateCampaign(old);timing=campaignTiming(old);
  assert.ok(timing.every(v=>v.seconds===null));assert.ok(timing.every(v=>!v.current));assert.equal(old.campaign.chapterStartedAt,24000);
+});
+
+test('chapter completion gives only under-target party members one support level',()=>{
+ const s=makeState();s.party.push(createMonster(1,3),createMonster(2,8));advanceCampaign(s);s.captures++;
+ const result=advanceCampaign(s);
+ assert.match(result.training,/仲間1体が1レベル成長/);
+ assert.deepEqual(s.party.map(m=>m.level),[2,3,8]);
+ const ready=campaignReadiness(s);
+ assert.deepEqual({chapter:ready.chapter,min:ready.min,max:ready.max,ready:ready.ready,total:ready.total},{chapter:2,min:3,max:6,ready:2,total:3});
+ assert.equal(advanceCampaign(s).changed,false);
+ assert.deepEqual(s.party.map(m=>m.level),[2,3,8]);
 });
 
 test('chapters three and four require map discoveries, training and Nagi badge',()=>{
