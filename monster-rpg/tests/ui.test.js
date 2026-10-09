@@ -123,3 +123,10 @@ test('elder advances the first two story chapters and the objective survives rel
  assert.equal(ui.read().state.campaign.chapter,3);
  ui=boot(ui.read());assert.equal(ui.read().state.campaign.chapter,3);assert.ok(engine.validState(ui.read().state));
 });
+test('shore clues are inspected through production UI and stay collected after reload',()=>{
+ const s=engine.makeState();s.badges=[0];s.region=1;s.campaign={schema:2,chapter:3,step:1,baseWins:4,baseCaptures:2,claimed:[1,2],discoveries:[]};let ui=boot({state:s,battle:null});
+ for(let i=0;i<engine.SHORE_CLUES.length;i++){const p=engine.SHORE_CLUES[i];vm.runInContext(`state.x=${p.x-1};state.y=${p.y};save();draw()`,ui.context);ui.click('interact');assert.ok(ui.scene().innerHTML.includes(p.name));assert.deepEqual(ui.read().state.campaign.discoveries,Array.from({length:i+1},(_,n)=>n));ui.click('clueClose');}
+ assert.match(ui.nodes.get('objective').textContent,/長老へ報告/);
+ ui=boot(ui.read());assert.deepEqual(ui.read().state.campaign.discoveries,[0,1,2]);assert.ok(engine.validState(ui.read().state));
+ vm.runInContext('state.x=31;state.y=8;draw()',ui.context);ui.click('interact');assert.deepEqual(ui.read().state.campaign.discoveries,[0,1,2]);
+});
