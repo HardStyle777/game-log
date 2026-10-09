@@ -42,6 +42,38 @@
  .scene{position:fixed;inset:max(5px,env(safe-area-inset-top)) max(5px,env(safe-area-inset-right)) max(5px,env(safe-area-inset-bottom)) max(5px,env(safe-area-inset-left));z-index:20}
  .battle{padding:8px 18px}.battle-field{min-height:130px}.battle .sprite{width:100px;height:100px}.battle-log{min-height:44px;padding:5px 9px}.battle-actions button{min-height:44px;padding:4px}.battle-actions small{font-size:12px}.modal{padding:16px}
 }
+/* Map fills the viewport; controls float over it in both orientations. */
+body{overflow:hidden}
+.app{position:fixed;inset:0;width:100%;height:100%;max-width:none;padding:0}
+.app header,.app aside,.app footer{display:none}
+.app main{display:block;height:100%}
+.app .game{position:relative;display:block;width:100%;height:100%;border:0;border-radius:0;box-shadow:none;overflow:hidden}
+.app .viewport{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto}
+.app .topbar{position:absolute;z-index:10;top:max(10px,env(safe-area-inset-top));left:max(10px,env(safe-area-inset-left));right:max(10px,env(safe-area-inset-right));display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px;padding:8px;background:#13253ad9;border:1px solid #7894ac66;border-radius:12px;backdrop-filter:blur(5px);font-size:14px}
+.app #location{grid-column:1 / 3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.app .topbar #badges{grid-column:3;margin:0;letter-spacing:0;font-size:14px;text-align:right}
+.app .topbar button{font-size:14px;padding:4px 9px;min-height:44px}
+.app .sound-landscape{display:block}
+.app .quest{position:absolute;z-index:10;top:calc(max(10px,env(safe-area-inset-top)) + 104px);left:max(10px,env(safe-area-inset-left));right:max(10px,env(safe-area-inset-right));padding:6px 8px;border-radius:10px;background:#13253abb;gap:8px}
+.app .quest-icon,.app .quest small{display:none}
+.app .quest p{font-size:14px;line-height:1.3}.app .quest button{font-size:14px;min-height:44px;padding:4px 8px;flex-shrink:0}
+.app .controls{display:contents}
+.app .movement{position:absolute;z-index:10;bottom:calc(max(12px,env(safe-area-inset-bottom)) + 56px);left:max(12px,env(safe-area-inset-left));width:144px;height:144px;min-width:144px;opacity:.88}
+.app .control-mode{position:absolute;z-index:10;bottom:max(12px,env(safe-area-inset-bottom));left:max(30px,env(safe-area-inset-left));font-size:14px;min-height:44px;background:#13253ad9}
+.app .controlHint{display:none}
+.app .interact{position:absolute;z-index:10;bottom:max(18px,env(safe-area-inset-bottom));right:max(12px,env(safe-area-inset-right));margin:0;min-height:58px;padding:10px 12px;font-size:14px;gap:8px;background:#13253ad9}
+.app nav{position:absolute;z-index:10;right:max(12px,env(safe-area-inset-right));bottom:calc(max(18px,env(safe-area-inset-bottom)) + 72px);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:min(210px,calc(100% - 178px));margin:0;border:1px solid #7894ac66;border-radius:10px;overflow:hidden;background:#13253ad9}
+.app nav button{border:0;border-right:1px solid #7894ac44;border-radius:0;padding:6px 2px;min-height:48px;font-size:14px}.app nav span{display:none}
+#toast{bottom:220px}
+@media(orientation:landscape){
+ .app .topbar{display:flex;flex-wrap:nowrap}.app #location{flex:1;min-width:0}.app .topbar #badges{margin-left:auto}.app .topbar button{flex-shrink:0}
+ .app .quest{top:calc(max(10px,env(safe-area-inset-top)) + 66px);left:auto;right:max(12px,env(safe-area-inset-right));width:auto}.app .quest p{display:none}
+ .app .movement{bottom:calc(max(8px,env(safe-area-inset-bottom)) + 48px)}
+ .app .control-mode{bottom:max(8px,env(safe-area-inset-bottom))}
+ .app nav{width:210px;bottom:calc(max(8px,env(safe-area-inset-bottom)) + 72px)}
+ .app .interact{bottom:max(8px,env(safe-area-inset-bottom))}
+ #toast{bottom:140px}
+}
 /* Dialogs live outside the clipped map. Combat rows reserve their own space. */
 .scene{position:fixed;inset:0;z-index:40;padding:max(8px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));overflow:auto;overscroll-behavior:contain}
 .scene.open{align-items:stretch}

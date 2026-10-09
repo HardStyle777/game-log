@@ -19,7 +19,7 @@ test('iPhone home-screen metadata, icons and offline cache stay complete', () =>
   assert.match(html, /apple-mobile-web-app-status-bar-style/);
   assert.match(html, /rel="apple-touch-icon" href="icons\/apple-touch-icon\.png"/);
   assert.equal(manifest.display, 'standalone');
-  assert.equal(manifest.orientation, 'portrait-primary');
+  assert.equal(manifest.orientation, 'any');
   assert.deepEqual(manifest.icons.map(icon => icon.sizes), ['192x192', '512x512']);
   assert.deepEqual(pngSize('dist/icons/apple-touch-icon.png'), [180, 180]);
   assert.deepEqual(pngSize('dist/icons/icon-192.png'), [192, 192]);
