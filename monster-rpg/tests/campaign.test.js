@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {makeState,migrateCampaign,campaignObjective,campaignDiscover,advanceCampaign,validState,SHORE_CLUES} from '../dist/engine.js';
+import {makeState,migrateCampaign,campaignObjective,campaignDiscover,campaignRepair,advanceCampaign,validState,SHORE_CLUES,HIGHLAND_REPAIRS,createMonster,encounter,act} from '../dist/engine.js';
 
 test('chapters one and two require new actions and grant each reward once',()=>{
  const s=makeState(),startBalls=s.balls,startPotions=s.potions,startCoins=s.coins;
@@ -60,16 +60,54 @@ test('chapters three and four require map discoveries, training and Nagi badge',
  assert.equal(s.coins,startCoins+650);
  assert.equal(s.balls,startBalls+5);
  assert.equal(s.potions,startPotions+4);
+ assert.match(campaignObjective(s),/第5章/);
+ assert.ok(validState(s));
+});
+
+test('chapters five and six require ordered repairs, highland wins and Akane badge',()=>{
+ const s=makeState(),startCoins=s.coins,startBalls=s.balls,startPotions=s.potions;
+ s.badges=[0,1];s.campaign={schema:3,chapter:5,step:0,baseWins:10,baseCaptures:4,claimed:[1,2,3,4],discoveries:[],regionWins:0};
+ assert.equal(advanceCampaign(s).changed,true);
+ assert.match(campaignObjective(s),/工房の主炉/);
+ assert.equal(campaignRepair(s,1),false);
+ assert.equal(campaignRepair(s,0),true);
+ assert.match(campaignObjective(s),/割れた送熱弁/);
+ assert.equal(campaignRepair(s,2),false);
+ assert.equal(campaignRepair(s,1),true);
+ assert.equal(campaignRepair(s,2),true);
+ assert.equal(s.campaign.discoveries.length,HIGHLAND_REPAIRS.length);
+ const fifth=advanceCampaign(s);
+ assert.equal(fifth.reward,'350コイン・捕獲クリスタル4個・回復薬2個');
+ assert.equal(s.campaign.chapter,6);
+ assert.match(campaignObjective(s),/あと5勝/);
+ s.campaign.regionWins=5;
+ assert.equal(advanceCampaign(s).changed,true);
+ assert.match(campaignObjective(s),/アカネ/);
+ s.badges.push(2);
+ const sixth=advanceCampaign(s);
+ assert.equal(sixth.reward,'500コイン・捕獲クリスタル6個・回復薬3個');
+ assert.deepEqual(s.campaign.claimed,[1,2,3,4,5,6]);
+ assert.equal(s.campaign.chapter,7);
+ assert.equal(s.coins,startCoins+850);
+ assert.equal(s.balls,startBalls+10);
+ assert.equal(s.potions,startPotions+5);
  assert.equal(advanceCampaign(s),null);
  assert.ok(validState(s));
+});
+
+test('only ordinary highland victories count toward chapter six training',()=>{
+ const s=makeState();s.badges=[0,1];s.party=[createMonster(6,40,false,{vitality:3,force:3},0)];s.campaign={schema:3,chapter:6,step:0,baseWins:0,baseCaptures:0,claimed:[1,2,3,4,5],discoveries:[0,1,2],regionWins:0};
+ const other=encounter(s,1);other.enemy.hp=1;act(s,other,'attack');assert.equal(other.result,'win');assert.equal(s.campaign.regionWins,0);
+ const highland=encounter(s,2);highland.enemy.hp=1;act(s,highland,'attack');assert.equal(highland.result,'win');assert.equal(s.campaign.regionWins,1);
+ const boss=encounter(s,2,true);boss.enemy.hp=1;boss.roster=[];act(s,boss,'attack');assert.equal(boss.result,'win');assert.equal(s.campaign.regionWins,1);
 });
 
 test('legacy cleared saves migrate without replaying chapter rewards',()=>{
  const s=makeState();delete s.campaign;s.ended=true;s.badges=[0,1,2,3];s.coins=777;s.balls=9;
  assert.ok(validState(s));
  migrateCampaign(s);
- assert.deepEqual(s.campaign.claimed,[1,2,3,4]);
- assert.equal(s.campaign.chapter,5);
+ assert.deepEqual(s.campaign.claimed,[1,2,3,4,5,6]);
+ assert.equal(s.campaign.chapter,7);
  assert.equal(s.coins,777);
  assert.equal(s.balls,9);
  assert.equal(advanceCampaign(s),null);
@@ -79,7 +117,7 @@ test('version 30 campaign records gain schema and discoveries without losing pro
  const s=makeState();s.badges=[0];s.campaign={chapter:3,step:1,baseWins:8,baseCaptures:3,claimed:[1,2]};
  assert.ok(validState(s));
  migrateCampaign(s);
- assert.equal(s.campaign.schema,2);
+ assert.equal(s.campaign.schema,3);
  assert.deepEqual(s.campaign.discoveries,[]);
  assert.equal(s.campaign.chapter,3);
  assert.ok(validState(s));
@@ -91,6 +129,7 @@ test('malformed campaign records are rejected while old records remain readable'
  assert.equal(validState({...s,campaign:{...s.campaign,baseWins:-1}}),false);
  assert.equal(validState({...s,campaign:{...s.campaign,discoveries:[0,0]}}),false);
  assert.equal(validState({...s,campaign:{...s.campaign,discoveries:[3]}}),false);
+ assert.equal(validState({...s,campaign:{...s.campaign,regionWins:-1}}),false);
  const old={...s};delete old.campaign;
  assert.ok(validState(old));
 });

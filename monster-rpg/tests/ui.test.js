@@ -130,3 +130,9 @@ test('shore clues are inspected through production UI and stay collected after r
  ui=boot(ui.read());assert.deepEqual(ui.read().state.campaign.discoveries,[0,1,2]);assert.ok(engine.validState(ui.read().state));
  vm.runInContext('state.x=31;state.y=8;draw()',ui.context);ui.click('interact');assert.deepEqual(ui.read().state.campaign.discoveries,[0,1,2]);
 });
+test('highland repair route enforces order and persists through production UI',()=>{
+ const s=engine.makeState();s.badges=[0,1];s.region=2;s.campaign={schema:3,chapter:5,step:1,baseWins:9,baseCaptures:3,claimed:[1,2,3,4],discoveries:[],regionWins:0};let ui=boot({state:s,battle:null});
+ const second=engine.HIGHLAND_REPAIRS[1];vm.runInContext(`state.x=${second.x-1};state.y=${second.y};draw()`,ui.context);ui.click('interact');assert.match(ui.nodes.get('toast').textContent,/工房の主炉/);assert.deepEqual(ui.read().state.campaign.discoveries,[]);
+ for(let i=0;i<engine.HIGHLAND_REPAIRS.length;i++){const p=engine.HIGHLAND_REPAIRS[i];vm.runInContext(`state.x=${p.x-1};state.y=${p.y};save();draw()`,ui.context);ui.click('interact');assert.ok(ui.scene().innerHTML.includes(p.name));assert.deepEqual(ui.read().state.campaign.discoveries,Array.from({length:i+1},(_,n)=>n));ui.click('repairClose');}
+ assert.match(ui.nodes.get('objective').textContent,/長老へ報告/);ui=boot(ui.read());assert.deepEqual(ui.read().state.campaign.discoveries,[0,1,2]);assert.equal(ui.read().state.campaign.schema,3);
+});
