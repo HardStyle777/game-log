@@ -17,6 +17,11 @@ test('the 40-species milestone awards fifty medals once and survives reload',()=
  assert.deepEqual({progress:goal.progress,goal:goal.goal,medals:goal.medals,ready:goal.ready},{progress:40,goal:40,medals:50,ready:true});assert.ok(claimResearch(s,'dex-40'));assert.equal(s.postgame.medals,50);
  const resumed=JSON.parse(JSON.stringify(s));assert.ok(validState(resumed));assert.equal(claimResearch(resumed,'dex-40'),false);
 });
+test('the fifty-species completion milestone awards sixty-five medals once',()=>{
+ const s=makeState();s.ended=true;s.caught=Array.from({length:50},(_,i)=>i);const goal=researchGoals(s).find(g=>g.key==='dex-50');
+ assert.deepEqual({progress:goal.progress,goal:goal.goal,medals:goal.medals,ready:goal.ready},{progress:50,goal:50,medals:65,ready:true});assert.ok(claimResearch(s,'dex-50'));assert.equal(s.postgame.medals,65);
+ const resumed=JSON.parse(JSON.stringify(s));assert.ok(validState(resumed));assert.equal(claimResearch(resumed,'dex-50'),false);
+});
 test('element and star collection rewards fund training without allowing duplicate rewards',()=>{
  const s=makeState();s.ended=true;s.caught=[0,4];s.party.push(createMonster(2,3,true));
  assert.ok(claimResearch(s,'type-0'));assert.equal(s.postgame.medals,8);assert.ok(claimResearch(s,'star'));assert.equal(s.postgame.medals,20);
