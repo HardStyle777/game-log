@@ -82,10 +82,10 @@ test('cleared save enters tower, wins, banks rewards and resumes them through ac
  assert.equal(ui.read().state.postgame.medals,2);assert.equal(ui.read().state.postgame.runs,1);assert.equal(ui.read().state.postgame.tower,null);
  ui=boot(ui.read());ui.click('menu');ui.click('towerBtn');assert.ok(ui.scene().innerHTML.includes('研究メダル 2枚'));
 });
-test('party shows individual traits and tower research trains the lead through actual UI',()=>{
- const s=engine.makeState();s.ended=true;s.badges=[0,1,2,3];s.postgame.medals=10;s.party[0].aptitudes={vitality:0,force:2};s.party[0].hp=engine.maxHP(s.party[0]);let ui=boot({state:s,battle:null});
- ui.click('partyBtn');assert.ok(ui.scene().innerHTML.includes('個性：勇猛'));assert.ok(ui.scene().innerHTML.includes('生命 ◇◇◇'));
- ui.click('closeModal');ui.click('menu');ui.click('towerBtn');ui.click('researchTrain');assert.equal(ui.read().state.party[0].aptitudes.vitality,1);assert.equal(ui.read().state.postgame.medals,0);assert.ok(ui.scene().innerHTML.includes('生命か力の低い方を強化'));
+test('party shows traits and nature effects while both research choices persist through actual UI',()=>{
+ const s=engine.makeState();s.ended=true;s.badges=[0,1,2,3];s.postgame.medals=16;s.party[0].aptitudes={vitality:0,force:2};s.party[0].nature=0;s.party[0].hp=engine.maxHP(s.party[0]);let ui=boot({state:s,battle:null});
+ ui.click('partyBtn');assert.ok(ui.scene().innerHTML.includes('個性：勇猛'));assert.ok(ui.scene().innerHTML.includes('性格：勇敢'));assert.ok(ui.scene().innerHTML.includes('与えるダメージ +8%'));assert.ok(ui.scene().innerHTML.includes('生命 ◇◇◇'));
+ ui.click('closeModal');ui.click('menu');ui.click('towerBtn');ui.click('researchNature');assert.equal(ui.read().state.party[0].nature,1);assert.equal(ui.read().state.postgame.medals,10);assert.ok(ui.scene().innerHTML.includes('慎重'));ui.click('researchTrain');assert.equal(ui.read().state.party[0].aptitudes.vitality,1);assert.equal(ui.read().state.postgame.medals,0);assert.ok(ui.scene().innerHTML.includes('生命か力の低い方を強化'));ui=boot(ui.read());ui.click('partyBtn');assert.ok(ui.scene().innerHTML.includes('性格：慎重'));
 });
 test('dex research claims, repeating capture survey and training survive UI reload',()=>{
  const s=engine.makeState();s.ended=true;s.badges=[0,1,2,3];s.caught=[0,1,2,4];s.captures=10;let ui=boot({state:s,battle:null});

@@ -1,6 +1,6 @@
-import {makeState,createMonster,act,startTower,continueTower,retireTower,validState,validBattle} from '../dist/engine.js';
+import {makeState,createMonster,act,startTower,continueTower,retireTower,validState,validBattle,SPECIES,effectiveness,power,equippedMoves} from '../dist/engine.js';
 
-function playBattle(s,b){let turns=0;while(!b.result&&turns++<300){const m=s.party[b.active];act(s,b,m.hp<55&&s.potions?'potion':m.energy>=2?'skill':'attack');if(!validState(s)||!validBattle(b,s))throw Error('invalid tower state');}if(!b.result)throw Error('tower battle did not finish');return turns;}
+function playBattle(s,b){let turns=0;while(!b.result&&turns++<300){const scores=s.party.map(m=>m.hp>0?power(m)*effectiveness(SPECIES[m.id].type,SPECIES[b.enemy.id].type):-1),best=scores.indexOf(Math.max(...scores)),m=s.party[b.active];if(best!==b.active&&scores[best]>scores[b.active]*1.3)act(s,b,'switch',best);else if(m.hp<55&&s.potions)act(s,b,'potion');else{const move=equippedMoves(m).filter(v=>v.power>0&&v.cost<=m.energy).sort((a,c)=>c.power-a.power)[0];act(s,b,move?'move':'guard',move?.id);}if(!validState(s)||!validBattle(b,s))throw Error('invalid tower state');}if(!b.result)throw Error('tower battle did not finish');return turns;}
 
 const reports=[];
 for(let run=1;run<=3;run++){
