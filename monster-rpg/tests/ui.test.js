@@ -74,6 +74,11 @@ test('cleared save enters tower, wins, banks rewards and resumes them through ac
  assert.equal(ui.read().state.postgame.medals,2);assert.equal(ui.read().state.postgame.runs,1);assert.equal(ui.read().state.postgame.tower,null);
  ui=boot(ui.read());ui.click('menu');ui.click('towerBtn');assert.ok(ui.scene().innerHTML.includes('研究メダル 2枚'));
 });
+test('party shows individual traits and tower research trains the lead through actual UI',()=>{
+ const s=engine.makeState();s.ended=true;s.badges=[0,1,2,3];s.postgame.medals=10;s.party[0].aptitudes={vitality:0,force:2};s.party[0].hp=engine.maxHP(s.party[0]);let ui=boot({state:s,battle:null});
+ ui.click('partyBtn');assert.ok(ui.scene().innerHTML.includes('個性：勇猛'));assert.ok(ui.scene().innerHTML.includes('生命 ◇◇◇'));
+ ui.click('closeModal');ui.click('menu');ui.click('towerBtn');ui.click('researchTrain');assert.equal(ui.read().state.party[0].aptitudes.vitality,1);assert.equal(ui.read().state.postgame.medals,0);assert.ok(ui.scene().innerHTML.includes('生命か力の低い方を強化'));
+});
 test('cleared save explores a seeded rift, resumes after battle and banks rewards via UI',()=>{
  const s=engine.makeState();s.seed=321;s.ended=true;s.badges=[0,1,2,3];s.party=Array.from({length:6},(_,i)=>engine.createMonster(i<4?i:i+8,40));let ui=boot({state:s,battle:null});
  ui.click('menu');ui.click('riftBtn');assert.ok(ui.scene().innerHTML.includes('5〜15層'));ui.click('riftStart');assert.ok(ui.scene().innerHTML.includes('揺らぐ獣道'));ui.click('riftBattle');assert.equal(ui.read().battle.riftFloor,1);

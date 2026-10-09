@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {makeState,createMonster,maxHP,act,startTower,continueTower,retireTower,buyResearch,migratePostgame,towerEncounter,validState,validBattle} from '../dist/engine.js';
+import {makeState,createMonster,maxHP,power,traitName,researchTraining,act,startTower,continueTower,retireTower,buyResearch,migratePostgame,migrateAptitudes,towerEncounter,validState,validBattle} from '../dist/engine.js';
 
 function clearedState(){const s=makeState();s.ended=true;s.badges=[0,1,2,3];s.party=Array.from({length:6},(_,i)=>createMonster(i<4?i:i+8,40));return s;}
 function win(s,b){let turns=0;while(!b.result&&turns++<200){const m=s.party[b.active];act(s,b,m.energy>=2?'skill':'attack');}assert.equal(b.result,'win');}
@@ -35,4 +35,10 @@ test('legacy saves migrate while corrupt postgame and tower pairs are rejected',
  const legacy=makeState();delete legacy.postgame;assert.ok(validState(legacy));migratePostgame(legacy);assert.deepEqual(legacy.postgame,{medals:0,bestFloor:0,runs:0,tower:null,riftBest:0,riftRuns:0,rift:null});
  const s=clearedState();for(const bad of [{...s,postgame:{medals:-1,bestFloor:0,runs:0,tower:null}},{...s,postgame:{medals:0,bestFloor:1000,runs:0,tower:null}},{...s,postgame:{medals:0,bestFloor:0,runs:0,tower:{floor:0,pending:0,waiting:false}}}])assert.equal(validState(bad),false);
  const b=startTower(s);assert.equal(validBattle({...b,towerFloor:2},s),false);assert.equal(validBattle({...b,tower:false},s),false);assert.equal(validBattle({...b,result:'capture'},s),false);
+});
+test('individual aptitudes create collectable differences and research training has a cost',()=>{
+ const s=clearedState(),m=s.party[0];m.aptitudes={vitality:0,force:2};m.hp=maxHP(m);const hp=maxHP(m),attack=power(m);s.postgame.medals=19;
+ assert.equal(traitName(m),'勇猛');assert.ok(researchTraining(s));assert.equal(m.aptitudes.vitality,1);assert.equal(maxHP(m),hp+2);assert.equal(power(m),attack);assert.equal(s.postgame.medals,9);
+ assert.equal(researchTraining(s),false);s.postgame.medals=30;m.aptitudes={vitality:3,force:3};assert.equal(traitName(m),'天賦');assert.equal(researchTraining(s),false);
+ const legacy=clearedState();delete legacy.party[0].aptitudes;assert.ok(validState(legacy));migrateAptitudes(legacy);assert.deepEqual(legacy.party[0].aptitudes,{vitality:1,force:1});assert.ok(validState(legacy));
 });
