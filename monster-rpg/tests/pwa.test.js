@@ -14,6 +14,7 @@ test('iPhone home-screen metadata, icons and offline cache stay complete', () =>
   const html = read('dist/index.html').toString();
   const manifest = JSON.parse(read('dist/manifest.webmanifest'));
   const worker = read('dist/sw.js').toString();
+  const style = read('dist/style.css').toString();
 
   assert.match(html, /viewport-fit=cover/);
   assert.match(html, /apple-mobile-web-app-status-bar-style/);
@@ -27,4 +28,7 @@ test('iPhone home-screen metadata, icons and offline cache stay complete', () =>
   for (const path of ['apple-touch-icon.png', 'icon-192.png', 'icon-512.png']) {
     assert.match(worker, new RegExp(`icons/${path.replace('.', '\\.')}`));
   }
+  assert.match(worker, /monsters-extra\.webp/);
+  assert.match(style, /\.sprite\.extra\{background-image:url\('monsters-extra\.webp'\);background-size:400% 200%\}/);
+  assert.ok(read('dist/monsters-extra.webp').length > 500000);
 });
