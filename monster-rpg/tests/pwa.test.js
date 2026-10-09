@@ -40,5 +40,7 @@ test('iPhone home-screen metadata, icons and offline cache stay complete', () =>
   assert.ok(read('dist/monsters-extra-3.webp').length > 400000);
   assert.match(worker, /monsters-extra-4\.webp/);
   assert.match(style, /\.sprite\.extra4\{background-image:url\('monsters-extra-4\.webp'\);background-size:500% 200%\}/);
+  assert.match(style, /\.sprite\.extra5\{background-image:url\('monsters-extra-5\.webp'\);background-size:300% 200%\}/);
+  assert.ok(worker.includes("'./monsters-extra-5.webp'"));
   assert.ok(read('dist/monsters-extra-4.webp').length > 400000);
 });
