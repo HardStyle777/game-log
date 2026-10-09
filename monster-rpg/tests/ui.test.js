@@ -56,7 +56,7 @@ test('learned technique equipment and battle move selection persist via actual h
 });
 test('a legacy save immediately migrates move slots and preserves its backup',()=>{
  const s=engine.makeState();delete s.party[0].moves;delete s.postgame;const raw=JSON.stringify({state:s,battle:null}),ui=boot(raw,raw);
- assert.deepEqual(ui.read().state.party[0].moves,[0,1]);assert.deepEqual(ui.read().state.postgame,{medals:0,bestFloor:0,runs:0,tower:null});assert.equal(ui.backup(),raw);
+ assert.deepEqual(ui.read().state.party[0].moves,[0,1]);assert.deepEqual(ui.read().state.postgame,{medals:0,bestFloor:0,runs:0,tower:null,riftBest:0,riftRuns:0,rift:null});assert.equal(ui.backup(),raw);
 });
 test('cleared save enters tower, wins, banks rewards and resumes them through actual UI',()=>{
  const s=engine.makeState();s.ended=true;s.badges=[0,1,2,3];s.party=Array.from({length:6},(_,i)=>engine.createMonster(i<4?i:i+8,40));let ui=boot({state:s,battle:null});
@@ -65,4 +65,12 @@ test('cleared save enters tower, wins, banks rewards and resumes them through ac
  assert.equal(ui.read().battle.result,'win');ui.click('endBattle');assert.ok(ui.scene().innerHTML.includes('未確定 2枚'));ui.click('towerRetire');
  assert.equal(ui.read().state.postgame.medals,2);assert.equal(ui.read().state.postgame.runs,1);assert.equal(ui.read().state.postgame.tower,null);
  ui=boot(ui.read());ui.click('menu');ui.click('towerBtn');assert.ok(ui.scene().innerHTML.includes('研究メダル 2枚'));
+});
+test('cleared save explores a seeded rift, resumes after battle and banks rewards via UI',()=>{
+ const s=engine.makeState();s.seed=321;s.ended=true;s.badges=[0,1,2,3];s.party=Array.from({length:6},(_,i)=>engine.createMonster(i<4?i:i+8,40));let ui=boot({state:s,battle:null});
+ ui.click('menu');ui.click('riftBtn');assert.ok(ui.scene().innerHTML.includes('5〜15層'));ui.click('riftStart');assert.ok(ui.scene().innerHTML.includes('揺らぐ獣道'));ui.click('riftBattle');assert.equal(ui.read().battle.riftFloor,1);
+ let turns=0;while(!ui.read().battle.result&&turns++<80){ui.data('data-action').find(x=>x.dataset.action==='attack').click();ui.flush();}
+ assert.equal(ui.read().battle.result,'win');ui.click('endBattle');assert.ok(ui.scene().innerHTML.includes('未確定'));ui.click('riftRetire');
+ assert.equal(ui.read().state.postgame.rift,null);assert.equal(ui.read().state.postgame.riftRuns,1);assert.ok(ui.read().state.postgame.medals>=2);
+ ui=boot(ui.read());ui.click('menu');ui.click('riftBtn');assert.ok(ui.scene().innerHTML.includes('帰還 1回'));
 });
