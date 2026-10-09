@@ -79,6 +79,13 @@ test('party shows individual traits and tower research trains the lead through a
  ui.click('partyBtn');assert.ok(ui.scene().innerHTML.includes('個性：勇猛'));assert.ok(ui.scene().innerHTML.includes('生命 ◇◇◇'));
  ui.click('closeModal');ui.click('menu');ui.click('towerBtn');ui.click('researchTrain');assert.equal(ui.read().state.party[0].aptitudes.vitality,1);assert.equal(ui.read().state.postgame.medals,0);assert.ok(ui.scene().innerHTML.includes('生命か力の低い方を強化'));
 });
+test('dex research claims, repeating capture survey and training survive UI reload',()=>{
+ const s=engine.makeState();s.ended=true;s.badges=[0,1,2,3];s.caught=[0,1,2,4];s.captures=10;let ui=boot({state:s,battle:null});
+ ui.click('dexBtn');ui.click('dexResearch');ui.data('data-research').find(el=>el.dataset.research==='dex-4').click();assert.equal(ui.read().state.postgame.medals,5);
+ ui.data('data-research').find(el=>el.dataset.research==='type-0').click();ui.click('captureResearch');assert.equal(ui.read().state.postgame.medals,16);assert.equal(ui.read().state.balls,14);
+ ui=boot(ui.read());ui.click('dexBtn');ui.click('dexResearch');assert.ok(ui.data('data-research').find(el=>el.dataset.research==='dex-4').disabled);assert.ok(ui.nodes.get('captureResearch').disabled);
+ ui.click('researchExchange');ui.click('researchTrain');assert.equal(ui.read().state.postgame.medals,6);assert.equal(ui.read().state.party[0].aptitudes.vitality,2);
+});
 test('cleared save explores a seeded rift, resumes after battle and banks rewards via UI',()=>{
  const s=engine.makeState();s.seed=321;s.ended=true;s.badges=[0,1,2,3];s.party=Array.from({length:6},(_,i)=>engine.createMonster(i<4?i:i+8,40));let ui=boot({state:s,battle:null});
  ui.click('menu');ui.click('riftBtn');assert.ok(ui.scene().innerHTML.includes('5〜15層'));ui.click('riftStart');assert.ok(ui.scene().innerHTML.includes('揺らぐ獣道'));ui.click('riftBattle');assert.equal(ui.read().battle.riftFloor,1);
