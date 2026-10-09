@@ -13,6 +13,14 @@ test('corrupt current save restores backup and repairs current without overwriti
 test('sound preference survives reload and a direct tap unlocks playback',async()=>{const ui=boot(null,null,'on');assert.equal(ui.nodes.get('sound').textContent,'音 再開');ui.click('sound');assert.equal(ui.stored('lumina-sound-v1'),'off');ui.click('sound');assert.equal(ui.stored('lumina-sound-v1'),'on');await Promise.resolve();assert.equal(ui.nodes.get('sound').textContent,'音 ON');});
 test('each guardian presents its own tactical dialogue before battle',()=>{for(let r=0;r<4;r++){const s=engine.makeState();s.badges=Array.from({length:r},(_,i)=>i);s.x=[13,39,14,39][r];s.y=[8,14,28,30][r];s.region=r;const ui=boot({state:s,battle:null});ui.click('interact');assert.ok(ui.scene().innerHTML.includes(engine.REGIONS[r].challenge),`guardian ${r}`);assert.ok(ui.nodes.get('challenge'));}});
 test('canvas swipe moves exactly one tile using production pointer handlers',()=>{const s=engine.makeState();s.x=8;s.y=10;const ui=boot({state:s,battle:null}),canvas=ui.nodes.get('world');canvas.listeners.pointerdown({pointerId:7,clientX:80,clientY:100});canvas.listeners.pointerup({pointerId:7,clientX:140,clientY:102,preventDefault(){}});assert.equal(ui.read().state.x,9);assert.equal(ui.read().state.y,10);assert.equal(ui.read().state.steps,1);});
+test('all four movement directions face correctly, including blocked moves and reload',()=>{
+ for(const [dx,dy,dir] of [[0,-1,0],[1,0,1],[0,1,2],[-1,0,3]]){
+  const s=engine.makeState();s.x=8;s.y=10;const ui=boot({state:s,battle:null});vm.runInContext(`move(${dx},${dy})`,ui.context);
+  assert.equal(ui.read().state.dir,dir);assert.equal(vm.runInContext('state.dir',boot(ui.read()).context),dir);
+ }
+ const s=engine.makeState();s.x=7;s.y=8;const ui=boot({state:s,battle:null});vm.runInContext('move(0,-1)',ui.context);
+ assert.equal(ui.read().state.y,8);assert.equal(ui.read().state.steps,0);assert.equal(ui.read().state.dir,0);
+});
 test('stick rotates while held, ignores a second pointer, and stops on release',()=>{
  const s=engine.makeState();s.x=8;s.y=10;const ui=boot({state:s,battle:null}),stick=ui.nodes.get('joystick');
  stick.getBoundingClientRect=()=>({left:0,top:0,width:136,height:136});
