@@ -55,6 +55,14 @@ test('learned technique equipment and battle move selection persist via actual h
  const resumed=boot(ui.read());assert.equal(resumed.read().state.party[0].moves[0],2);assert.ok(resumed.scene().innerHTML.includes('battle-actions'));
 });
 test('a legacy save immediately migrates move slots and preserves its backup',()=>{
- const s=engine.makeState();delete s.party[0].moves;const raw=JSON.stringify({state:s,battle:null}),ui=boot(raw,raw);
- assert.deepEqual(ui.read().state.party[0].moves,[0,1]);assert.equal(ui.backup(),raw);
+ const s=engine.makeState();delete s.party[0].moves;delete s.postgame;const raw=JSON.stringify({state:s,battle:null}),ui=boot(raw,raw);
+ assert.deepEqual(ui.read().state.party[0].moves,[0,1]);assert.deepEqual(ui.read().state.postgame,{medals:0,bestFloor:0,runs:0,tower:null});assert.equal(ui.backup(),raw);
+});
+test('cleared save enters tower, wins, banks rewards and resumes them through actual UI',()=>{
+ const s=engine.makeState();s.ended=true;s.badges=[0,1,2,3];s.party=Array.from({length:6},(_,i)=>engine.createMonster(i<4?i:i+8,40));let ui=boot({state:s,battle:null});
+ ui.click('menu');ui.click('towerBtn');assert.ok(ui.scene().innerHTML.includes('研究メダル'));ui.click('towerStart');assert.equal(ui.read().battle.towerFloor,1);
+ let turns=0;while(!ui.read().battle.result&&turns++<80){ui.data('data-action').find(x=>x.dataset.action==='attack').click();ui.flush();}
+ assert.equal(ui.read().battle.result,'win');ui.click('endBattle');assert.ok(ui.scene().innerHTML.includes('未確定 2枚'));ui.click('towerRetire');
+ assert.equal(ui.read().state.postgame.medals,2);assert.equal(ui.read().state.postgame.runs,1);assert.equal(ui.read().state.postgame.tower,null);
+ ui=boot(ui.read());ui.click('menu');ui.click('towerBtn');assert.ok(ui.scene().innerHTML.includes('研究メダル 2枚'));
 });
