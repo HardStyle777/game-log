@@ -32,7 +32,7 @@ test('risk bonus, research exchange and defeat loss form a closed reward loop',(
 });
 
 test('legacy saves migrate while corrupt postgame and tower pairs are rejected',()=>{
- const legacy=makeState();delete legacy.postgame;assert.ok(validState(legacy));migratePostgame(legacy);assert.deepEqual(legacy.postgame,{medals:0,bestFloor:0,runs:0,tower:null,riftBest:0,riftRuns:0,rift:null});
+ const legacy=makeState();delete legacy.postgame;assert.ok(validState(legacy));migratePostgame(legacy);assert.deepEqual(legacy.postgame,{medals:0,bestFloor:0,runs:0,tower:null,riftBest:0,riftRuns:0,rift:null,guardianRanks:[0,0,0,0],guardianWins:0});
  const s=clearedState();for(const bad of [{...s,postgame:{medals:-1,bestFloor:0,runs:0,tower:null}},{...s,postgame:{medals:0,bestFloor:1000,runs:0,tower:null}},{...s,postgame:{medals:0,bestFloor:0,runs:0,tower:{floor:0,pending:0,waiting:false}}}])assert.equal(validState(bad),false);
  const b=startTower(s);assert.equal(validBattle({...b,towerFloor:2},s),false);assert.equal(validBattle({...b,tower:false},s),false);assert.equal(validBattle({...b,result:'capture'},s),false);
 });
