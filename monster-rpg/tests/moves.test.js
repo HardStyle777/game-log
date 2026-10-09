@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {MOVES,SPECIES,makeState,createMonster,maxHP,learnedMoves,equippedMoves,equipMove,migrateMoves,addXP,encounter,act,validState,validBattle} from '../dist/engine.js';
+import {MOVES,SPECIES,makeState,createMonster,maxHP,learnedMoves,equippedMoves,equipMove,migrateMoves,addXP,xpToNext,encounter,act,validState,validBattle} from '../dist/engine.js';
 
 test('64 named moves provide eight distinct choices per element and level gates',()=>{
  assert.equal(MOVES.length,64);assert.equal(new Set(MOVES.map(v=>v.name)).size,64);
@@ -21,8 +21,8 @@ test('legacy party, box and in-progress enemy saves migrate without losing progr
  assert.equal(s.party[0].hp,hp);assert.equal(s.coins,coins);assert.ok(s.box[0].moves.length<=4);assert.ok(b.enemy.moves.length);assert.ok(validBattle(b,s));
 });
 test('level-up teaches moves without overwriting four equipped choices',()=>{
- const m=createMonster(0,5);const events=addXP(m,60);assert.equal(m.level,6);assert.ok(m.moves.includes(2));assert.ok(events.some(x=>x.includes('芽吹きの祈り')));
- const high=createMonster(0,21);high.moves=[0,1,3,5];addXP(high,21*12);assert.equal(high.level,22);assert.deepEqual(high.moves,[0,1,3,5]);assert.ok(learnedMoves(high).some(v=>v.id===6));
+ const m=createMonster(0,5);const events=addXP(m,xpToNext(5));assert.equal(m.level,6);assert.ok(m.moves.includes(2));assert.ok(events.some(x=>x.includes('芽吹きの祈り')));
+ const high=createMonster(0,21);high.moves=[0,1,3,5];addXP(high,xpToNext(21));assert.equal(high.level,22);assert.deepEqual(high.moves,[0,1,3,5]);assert.ok(learnedMoves(high).some(v=>v.id===6));
 });
 function setup(kind){const s=makeState();s.seed=123;s.party=[createMonster(0,28)];const id=MOVES.find(v=>v.type===0&&v.kind===kind).id;s.party[0].moves=[id];const b=encounter(s,3,true);return {s,b,m:s.party[0],id};}
 test('unavailable or unaffordable moves consume no item, energy or turn',()=>{
