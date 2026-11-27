@@ -1,0 +1,12 @@
+<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>R45 アトラス検査</title><body style="background:#243642;color:white"><h1>フィア R45</h1><pre id="result">検査中</pre><script type="module">
+import {makeFiaAtlas} from './fia-art-r45.js';import {makeFiaAtlas as old} from './fia-art-r41.js';import {equippedImage} from './fia-appearance-r45.js';
+const load=async path=>{const i=new Image();i.src=path;await i.decode();return i};
+try{const [src,rec,attack]=await Promise.all(['assets/r37/fia-sprite.png','assets/r41/fia-recovery.png','assets/r45/fia-attack.png'].map(load));
+let checks=0;const ok=(v,m)=>{checks++;if(!v)throw Error(m)};
+for(const body of ['green','blue'])for(const feet of ['brown','black']){const gear={body,feet},s=equippedImage(src,'battle',gear),r=equippedImage(rec,'recovery',gear),a=equippedImage(attack,'attack',gear),base=old(s,r),atlas=makeFiaAtlas(s,r,a);
+const g=atlas.getContext('2d'),p=base.getContext('2d');const ac=document.createElement('canvas');ac.width=1440;ac.height=216;const ag=ac.getContext('2d');ag.drawImage(a,0,0);
+for(let i=0;i<32;i++){const x=i%6*240,y=Math.floor(i/6)*216,now=g.getImageData(x,y,240,216).data,expected=i<26?p.getImageData(x,y,240,216).data:ag.getImageData((i-26)*240,0,240,216).data;ok(now.every((v,k)=>v===expected[k]),'frame mismatch '+i);let n=0;for(let yy=0;yy<216;yy++)for(let xx=0;xx<240;xx++)if(now[(yy*240+xx)*4+3]){n++;ok(xx>0&&xx<239&&yy>0&&yy<215,'edge '+i)}ok(n>0,'empty '+i)}
+if(body==='green'&&feet==='brown'){document.body.append(atlas);atlas.style.maxWidth='100%';atlas.style.imageRendering='pixelated'}}
+document.getElementById('result').textContent=JSON.stringify({checks,failures:0,frames:32},null,2);
+}catch(e){document.getElementById('result').textContent='FAIL: '+e.message;throw e}
+</script></body></html>

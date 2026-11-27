@@ -1,0 +1,120 @@
+{
+  "version": "R45",
+  "attackAsset": {
+    "sha": "c6784945e0aba55c88682cf5503001319fc27264",
+    "dimensions": [
+      1440,
+      216
+    ],
+    "cells": 6,
+    "bounds": [
+      [
+        52,
+        55,
+        199,
+        191
+      ],
+      [
+        30,
+        57,
+        221,
+        191
+      ],
+      [
+        55,
+        68,
+        196,
+        191
+      ],
+      [
+        62,
+        50,
+        190,
+        191
+      ],
+      [
+        41,
+        52,
+        210,
+        191
+      ],
+      [
+        52,
+        50,
+        199,
+        191
+      ]
+    ],
+    "edgeCorrections": 44
+  },
+  "atlasCells": 32,
+  "regression": {
+    "version": "R45",
+    "checks": 6978,
+    "failures": 0,
+    "battles": [
+      {
+        "seed": 17,
+        "boss": false,
+        "multi": false,
+        "outcome": "win",
+        "round": 4,
+        "ticks": 674
+      },
+      {
+        "seed": 41,
+        "boss": false,
+        "multi": false,
+        "outcome": "win",
+        "round": 3,
+        "ticks": 635
+      },
+      {
+        "seed": 91,
+        "boss": false,
+        "multi": false,
+        "outcome": "win",
+        "round": 3,
+        "ticks": 635
+      },
+      {
+        "seed": 17,
+        "boss": false,
+        "multi": true,
+        "outcome": "win",
+        "round": 6,
+        "ticks": 1286
+      },
+      {
+        "seed": 17,
+        "boss": true,
+        "multi": false,
+        "outcome": "win",
+        "round": 19,
+        "ticks": 2900
+      }
+    ],
+    "counts": {
+      "guard": 5,
+      "hit": 18,
+      "attack": 16,
+      "victory": 4,
+      "knockout": 1
+    },
+    "revive": [
+      {
+        "type": "knockout",
+        "seq": 15
+      },
+      {
+        "type": "revive",
+        "seq": 26,
+        "hp": 1
+      }
+    ],
+    "scope": "actual engine and target input transitions, frame selection, snapshots; not full UI"
+  },
+  "extraChecks": 1543,
+  "failures": 0,
+  "scope": "actual engine and pure motion selection. PNG crop and alpha bounds checked locally; full browser raster and iPhone not run. Body/feet colour support extended to attack cells, independent other gear artwork remains."
+}
