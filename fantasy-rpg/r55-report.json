@@ -49,8 +49,15 @@
     "failures": 0
   },
   "syntax": "pass",
-  "engine": "not yet rerun",
+  "engine": {
+    "battle": 7002,
+    "terminalPose": 201,
+    "field": 17521,
+    "failures": 0,
+    "method": "actual published verify functions rerun; no full game UI"
+  },
   "publicHttp": "R54 curl DNS failure; R55 HTTP not checked",
   "fullBrowserUI": "not run",
-  "iphone": "not run"
+  "iphone": "not run",
+  "totalChecks": 51542
 }
