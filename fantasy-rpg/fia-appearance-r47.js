@@ -52,7 +52,8 @@ export function equippedImage(source,kind,gear={},ornaments=null){
   if(g.accessory==='brooch'&&size)ornament(o,ornaments,4,cx,cy-Math.floor(size/2),size,0,size);
   o.restore();
  }
- // Never let an ornament float away from the original body or change alpha.
- o.globalCompositeOperation='destination-in';o.drawImage(base,0,0);o.globalCompositeOperation='source-over';
- ctx.drawImage(overlay,0,0);return out;
+ // Blend ornament RGB inside the existing silhouette without increasing edge opacity.
+ const dst=ctx.getImageData(0,0,w,h),src=o.getImageData(0,0,w,h).data;
+ for(let i=0;i<src.length;i+=4){if(!dst.data[i+3]||!src[i+3])continue;const k=src[i+3]/255;for(let j=0;j<3;j++)dst.data[i+j]=Math.round(dst.data[i+j]*(1-k)+src[i+j]*k)}
+ ctx.putImageData(dst,0,0);return out;
 }
