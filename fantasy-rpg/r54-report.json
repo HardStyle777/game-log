@@ -36,8 +36,14 @@
     "visual": "Thin residual outline traces and potential weapon overlap remain; mechanical pass is not approval."
   },
   "syntax": "pass",
-  "actualEngine": "not rerun in this batch; engine/session/motion imports unchanged",
+  "actualEngine": {
+    "battle": 7002,
+    "terminalPose": 201,
+    "failures": 0,
+    "method": "actual published engine and pose verify functions rerun; not UI"
+  },
   "publicHttp": "R53 curl DNS resolution failed; R54 HTTP not checked",
   "fullBrowserUI": "not run",
-  "iphone": "not run"
+  "iphone": "not run",
+  "totalChecks": 31575
 }
