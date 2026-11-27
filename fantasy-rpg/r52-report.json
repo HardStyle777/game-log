@@ -1,0 +1,11 @@
+{
+  "version": "R52",
+  "field": {
+    "version": "R52",
+    "checks": 17521,
+    "failures": 0,
+    "scope": "real field model, frame selection, anchor, mode resets, source image routing; not browser operation"
+  },
+  "asset": "edb7768362a9ea977fb7cd8f2b1d2f309cfaef42",
+  "scope": "16 independent running poses; R50 idle and walk retained; 100ms/cell; movement speed unchanged; source PNG processed locally; full browser not yet tested"
+}
