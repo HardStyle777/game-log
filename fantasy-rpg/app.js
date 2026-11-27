@@ -1,7 +1,9 @@
 import {PARTY,NAMES,PartySession,makePartyConfig} from './party-session.js?v=22';
-import {activeMotion,enemyOpacity,impactLabel,impactAnchor,plannedLabel,battleMessage,partyFormation,actorPosition,targetSpec,enemyLayout,targetBox,targetCursor,tapTarget,STAGE,visibleBounds} from './battle-visuals.js?v=25';
-import {atlasPose,leonPose,motionScale} from './party-motion.js?v=25';
+import {activeMotion,enemyOpacity,impactLabel,impactAnchor,plannedLabel,battleMessage,partyFormation,actorPosition,targetSpec,enemyLayout,targetBox,targetCursor,tapTarget,STAGE,visibleBounds} from './battle-visuals.js?v=26';
+import {atlasPose,leonPose,motionScale} from './party-motion.js?v=26';
+import {createBattleSurface} from './battle-surface.js?v=26';
 const $=id=>document.getElementById(id), c=$('field'),ctx=c.getContext('2d'), W=STAGE.w,H=STAGE.h;
+const surface=createBattleSurface(c,ctx,STAGE);
 const artIds={leon:'leon',fia:'fia',glen:'glen',lucia:'eris'};
 // Same world-space coordinates for both encounters; no shrinking allies for boss.
 export const formation=partyFormation;
@@ -11,7 +13,7 @@ let activeCommand='basic', lastUi='', pendingChoice=null, speed=1, fieldChoice=n
 
 const params=new URLSearchParams(location.search),multiTest=params.get('test')==='multi',fromField=params.get('from')==='field',initialEnemy=params.get('encounter')==='boss'?'boss':'wolf';
 let assets={},partyMeta,session=null,live=false,encounter=initialEnemy,selected='leon',clock=0,previous=0,preview=null,hoverTarget=false,err=null,frames=0;
-const imgNames=['meadow','wolf','boss',...PARTY.map(id=>'r25/'+artIds[id]+'-battle')];
+const imgNames=['meadow','wolf','boss',...PARTY.map(id=>'r26/'+artIds[id]+'-battle')];
 const demoStats=[[482,96],[398,152],[540,84],[376,198]];
 const sample=()=>({vitals:{...Object.fromEntries(PARTY.map((id,i)=>[id,{hp:demoStats[i][0],hpMax:demoStats[i][0],mp:demoStats[i][1],mpMax:demoStats[i][1],spCenti:10000}])),wolf:{hp:700,hpMax:700},boss:{hp:3200,hpMax:3200}},round:1,clock,motion:preview?{[preview.id]:preview}: {},impacts:[],selected:{},active:[...PARTY],busy:!!preview,enemy:encounter,complete:false,inventory:{potion:4},outcome:null});
 const getView=()=>session?session.view():sample();
@@ -22,9 +24,11 @@ function partyPose(v,id){
  const actor=partyMeta.actors[artIds[id]];
  return id==='leon'?leonPose(v,actor):atlasPose(v,id,actor)
 }
-function drawParty(v,id,x,y){
- const pose=partyPose(v,id),f=pose.frame,im=assets['r25/'+pose.file],anchor=partyMeta.anchor;
- ctx.drawImage(im,f.x,f.y,f.w,f.h,Math.round(x-anchor[0]*motionScale),Math.round(y-anchor[1]*motionScale),Math.round(f.w*motionScale),Math.round(f.h*motionScale));
+function drawParty(v,id,x,y,scale){
+ const pose=partyPose(v,id),f=pose.frame,im=assets['r26/'+pose.file],anchor=partyMeta.anchor;
+ const left=Math.round((x-anchor[0]*motionScale)*scale)/scale;
+ const top=Math.round((y-anchor[1]*motionScale)*scale)/scale;
+ ctx.drawImage(im,f.x,f.y,f.w,f.h,left,top,f.w*motionScale,f.h*motionScale);
 }
 function roleEffect(v,id,p,m){
  if(!m||!['attack','cast'].includes(m.clip))return;
@@ -49,7 +53,8 @@ function roleEffect(v,id,p,m){
 
 function delta(v,id){const m=activeMotion(v,id);return m?.clip==='attack'?Math.sin(m.progress*Math.PI):0}
 function draw(v){
- ctx.imageSmoothingEnabled=false;const bg=assets.meadow,cut=Math.round(bg.height*94/224),crop=Math.round(bg.height*13/224),top=STAGE.ground;ctx.drawImage(bg,0,crop,bg.width,cut-crop,0,0,W,top);ctx.drawImage(bg,0,cut,bg.width,bg.height-cut,0,top,W,H-top);
+ const scale=surface.fit();
+ const bg=assets.meadow,cut=Math.round(bg.height*94/224),crop=Math.round(bg.height*13/224),top=STAGE.ground;ctx.drawImage(bg,0,crop,bg.width,cut-crop,0,0,W,top);ctx.drawImage(bg,0,cut,bg.width,bg.height-cut,0,top,W,H-top);
  const boxes=enemyLayout(v,enemyBounds);
  for(const [id,box] of Object.entries(boxes)){
   const enemyX=box.x+Math.round(delta(v,id)*(id==='boss'?12:20)),opacity=enemyOpacity(v,id),em=activeMotion(v,id),shake=em?.clip==='hit'?Math.round(Math.sin(em.progress*12)*4*(1-em.progress)):0;
@@ -59,7 +64,7 @@ function draw(v){
  for(const id of [...PARTY].sort((a,b)=>positions[a].y-positions[b].y)){
   const {x,y,h}=positions[id],m=activeMotion(v,id);shadow(x,y,13);
   if(v.vitals[id].hp===0&&id!=='leon'&&!m)ctx.globalAlpha=.72;
-  drawParty(v,id,x,y);ctx.globalAlpha=1;roleEffect(v,id,{x,y},m);
+  drawParty(v,id,x,y,scale);ctx.globalAlpha=1;roleEffect(v,id,{x,y},m);
   if(m?.clip==='guard'){ctx.save();ctx.strokeStyle='#d1eaff';ctx.globalAlpha=Math.sin(m.progress*Math.PI)*.75;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(x,y-h*.42,20,h*.45,0,0,2*Math.PI);ctx.stroke();ctx.restore()}
   if(id===selected&&!v.busy&&!fieldChoice){ctx.strokeStyle='#f8d787';ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(x,y+1,18,4,0,0,2*Math.PI);ctx.stroke()}
  }
@@ -120,7 +125,7 @@ function renderFieldTargets(v){
 }
 
 for(const b of document.querySelectorAll('[data-action]'))b.onclick=()=>{const a=b.dataset.action;if(getView().busy||b.disabled)return;activeCommand=a;if(live){pickAction(a);update(getView(),true)}else{const actor=selected;if(a==='guard'){startPreview(actor,a);return}pendingChoice={actor,skill:a};$('choiceTitle').textContent=NAMES[actor]+' — '+(a==='potion'?'回復対象':'対象を選択');$('choiceInfo').textContent='演出確認のみ（HP・MP・SPは変化しません）';const list=$('choiceList');list.replaceChildren();for(const id of a==='potion'?PARTY:[encounter]){const b=document.createElement('button');b.dataset.target=id;b.textContent=NAMES[id];b.onclick=()=>{if(pendingChoice)startPreview(actor,a)};list.append(b)}$('choice').showModal();update(getView(),true)}};
-$('submit').onclick=()=>{try{if(session?.complete&&!fieldChoice){session.submit();update(getView(),true)}}catch(e){$('notice').hidden=false;$('notice').textContent=e.message}};$('fieldReturn').onclick=()=>{const v=getView();if(v.busy)return;if(fromField){try{sessionStorage.setItem('fantasy-field-result',JSON.stringify({token:params.get('token'),outcome:v.outcome??'abort'}))}catch{}}location.href='./field.html?v=25'};$('skip').onclick=()=>{if(session?.busy){session.advance(120000);update(getView(),true)}};
+$('submit').onclick=()=>{try{if(session?.complete&&!fieldChoice){session.submit();update(getView(),true)}}catch(e){$('notice').hidden=false;$('notice').textContent=e.message}};$('fieldReturn').onclick=()=>{const v=getView();if(v.busy)return;if(fromField){try{sessionStorage.setItem('fantasy-field-result',JSON.stringify({token:params.get('token'),outcome:v.outcome??'abort'}))}catch{}}location.href='./field.html?v=26'};$('skip').onclick=()=>{if(session?.busy){session.advance(120000);update(getView(),true)}};
 let runtime=null;function switchEnemy(id){if(getView().busy)return;closeChoice();$('notice').hidden=true;activeCommand='basic';encounter=id;selected='leon';preview=null;if(live)session=new PartySession(runtime.battle,makePartyConfig(runtime.core,runtime.reference,runtime.fixture,{boss:id==='boss',multi:multiTest}),partyMeta.actors.leon.clips);update(getView())}
 function tick(t){try{const dt=previous?Math.min(100,t-previous):0;previous=t;clock+=dt;if(preview&&clock-preview.start>=preview.duration)preview=null;const v=session?session.advance(dt*speed):sample();draw(v);update(v);frames++;requestAnimationFrame(tick)}catch(e){err=e.message;$('message').textContent='描画エラー：'+err;console.error(e)}}
-try{[partyMeta,assets]=await Promise.all([fetch('assets/r25/motion.json').then(r=>{if(!r.ok)throw Error('R25 party motion');return r.json()}),Promise.all(imgNames.map(async n=>[n,await loadImage(n)])).then(Object.fromEntries)]);const requested=new URLSearchParams(location.search).get('live');const availability=await fetch('./runtime-status.json',{cache:'no-store'}).then(r=>r.ok?r.json():{live:false}).catch(()=>({live:false}));if(requested==='1'&&!availability.live)throw Error('戦闘エンジンを読み込めませんでした。ページを再読み込みしてください。');if(requested!=='0'&&availability.live){runtime=await import('./runtime.js?v=22').then(x=>x.loadRuntime());live=true;session=new PartySession(runtime.battle,makePartyConfig(runtime.core,runtime.reference,runtime.fixture,{multi:multiTest,boss:initialEnemy==='boss'}),partyMeta.actors.leon.clips);$('mode').textContent='R25・実戦闘エンジン接続・仮素材／仮技能'}else $('mode').textContent='演出確認モード（戦闘計算なし）';window.__r12={get frames(){return frames},get err(){return err},get view(){return getView()},get formation(){return formation},get poses(){const v=getView();return Object.fromEntries(PARTY.map(id=>[id,partyPose(v,id)]))},get visibleBounds(){return Object.fromEntries(PARTY.map(id=>[id,visibleBounds(id,formation[id],true)]))},get fieldChoice(){return fieldChoice},get encounter(){return encounter},get live(){return live},get state(){return session?.state??null},get sequence(){return session?.seq??null}};requestAnimationFrame(tick)}catch(e){err=e.message;$('message').textContent='読み込みエラー：'+err;console.error(e)}
+try{[partyMeta,assets]=await Promise.all([fetch('assets/r26/motion.json').then(r=>{if(!r.ok)throw Error('R26 party motion');return r.json()}),Promise.all(imgNames.map(async n=>[n,await loadImage(n)])).then(Object.fromEntries)]);const requested=new URLSearchParams(location.search).get('live');const availability=await fetch('./runtime-status.json',{cache:'no-store'}).then(r=>r.ok?r.json():{live:false}).catch(()=>({live:false}));if(requested==='1'&&!availability.live)throw Error('戦闘エンジンを読み込めませんでした。ページを再読み込みしてください。');if(requested!=='0'&&availability.live){runtime=await import('./runtime.js?v=22').then(x=>x.loadRuntime());live=true;session=new PartySession(runtime.battle,makePartyConfig(runtime.core,runtime.reference,runtime.fixture,{multi:multiTest,boss:initialEnemy==='boss'}),partyMeta.actors.leon.clips);$('mode').textContent='R26・実戦闘エンジン接続・仮素材／仮技能'}else $('mode').textContent='演出確認モード（戦闘計算なし）';window.__r12={get frames(){return frames},get err(){return err},get view(){return getView()},get formation(){return formation},get poses(){const v=getView();return Object.fromEntries(PARTY.map(id=>[id,partyPose(v,id)]))},get visibleBounds(){return Object.fromEntries(PARTY.map(id=>[id,visibleBounds(id,formation[id],true)]))},get fieldChoice(){return fieldChoice},get encounter(){return encounter},get live(){return live},get state(){return session?.state??null},get sequence(){return session?.seq??null}};requestAnimationFrame(tick)}catch(e){err=e.message;$('message').textContent='読み込みエラー：'+err;console.error(e)}

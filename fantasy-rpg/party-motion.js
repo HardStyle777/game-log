@@ -1,6 +1,6 @@
-// R25: role-specific motion frames, 160×144 sprite cells, planted feet.
+// R26: role-specific motion frames, 240×216 sprite cells, planted feet.
 // Animation clock only; no mutation of damage, actions or initiative.
-export const motionScale=.7;
+export const motionScale=7/15;
 const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
 function choose(fs,p){return fs[Math.min(fs.length-1,Math.floor(clamp(p,0,.99999)*fs.length))]}
 export function atlasPose(v,id,actor){

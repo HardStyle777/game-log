@@ -1,4 +1,4 @@
-import {motionScale} from './party-motion.js?v=25';
+import {motionScale} from './party-motion.js?v=26';
 
 // R15: pure presentation helpers. Never modify combat state.
 export const actionNames={basic:'通常攻撃',guard:'防御',potion:'回復薬',blade:'踏み込み斬り',double:'連撃',heavy:'強撃',spell:'魔法',claw:'爪撃',wait:'待機'};
@@ -27,10 +27,10 @@ export function battleMessage(v,names,selected){
 // R21: fixed foot anchors and measured visible-pixel extents.
 export const STAGE=Object.freeze({w:480,h:400,ground:116,margin:10});
 export const profiles=Object.freeze({
- leon:{left:70,right:51,above:95,idleLeft:67,idleRight:46,idleAbove:94,h:69},
- fia:{left:73,right:47,above:97,idleLeft:65,idleRight:34,idleAbove:93,h:64},
- glen:{left:77,right:49,above:94,idleLeft:62,idleRight:46,idleAbove:93,h:65},
- lucia:{left:72,right:50,above:99,idleLeft:65,idleRight:26,idleAbove:99,h:69}
+ leon:{left:106,right:76,above:144,idleLeft:101,idleRight:69,idleAbove:143,h:69},
+ fia:{left:110,right:71,above:147,idleLeft:98,idleRight:51,idleAbove:141,h:64},
+ glen:{left:117,right:74,above:141,idleLeft:94,idleRight:69,idleAbove:140,h:65},
+ lucia:{left:108,right:74,above:149,idleLeft:97,idleRight:39,idleAbove:149,h:69}
 });
 export const partyFormation=Object.freeze(Object.fromEntries(['leon','fia','glen','lucia'].map((id,i)=>[id,Object.freeze({x:390+i*13,y:148+i*77,h:profiles[id].h})])));
 export function visibleBounds(id,p,idle=false){

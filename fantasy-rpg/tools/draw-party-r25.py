@@ -1,4 +1,5 @@
-"""Build battle atlases from the party's detailed source art at twice the original grid."""
+"""Build the party battle atlases from the original artwork and authored poses."""
+import argparse
 import json
 from pathlib import Path
 from typing import NamedTuple
@@ -6,11 +7,20 @@ from typing import NamedTuple
 from PIL import Image, ImageDraw
 
 ASSETS = Path(__file__).resolve().parents[1] / "assets"
-OUT = ASSETS / "r25"
+VERSION = "r25"
+GRID = 2
 CELL = (160, 144)
 ANCHOR = (84, 128)
 FOOT = ANCHOR[1]
 NEAREST = Image.Resampling.NEAREST
+
+
+def px(value):
+    return round(value * GRID / 2)
+
+
+def point(coords):
+    return tuple(px(v) for v in coords)
 
 
 class Source(NamedTuple):
@@ -110,7 +120,7 @@ def companion_keys(actor):
 
 def mask_layer(source, points):
     mask = Image.new("1", CELL)
-    ImageDraw.Draw(mask).polygon(points,fill=1)
+    ImageDraw.Draw(mask).polygon([point(p) for p in points],fill=1)
     result = Image.new("RGBA", CELL)
     result.paste(source,(0,0),mask)
     return result
@@ -122,6 +132,7 @@ def remove(sprite, part):
 
 def clean_specks(sprite, minimum):
     remaining = {(x,y) for y in range(CELL[1]) for x in range(CELL[0]) if sprite.getpixel((x,y))[3]}
+    minimum = round(minimum * (GRID/2)**2)
     while remaining:
         pixels=[remaining.pop()]
         for x,y in pixels:
@@ -138,7 +149,7 @@ def clean_specks(sprite, minimum):
 
 def source_sprite(config):
     img = Image.open(ASSETS/(config.art+".png")).convert("RGBA")
-    x0,y0,x1,y1 = config.box
+    x0,y0,x1,y1 = (px(v) for v in config.box)
     reduced = img.crop(img.getbbox()).resize((x1-x0,y1-y0),Image.Resampling.BOX)
     # Give newly sampled edge pixels a hard alpha and drop the original grass matte.
     out = Image.new("RGBA", CELL)
@@ -147,15 +158,16 @@ def source_sprite(config):
             r,g,b,a = reduced.getpixel((x,y))
             if a<132:
                 continue
-            px,py = x+x0,y+y0
+            u,v = x+x0,y+y0
+            ref_x,ref_y = u*2/GRID,v*2/GRID
             grassy = g>r*1.02 and g>b*1.18 and g>27
-            in_floor = py>=101
-            in_edge = py>=60 and (px<38 or px>=104)
+            in_floor = ref_y>=101
+            in_edge = ref_y>=60 and (ref_x<38 or ref_x>=104)
             if grassy and (in_floor or in_edge):
                 continue
-            if config.art=="glen" and 64<=px<=87 and 110<=py<=119 and g>=r*.87 and g>b*1.28:
+            if config.art=="glen" and 64<=ref_x<=87 and 110<=ref_y<=119 and g>=r*.87 and g>b*1.28:
                 continue
-            out.putpixel((px,py),(r,g,b,255))
+            out.putpixel((u,v),(r,g,b,255))
     return clean_specks(out,4)
 
 
@@ -183,9 +195,10 @@ GOLD = ("161415","26201e","403126","624831","875f3c","a88054","c29c68","dec18b",
 
 def leon_coloring(sprite):
     out = sprite.copy()
-    for y in range(31,FOOT):
-        for x in range(38,131):
-            r,g,b,a=sprite.getpixel((x,y))
+    for v in range(px(31),FOOT):
+        for u in range(px(38),px(131)):
+            x,y = u*2/GRID,v*2/GRID
+            r,g,b,a=sprite.getpixel((u,v))
             if not a:
                 continue
             p=(r,g,b)
@@ -209,17 +222,17 @@ def leon_coloring(sprite):
                 p=(round(r*.80),round(g*.94),round(b*.99))
             elif x>=52 and y<111 and r>g*1.21:
                 p=ramp(p,BLUE)
-            out.putpixel((x,y),(*p,a))
+            out.putpixel((u,v),(*p,a))
 
     # A swept tuft and a tighter rear hairline make Leon's head distinct from Glen's.
     draw = ImageDraw.Draw(out)
-    draw.polygon([(86,45),(93,44),(89,48),(92,48),(88,52)],fill=(50,31,25,255))
-    draw.line([(86,46),(90,45),(87,48)],fill=(135,83,48,255))
-    draw.line([(64,38),(67,35),(72,36),(69,38)],fill=(113,72,42,255),width=2)
-    draw.polygon([(84,62),(91,59),(96,61),(91,64),(88,66)],fill=(0,0,0,0))
+    draw.polygon([point(p) for p in [(86,45),(93,44),(89,48),(92,48),(88,52)]],fill=(50,31,25,255))
+    draw.line([point(p) for p in [(86,46),(90,45),(87,48)]],fill=(135,83,48,255))
+    draw.line([point(p) for p in [(64,38),(67,35),(72,36),(69,38)]],fill=(113,72,42,255),width=px(2))
+    draw.polygon([point(p) for p in [(84,62),(91,59),(96,61),(91,64),(88,66)]],fill=(0,0,0,0))
     # Blue irises remain readable at the normal stage scale.
-    draw.line([(70,60),(70,62)],fill=(42,75,103,255),width=2)
-    draw.point((71,60),fill=(126,174,192,255))
+    draw.line([point(p) for p in [(70,60),(70,62)]],fill=(42,75,103,255),width=px(2))
+    draw.point(point((71,60)),fill=(126,174,192,255))
     return out
 
 
@@ -232,13 +245,13 @@ def rig(actor):
     if actor=="leon":
         blade=mask_layer(weapon,((19,105),(40,89),(45,89),(47,91),(46,95),(41,102),(22,115),(19,115)))
         remove(weapon,blade)
-        weapon.alpha_composite(blade.rotate(-49,center=(46,93),resample=NEAREST))
+        weapon.alpha_composite(blade.rotate(-49,center=point((46,93)),resample=NEAREST))
     # Cut from the pre-rotation raster, so the original blade cannot peek through.
     remove(art,mask_layer(art,config.weapon))
     torso = art.copy()
-    torso.paste((0,0,0,0),(0,config.waist+2,CELL[0],CELL[1]))
+    torso.paste((0,0,0,0),(0,px(config.waist+2),CELL[0],CELL[1]))
     legs = art.copy()
-    legs.paste((0,0,0,0),(0,0,CELL[0],config.waist-1))
+    legs.paste((0,0,0,0),(0,0,CELL[0],px(config.waist-1)))
     if actor in ("leon","glen"):
         front = mask_layer(legs,((47,100),(66,99),(69,109),(65,124),(62,130),(40,130),(42,110)))
         remove(legs,front)
@@ -269,10 +282,10 @@ def render(parts, pose):
     config,weapon,torso,legs,front=parts
     im=Image.new("RGBA",CELL)
     im.alpha_composite(legs)
-    im.alpha_composite(front,(-pose.step,0))
-    arm=weapon.rotate(pose.angle,center=config.pivot,resample=NEAREST)
-    im.alpha_composite(arm,(pose.x,pose.y))
-    im.alpha_composite(torso,(pose.x,pose.y))
+    im.alpha_composite(front,point((-pose.step,0)))
+    arm=weapon.rotate(pose.angle,center=point(config.pivot),resample=NEAREST)
+    im.alpha_composite(arm,point((pose.x,pose.y)))
+    im.alpha_composite(torso,point((pose.x,pose.y)))
     if pose.fall:
         return clean_specks(ground(im,pose.fall),9)
     # Avoid any weapon crossing the ground during its wind-up or follow-through.
@@ -290,6 +303,10 @@ def write_atlas(actor, baseline, keys):
         clips[name]=[]
         bounds[name]=[]
         for pose,previous in zip(samples,baseline[name]):
+            if GRID==3 and actor in ("leon","glen") and pose.fall>=65:
+                # As the torso settles, bring the blade alongside the fallen swordsman.
+                rest_angle = 8 if actor=="leon" else -29
+                pose=pose._replace(angle=rest_angle-pose.fall)
             if pose not in variants:
                 variants[pose]=(len(variants),render(parts,pose))
             index,im=variants[pose]
@@ -303,14 +320,24 @@ def write_atlas(actor, baseline, keys):
     for index,im in variants.values():
         atlas.alpha_composite(im,((index%6)*CELL[0],(index//6)*CELL[1]))
     # Store crisp, fully opaque pixels selected from one palette for the entire animation.
-    indexed=atlas.quantize(colors=88,method=Image.Quantize.FASTOCTREE,dither=Image.Dither.NONE)
+    indexed=atlas.quantize(colors=144 if GRID==3 else 88,method=Image.Quantize.FASTOCTREE,dither=Image.Dither.NONE)
     assert set(indexed.convert("RGBA").getchannel("A").get_flattened_data())<={0,255},actor
-    indexed.save(OUT/(actor+"-battle.png"),optimize=True)
+    indexed.save(ASSETS/VERSION/(actor+"-battle.png"),optimize=True)
     return clips,bounds
 
 
 def main():
-    OUT.mkdir(exist_ok=True)
+    global VERSION, GRID, CELL, ANCHOR, FOOT
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--native-detail", action="store_true", help="Build the R26 atlas from the source art at 3× grid density.")
+    args = parser.parse_args()
+    if args.native_detail:
+        VERSION, GRID = "r26", 3
+        CELL = (80*GRID,72*GRID)
+        ANCHOR = (42*GRID,64*GRID)
+        FOOT = ANCHOR[1]
+    out = ASSETS / VERSION
+    out.mkdir(exist_ok=True)
     old=json.loads((ASSETS/"r22"/"motion.json").read_text())["actors"]
     leon=json.loads((ASSETS/"r23"/"leon-clips.json").read_text())["clips"]
     metadata={"cell":CELL,"anchor":ANCHOR,"actors":{}}
@@ -324,7 +351,7 @@ def main():
             print(actor,group[0] if len(group)==1 else "all",(
                   min(b[0] for b in boxes),min(b[1] for b in boxes),
                   max(b[2] for b in boxes),max(b[3] for b in boxes)))
-    (OUT/"motion.json").write_text(json.dumps(metadata,separators=(",",":"))+"\n")
+    (out/"motion.json").write_text(json.dumps(metadata,separators=(",",":"))+"\n")
 
 
 if __name__=="__main__":
