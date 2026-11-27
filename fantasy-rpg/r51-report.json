@@ -1,0 +1,72 @@
+{
+  "version": "R51",
+  "implementation": "7b74da3aafdb0d075f4bac61647dba30ebb65357",
+  "cause": "R50 Leon victory clip ends in idle and leonPose selects idle when motion expires; no separate result image exists in battle-r50.html. Fia already held victory after outcome.",
+  "fix": "use R26 dedicated victory cell (240,648), preserve result pose for both living actors including parallel-animation gap; down for defeated actors; shared appearance atlas for battle and field normal/victory preview",
+  "checks": {
+    "actualEngineRegression": 7002,
+    "actualEngineVictoryReviveParity": 1107,
+    "terminalPose": 201,
+    "mockedAppearanceRouting": 440,
+    "total": 8750,
+    "failures": 0
+  },
+  "battles": [
+    {
+      "seed": 17,
+      "boss": false,
+      "multi": false,
+      "ticks": 546,
+      "held": 8,
+      "alive": {
+        "leon": true,
+        "fia": true
+      }
+    },
+    {
+      "seed": 41,
+      "boss": false,
+      "multi": false,
+      "ticks": 546,
+      "held": 8,
+      "alive": {
+        "leon": true,
+        "fia": true
+      }
+    },
+    {
+      "seed": 91,
+      "boss": false,
+      "multi": false,
+      "ticks": 546,
+      "held": 8,
+      "alive": {
+        "leon": true,
+        "fia": true
+      }
+    },
+    {
+      "seed": 17,
+      "boss": false,
+      "multi": true,
+      "ticks": 1232,
+      "held": 8,
+      "alive": {
+        "leon": true,
+        "fia": true
+      }
+    },
+    {
+      "seed": 17,
+      "boss": true,
+      "multi": false,
+      "ticks": 2584,
+      "held": 1,
+      "alive": {
+        "leon": true,
+        "fia": false
+      }
+    }
+  ],
+  "scope": "actual engine and actual pose functions; mock image assembly routes for 4 Leon and 144 Fia settings; no new art; browser raster, full UI and field return end-to-end not tested; no public HTTP/iPhone check. Other pending equipment and independently drawn running poses remain. Glen/Lucia use older assets unchanged."
+}
