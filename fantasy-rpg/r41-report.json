@@ -1,0 +1,108 @@
+{
+  "version": "R41",
+  "checks": 6978,
+  "failures": 0,
+  "battles": [
+    {
+      "seed": 17,
+      "boss": false,
+      "multi": false,
+      "outcome": "win",
+      "round": 4,
+      "ticks": 674
+    },
+    {
+      "seed": 41,
+      "boss": false,
+      "multi": false,
+      "outcome": "win",
+      "round": 3,
+      "ticks": 635
+    },
+    {
+      "seed": 91,
+      "boss": false,
+      "multi": false,
+      "outcome": "win",
+      "round": 3,
+      "ticks": 635
+    },
+    {
+      "seed": 17,
+      "boss": false,
+      "multi": true,
+      "outcome": "win",
+      "round": 6,
+      "ticks": 1286
+    },
+    {
+      "seed": 17,
+      "boss": true,
+      "multi": false,
+      "outcome": "win",
+      "round": 19,
+      "ticks": 2900
+    }
+  ],
+  "counts": {
+    "guard": 5,
+    "hit": 18,
+    "attack": 16,
+    "victory": 4,
+    "knockout": 1
+  },
+  "revive": [
+    {
+      "type": "knockout",
+      "seq": 15
+    },
+    {
+      "type": "revive",
+      "seq": 26,
+      "hp": 1
+    }
+  ],
+  "scope": "actual engine and target input transitions, frame selection, snapshots; not full UI",
+  "art": {
+    "source": "R37 unchanged + four independently illustrated poses",
+    "sha": "52864cf9b1a626984ea83d264b14958b469f7d2b",
+    "size": [
+      960,
+      216
+    ],
+    "cells": 26,
+    "replaced": {
+      "14": "hurt",
+      "16": "down",
+      "24": "rising",
+      "25": "kneeling"
+    },
+    "sourceBounds": [
+      [
+        69,
+        56,
+        184,
+        192
+      ],
+      [
+        52,
+        89,
+        200,
+        192
+      ],
+      [
+        50,
+        123,
+        203,
+        192
+      ],
+      [
+        57,
+        81,
+        195,
+        192
+      ]
+    ]
+  },
+  "limits": "Real engine and sequence tested; full browser game and iPhone not yet verified."
+}
