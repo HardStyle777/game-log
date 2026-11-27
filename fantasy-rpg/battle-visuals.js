@@ -22,7 +22,7 @@ export function battleMessage(v,names,selected){
 }
 
 // R16: four fixed party slots; only the acting member travels to the action point.
-export const partyFormation=Object.freeze({leon:{x:326,y:257,h:88},fia:{x:341,y:151,h:71},glen:{x:408,y:200,h:75},lucia:{x:435,y:277,h:91}});
+export const partyFormation=Object.freeze({leon:{x:310,y:132,h:88},fia:{x:353,y:185,h:71},glen:{x:396,y:238,h:75},lucia:{x:439,y:291,h:91}});
 const ease=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)};
 export function travel(m){
  if(!m)return 0;
@@ -40,3 +40,27 @@ export function actorPosition(v,id,box){
  }else if(m?.clip==='hit')x+=Math.sin(m.progress*12)*3*(1-m.progress);
  return {x:Math.round(x),y:Math.round(y),h};
 }
+
+// R17: target candidates are derived from legal engine commands, not canvas hit boxes.
+export function targetSpec(session,actor,skill){
+ const cs=session.legal(actor).filter(c=>c.skill===skill),s=session.state,k=s.catalog[skill];
+ if(!cs.length||!k)return null;
+ const ids=[...new Set(cs.filter(c=>c.target?.mode==='actor').map(c=>c.target.id))];
+ if(ids.length)return {mode:'single',ids};
+ if(!cs.some(c=>c.target===null))return null;
+ if(k.target?.endsWith('_all')){
+  const side=k.target.startsWith('enemy')?s.enemies:s.front;
+  return {mode:'all',ids:side.filter(id=>s.actors[id].vitals.hp>0)};
+ }
+ return {mode:'none',ids:[]};
+}
+export function enemyLayout(v,bounds){
+ const ids=v.enemies??[v.enemy];
+ if(ids.length===1)return {[ids[0]]:bounds[v.enemy]};
+ return Object.fromEntries(ids.map((id,i)=>[id,{x:16+(i%2)*86,y:87+i*75,w:128,h:80}]));
+}
+export function targetBox(id,boxes,formation=partyFormation){
+ if(boxes[id])return boxes[id];
+ const p=formation[id];return p?{x:p.x-27,y:p.y-p.h,w:54,h:p.h}:null;
+}
+export function targetCursor(b){return {x:Math.max(17,Math.min(463,b.x+b.w*.5)),y:Math.max(17,b.y-5)}}

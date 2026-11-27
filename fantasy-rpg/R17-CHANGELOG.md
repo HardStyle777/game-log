@@ -1,0 +1,2 @@
+# R17
+Four equally spaced diagonal home slots. Direct field target selection with visible cursors, confirm and cancel. All-target commands retain null target and mark every living target. Optional `?test=multi` test encounter uses two wolves and Lucia's area spell; normal and boss gameplay unchanged. No changes to the approved frame assets. Actual engine and target contracts tested; Safari visual review pending.
