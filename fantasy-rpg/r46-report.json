@@ -1,0 +1,123 @@
+{
+  "version": "R46",
+  "asset": {
+    "sha": "bb38fe66afd1493ce93081d1bc75172cfd6c2dd7",
+    "dimensions": [
+      1440,
+      216
+    ],
+    "cells": 6,
+    "bounds": [
+      [
+        74,
+        51,
+        177,
+        191
+      ],
+      [
+        70,
+        68,
+        181,
+        191
+      ],
+      [
+        69,
+        50,
+        182,
+        191
+      ],
+      [
+        80,
+        38,
+        172,
+        191
+      ],
+      [
+        67,
+        36,
+        185,
+        191
+      ],
+      [
+        72,
+        36,
+        180,
+        191
+      ]
+    ],
+    "edgeCorrections": 61
+  },
+  "atlasCells": 38,
+  "regression": {
+    "version": "R46",
+    "checks": 6978,
+    "failures": 0,
+    "battles": [
+      {
+        "seed": 17,
+        "boss": false,
+        "multi": false,
+        "outcome": "win",
+        "round": 4,
+        "ticks": 674
+      },
+      {
+        "seed": 41,
+        "boss": false,
+        "multi": false,
+        "outcome": "win",
+        "round": 3,
+        "ticks": 635
+      },
+      {
+        "seed": 91,
+        "boss": false,
+        "multi": false,
+        "outcome": "win",
+        "round": 3,
+        "ticks": 635
+      },
+      {
+        "seed": 17,
+        "boss": false,
+        "multi": true,
+        "outcome": "win",
+        "round": 6,
+        "ticks": 1286
+      },
+      {
+        "seed": 17,
+        "boss": true,
+        "multi": false,
+        "outcome": "win",
+        "round": 19,
+        "ticks": 2900
+      }
+    ],
+    "counts": {
+      "guard": 5,
+      "hit": 18,
+      "attack": 16,
+      "victory": 4,
+      "knockout": 1
+    },
+    "revive": [
+      {
+        "type": "knockout",
+        "seq": 15
+      },
+      {
+        "type": "revive",
+        "seq": 26,
+        "hp": 1
+      }
+    ],
+    "scope": "actual engine and target input transitions, frame selection, snapshots; not full UI"
+  },
+  "timing": {
+    "checks": 3704,
+    "failures": 0
+  },
+  "syntax": "pass",
+  "scope": "Actual engine and frame selection. Source PNG crop/alpha inspected; full game browser and iPhone not run. R44 four colour variants retained; independent remaining gear not completed."
+}
