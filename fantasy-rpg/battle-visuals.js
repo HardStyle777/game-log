@@ -22,10 +22,10 @@ export function battleMessage(v,names,selected){
 }
 
 // R16: four fixed party slots; only the acting member travels to the action point.
-// R21: fixed foot anchors, measured visible-pixel extents; Leon atlas includes effects.
+// R21: fixed foot anchors and measured visible-pixel extents.
 export const STAGE=Object.freeze({w:480,h:400,ground:116,margin:10});
 export const profiles=Object.freeze({
- leon:{scale:.78,left:100*.78,right:48*.78,above:99*.78,below:5*.78,idleLeft:37*.78,idleRight:25*.78,idleAbove:88*.78,idleBelow:1*.78,h:69},
+ leon:{scale:1.4,left:39*1.4,right:30*1.4,above:59*1.4,below:0,idleLeft:30*1.4,idleRight:22*1.4,idleAbove:49*1.4,h:69},
  fia:{scale:1.4,left:38*1.4,right:19*1.4,above:56*1.4,below:0,idleLeft:34*1.4,idleRight:17*1.4,idleAbove:46*1.4,h:64},
  glen:{scale:1.4,left:32*1.4,right:24*1.4,above:52*1.4,below:0,idleLeft:31*1.4,idleRight:23*1.4,idleAbove:46*1.4,h:65},
  lucia:{scale:1.4,left:35*1.4,right:22*1.4,above:52*1.4,below:0,idleLeft:33*1.4,idleRight:13*1.4,idleAbove:49*1.4,h:69}

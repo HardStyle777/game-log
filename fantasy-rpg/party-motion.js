@@ -22,13 +22,9 @@ export function atlasPose(v,id,meta){
 }
 export function leonPose(v,meta){
  const m=v.motion.leon,t=m?v.clock-m.start:-1,active=m&&t>=0&&t<m.duration;
- if(!active&&v.vitals.leon.hp>0){
-  const f=meta.clips.guard,seq=[f[0],f[1],f[2],f[1]],p=((v.clock%720)+720)%720/720;
-  return {frame:choose(seq,p),effect:false,clip:'ready'};
- }
- const clip=active&&meta.clips[m.clip]?m.clip:v.vitals.leon.hp===0?'down':'idle',fs=meta.clips[clip]??meta.clips.idle;
- let k=active?Math.max(0,t):v.clock;const total=fs.reduce((n,f)=>n+f.ms,0);
- k=clip==='idle'||clip==='down'?k%total:Math.min(k,total-1);
+ const clip=active&&meta.clips[m.clip]?m.clip:v.vitals.leon.hp<=0?'down':'idle';
+ const fs=meta.clips[clip],total=fs.reduce((n,f)=>n+f.ms,0);
+ let k=active?Math.min(t,total-1):v.clock%total;
  const frame=fs.find(f=>{if(k<f.ms)return true;k-=f.ms;return false})??fs.at(-1);
- return {frame,effect:active,clip};
+ return {frame,clip:clip==='idle'?'ready':clip};
 }
