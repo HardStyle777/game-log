@@ -1,7 +1,16 @@
-# Field and character asset pipeline
+# Fantasy RPG アート制作基準
 
-- Native grid: 16px terrain tiles, 48px character design cells; battle atlas may use larger cells for weapon/effects. Keep foot anchor and alpha envelopes separate from cell size.
-- Draw by palette clusters; no random photo-texture, antialiased outlines, gradient noise, or AI-generated full-screen raster as production map. Author reusable terrain edge variants, roofs, walls, windows, doors, foliage, props, shadows; compose scenes from these assets. Lock upper-left light direction and ground-plane projection.
-- Use indexed/limited-color sprite art; reuse body/head silhouette and palette across directions; hand-author intermediate poses rather than independent image regeneration. Native pixel coordinates and nearest-neighbor sampling; screen fit may require fractional display scale, never different X/Y scales for actors.
-- Before new actors: verify idle and every animation frame against foot-relative alpha envelope, including weapon/effect; compare actual rendered actor sizes; ensure nonoverlapping four-party idle rectangles and all feet on ground. Verify normal/multi/boss and target hitboxes. Preserve R18 targeting and R20 walk/run speeds (90/146 native px/s).
-- Existing background and non-Leon characters remain provisional. R21 is the placement baseline candidate, not final art approval. Next character should receive its own consistent idle, walk, attack, cast, guard, hit and down/revive assets; four diagonal field directions remain missing.
+## キャラクター
+
+- 承認済みの R26 を戦闘キャラクターの基準にする。比較元は `assets/r26/motion.json` と同ディレクトリのレオン、フィア、グレン、ルシアの戦闘アトラス。
+- 新キャラは実画面で4人と並べ、斜め向きの頭身、目元と髪の輪郭、布・革・金属の陰影、敵を意識した重心と武器の向きを揃える。顔、髪、装備の配色とシルエットで個性を出す。
+- 戦闘用セルは240×216、足元アンカーは `[126,192]` を基準とし、表示倍率は隊列から決める。同じ顔・装備の画素を待機、攻撃、魔法、防御、被弾、戦闘不能・復帰で用いる。攻撃の接触コマは戦闘判定の時刻に合わせる。
+- 色をまとまりのあるドットの面で配置し、影・輪郭・反射の段階を揃える。端末の画面密度に合わせた描画で細部を残す。通常戦・大型ボス戦と行動中を比較し、武器やエフェクトを含めた外接範囲、足元、描画順、対象選択を検証する。
+- フィールド用は48pxの表示を基準に、横・正面・背面で頭身と装備を揃える。固有キャラクターを追加するときは斜め歩行にも対応する。
+
+## フィールド
+
+- R27 の町、草原、室内をフィールドの基準にする。地面と前後関係のある建物・樹木・家具を分け、左上からの光と同じ地面の向きを使う。
+- 地形の座標は16pxを基本に扱い、描画素材はその3倍の画素で作る。道と草の境、屋根瓦、石畳、床板、樹木を素材ごとの色と模様で描き分ける。プレイヤー、敵、動く水はゲーム側で重ねる。
+- 建物の入口、門、木の幹、家具の接地位置を移動判定に合わせる。地面の装飾は歩行可能な高さに留める。町・草原・室内の行き来、戦闘からの復帰、歩行・走行を実際の探索画面で確認する。
+- R27 の素材はリポジトリのルートで `python3 fantasy-rpg/tools/draw-field-r27.py` を実行して再生成できる。Pillow と Node.js を使う。
