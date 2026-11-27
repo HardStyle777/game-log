@@ -1,5 +1,5 @@
 import {MAPS,W,H} from './field-model.js?v=28';
-import {townGround,sunOnStreet,decorateTownProp} from './town-light.js?v=28';
+import {townGround,sunOnStreet,decorateTownProp} from './town-light.js?v=29';
 
 function artFor(object,map){
  if(object.kind==='enemy')return object.encounter;
@@ -25,10 +25,10 @@ const scene=Object.fromEntries(Object.entries(MAPS).map(([name,map])=>{
 function visible(cam,x,y,w,h){
  return x+w>cam.x&&x<cam.x+W&&y+h>cam.y&&y<cam.y+H
 }
-function prop(c,images,o,cam){
+function prop(c,images,o,cam,inTown){
  const {scale,props}=images.art,s=props[o.art],x=o.x+s.dx,y=o.y+s.dy;
  if(!visible(cam,x,y,s.w,s.h))return false;
- c.drawImage(images.props,s.x*scale,s.y*scale,s.w*scale,s.h*scale,x,y,s.w,s.h);
+ c.drawImage(inTown?images.townProps:images.props,s.x*scale,s.y*scale,s.w*scale,s.h*scale,x,y,s.w,s.h);
  return true
 }
 function shadow(c,x,y,rx,ry){
@@ -61,7 +61,7 @@ function drawObject(c,o,cam,t,images,cleared,inTown){
  }
  if(o.kind==='enemy'&&cleared.includes(o.id))return;
  const sprite=o.kind==='enemy'?{...o,y:o.y+Math.round(Math.sin(t/240))}:o;
- if(!prop(c,images,sprite,cam))return;
+ if(!prop(c,images,sprite,cam,inTown))return;
  if(o.kind==='fountain')water(c,o,t);
  if(inTown)decorateTownProp(c,o,t,images.art.scale)
 }

@@ -1,8 +1,8 @@
 import {MAPS,W,H,newState,restore,move,transition,interact,encounter,returnBattle,camera} from './field-model.js?v=28';
-import {render} from './field-art.js?v=28';
+import {render} from './field-art.js?v=29';
 import {createPixelSurface} from './battle-surface.js?v=27';
 const $=id=>document.getElementById(id),cv=$('map'),ctx=cv.getContext('2d'),mini=$('mini').getContext('2d');
-const surface=createPixelSurface(cv,ctx,{w:W,h:H}),artRoot='assets/r27/';
+const surface=createPixelSurface(cv,ctx,{w:W,h:H}),artRoot='assets/r27/',townArt='assets/r29/';
 const KEY='fantasy-field-r19',RESULT='fantasy-field-result',PENDING='fantasy-field-pending';
 function get(k){try{return JSON.parse(sessionStorage.getItem(k)||'null')}catch{return null}}
 function put(k,v){try{sessionStorage.setItem(k,JSON.stringify(v))}catch{}}
@@ -29,7 +29,7 @@ function minimap(){
  mini.fillStyle='#1b2b27';mini.fillRect(0,0,w,h);
  mini.imageSmoothingEnabled=true;mini.drawImage(images[state.map],ox,oy,m.w*k,m.h*k);
  for(const b of m.buildings){
-  mini.fillStyle=b.roof==='blue'?'#263f55':'#704538';
+  mini.fillStyle=b.id==='hall'?'#4c9ba7':b.roof==='blue'?'#376aac':'#bd6a82';
   mini.fillRect(ox+b.x*k,oy+b.y*k,b.w*k,b.h*k)
  }
  for(const exit of m.exits){
@@ -52,6 +52,7 @@ function tick(t){if(leaving)return;try{const dt=prev?Math.min(.1,(t-prev)/1000):
 const load=(name,path)=>new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve([name,i]);i.onerror=()=>reject(Error(path));i.src=path});
 try{images=Object.fromEntries(await Promise.all([load('leon','assets/field-atlas.png'),
  load('props',artRoot+'field-props.png'),
- ...Object.keys(MAPS).map(name=>load(name,artRoot+name+'-ground.png')),
+ load('townProps',townArt+'town-props.png'),
+ ...Object.keys(MAPS).map(name=>load(name,(name==='town'?townArt:artRoot)+name+'-ground.png')),
  fetch(artRoot+'field-art.json').then(r=>{if(!r.ok)throw Error('地形素材の設定');return r.json()}).then(art=>['art',art])
  ]));ready=true;$('talk').disabled=false;updateMap();window.__field={get state(){return {...state}},get ready(){return ready},get frames(){return frames},get err(){return err},get camera(){return camera(state)}};requestAnimationFrame(tick)}catch(e){err=String(e);$('fieldMessage').textContent='読み込みエラー：'+err}
