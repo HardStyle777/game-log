@@ -1,5 +1,6 @@
-import {PARTY,NAMES,PartySession,makePartyConfig} from './party-session.js?v=21';
-import {activeMotion,enemyOpacity,impactLabel,impactAnchor,plannedLabel,battleMessage,partyFormation,actorPosition,targetSpec,enemyLayout,targetBox,targetCursor,tapTarget,profiles,STAGE,visibleBounds} from './battle-visuals.js?v=21';
+import {PARTY,NAMES,PartySession,makePartyConfig} from './party-session.js?v=22';
+import {activeMotion,enemyOpacity,impactLabel,impactAnchor,plannedLabel,battleMessage,partyFormation,actorPosition,targetSpec,enemyLayout,targetBox,targetCursor,tapTarget,profiles,STAGE,visibleBounds} from './battle-visuals.js?v=22';
+import {atlasPose,leonPose,motionScale} from './party-motion.js?v=22';
 const $=id=>document.getElementById(id), c=$('field'),ctx=c.getContext('2d'), W=STAGE.w,H=STAGE.h;
 const artIds={leon:'leon',fia:'fia',glen:'glen',lucia:'eris'};
 // Same world-space coordinates for both encounters; no shrinking allies for boss.
@@ -9,16 +10,35 @@ const loadImage=n=>new Promise((resolve,reject)=>{const i=new Image();i.onload=(
 let activeCommand='basic', lastUi='', pendingChoice=null, speed=1, fieldChoice=null, targetLayoutKey='';
 
 const params=new URLSearchParams(location.search),multiTest=params.get('test')==='multi',fromField=params.get('from')==='field',initialEnemy=params.get('encounter')==='boss'?'boss':'wolf';
-let assets={},meta,session=null,live=false,encounter=initialEnemy,selected='leon',clock=0,previous=0,preview=null,hoverTarget=false,err=null,frames=0;
-const imgNames=['meadow','wolf','boss','fia','glen','eris','leon-atlas','leon-effects'];
+let assets={},meta,partyMeta,session=null,live=false,encounter=initialEnemy,selected='leon',clock=0,previous=0,preview=null,hoverTarget=false,err=null,frames=0;
+const imgNames=['meadow','wolf','boss','leon-atlas','leon-effects','r22/fia-r22','r22/glen-r22','r22/eris-r22'];
 const demoStats=[[482,96],[398,152],[540,84],[376,198]];
 const sample=()=>({vitals:{...Object.fromEntries(PARTY.map((id,i)=>[id,{hp:demoStats[i][0],hpMax:demoStats[i][0],mp:demoStats[i][1],mpMax:demoStats[i][1],spCenti:10000}])),wolf:{hp:700,hpMax:700},boss:{hp:3200,hpMax:3200}},round:1,clock,motion:preview?{[preview.id]:preview}: {},impacts:[],selected:{},active:[...PARTY],busy:!!preview,enemy:encounter,complete:false,inventory:{potion:4},outcome:null});
 const getView=()=>session?session.view():sample();
 const commandFor=s=>({basic:'basic',guard:'guard',potion:'potion',spell:'skill',blade:'tech',double:'tech',heavy:'tech'})[s];
 for(const id of PARTY){const b=document.createElement('button');b.className='gold member';b.id='member-'+id;b.setAttribute('aria-pressed','false');b.innerHTML='<img class="portrait" alt="" src="assets/'+artIds[id]+'-portrait.png"><span class="stat"><span class="name"><span>'+NAMES[id]+'</span><span class="lv">Lv.<span class="level">34</span></span></span>'+['hp','mp','sp'].map(k=>'<span class="rowstat"><strong>'+k.toUpperCase()+'</strong><span class="meter"><span class="val" data-val="'+k+'"></span><span class="bar '+k+'"><i data-bar="'+k+'"></i></span></span></span>').join('')+'</span>';b.onclick=()=>{if(fieldChoice&&fieldChoice.spec.ids.includes(id)){chooseFieldTarget(id);return}if(!getView().busy&&(!live||session.active.includes(id))){closeChoice();selected=id;activeCommand=commandFor(session?.selected[id]?.skill)??'basic';update(getView(),true)}};$('party').append(b)}
 function shadow(x,y,w,h=4){ctx.fillStyle='#1c351d88';ctx.beginPath();ctx.ellipse(x,y,w,h,0,0,2*Math.PI);ctx.fill()}
-function sprite(im,x,y,h){const w=Math.round(h*im.width/im.height);ctx.drawImage(im,Math.round(x-w/2),Math.round(y-h),w,h)}
-function leon(v,x,y){const m=v.motion.leon;let clip=m?.clip??'idle',t=m?v.clock-m.start:v.clock;if(!meta.clips[clip]||m&&t>=m.duration){clip=v.vitals.leon.hp===0?'down':'idle';t=v.clock}const fs=meta.clips[clip];let sum=fs.reduce((n,f)=>n+f.ms,0);t=clip==='idle'||clip==='down'?t%sum:Math.min(t,sum-1);let frame=fs.find(f=>{if(t<f.ms)return true;t-=f.ms;return false})??fs.at(-1);ctx.save();ctx.translate(Math.round(x),Math.round(y));ctx.scale(-profiles.leon.scale,profiles.leon.scale);for(const a of [assets['leon-atlas'],assets['leon-effects']])ctx.drawImage(a,frame.x,frame.y,frame.w,frame.h,-meta.anchor[0],-meta.anchor[1],frame.w,frame.h);ctx.restore()}
+function drawParty(v,id,x,y){
+ const pose=atlasPose(v,id,partyMeta),f=pose.frame,im=assets['r22/'+pose.file],anchor=partyMeta.anchor;
+ ctx.drawImage(im,f.x,f.y,f.w,f.h,Math.round(x-anchor[0]*motionScale),Math.round(y-anchor[1]*motionScale),Math.round(f.w*motionScale),Math.round(f.h*motionScale));
+}
+function leon(v,x,y){const pose=leonPose(v,meta),frame=pose.frame;ctx.save();ctx.translate(Math.round(x),Math.round(y));ctx.scale(-profiles.leon.scale,profiles.leon.scale);ctx.drawImage(assets['leon-atlas'],frame.x,frame.y,frame.w,frame.h,-meta.anchor[0],-meta.anchor[1],frame.w,frame.h);if(pose.effect)ctx.drawImage(assets['leon-effects'],frame.x,frame.y,frame.w,frame.h,-meta.anchor[0],-meta.anchor[1],frame.w,frame.h);ctx.restore()}
+function roleEffect(v,id,p,m){
+ if(!m||id==='leon'||!['attack','cast'].includes(m.clip))return;
+ const t=m.progress*m.duration,delta=t-(m.contact??m.duration*.5);
+ if(delta< -35||delta>175)return;
+ const alpha=Math.max(0,1-Math.max(0,delta)/175);ctx.save();ctx.globalAlpha=alpha;
+ if(m.clip==='attack'&&id==='glen'){
+  ctx.strokeStyle='#eff7ff';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(p.x-48,p.y-17);ctx.quadraticCurveTo(p.x-65,p.y-37,p.x-33,p.y-49);ctx.stroke();
+  ctx.strokeStyle='#81bde8';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(p.x-52,p.y-14);ctx.quadraticCurveTo(p.x-70,p.y-39,p.x-32,p.y-53);ctx.stroke();
+ }else{
+  const colors=id==='fia'?['#fff3b2','#e5c66f']:['#e8d6ff','#a896ff'];const q=Math.max(0,Math.min(1,(delta+35)/210)),x=p.x-32,y=p.y-42;
+  ctx.fillStyle=colors[0];for(let i=0;i<5;i++){const a=i*Math.PI*2/5+q*1.8,r=5+q*14,xx=Math.round(x+Math.cos(a)*r),yy=Math.round(y+Math.sin(a)*r);ctx.fillRect(xx-1,yy-3,2,6);ctx.fillRect(xx-3,yy-1,6,2)}
+  ctx.fillStyle=colors[1];ctx.fillRect(x-2,y-2,4,4);
+ }
+ ctx.restore();
+}
+
 function delta(v,id){const m=activeMotion(v,id);return m?.clip==='attack'?Math.sin(m.progress*Math.PI):0}
 function draw(v){
  ctx.imageSmoothingEnabled=false;const bg=assets.meadow,cut=Math.round(bg.height*94/224),crop=Math.round(bg.height*13/224),top=STAGE.ground;ctx.drawImage(bg,0,crop,bg.width,cut-crop,0,0,W,top);ctx.drawImage(bg,0,cut,bg.width,bg.height-cut,0,top,W,H-top);
@@ -30,8 +50,8 @@ function draw(v){
  const positions=Object.fromEntries(PARTY.map(id=>[id,actorPosition(v,id,boxes[activeMotion(v,id)?.targets?.find(t=>boxes[t])]??boxes[v.enemy])]));
  for(const id of [...PARTY].sort((a,b)=>positions[a].y-positions[b].y)){
   const {x,y,h}=positions[id],m=activeMotion(v,id);shadow(x,y,id==='leon'?13:13);
-  if(v.vitals[id].hp===0&&id!=='leon')ctx.globalAlpha=m?.clip==='knockout'?1-.6*m.progress:.4;
-  if(id==='leon')leon(v,x,y);else sprite(assets[artIds[id]],x,y,h);ctx.globalAlpha=1;
+  if(v.vitals[id].hp===0&&id!=='leon'&&!m)ctx.globalAlpha=.72;
+  if(id==='leon')leon(v,x,y);else drawParty(v,id,x,y);ctx.globalAlpha=1;roleEffect(v,id,{x,y,h},m);
   if(m?.clip==='guard'){ctx.save();ctx.strokeStyle='#d1eaff';ctx.globalAlpha=Math.sin(m.progress*Math.PI)*.75;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(x,y-h*.42,20,h*.45,0,0,2*Math.PI);ctx.stroke();ctx.restore()}
   if(id===selected&&!v.busy&&!fieldChoice){ctx.strokeStyle='#f8d787';ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(x,y+1,18,4,0,0,2*Math.PI);ctx.stroke()}
  }
@@ -84,7 +104,7 @@ function renderFieldTargets(v){
 }
 
 for(const b of document.querySelectorAll('[data-action]'))b.onclick=()=>{const a=b.dataset.action;if(getView().busy||b.disabled)return;activeCommand=a;if(live){pickAction(a);update(getView(),true)}else{const actor=selected;if(a==='guard'){startPreview(actor,a);return}pendingChoice={actor,skill:a};$('choiceTitle').textContent=NAMES[actor]+' — '+(a==='potion'?'回復対象':'対象を選択');$('choiceInfo').textContent='演出確認のみ（HP・MP・SPは変化しません）';const list=$('choiceList');list.replaceChildren();for(const id of a==='potion'?PARTY:[encounter]){const b=document.createElement('button');b.dataset.target=id;b.textContent=NAMES[id];b.onclick=()=>{if(pendingChoice)startPreview(actor,a)};list.append(b)}$('choice').showModal();update(getView(),true)}};
-$('submit').onclick=()=>{try{if(session?.complete&&!fieldChoice){session.submit();update(getView(),true)}}catch(e){$('notice').hidden=false;$('notice').textContent=e.message}};$('fieldReturn').onclick=()=>{const v=getView();if(v.busy)return;if(fromField){try{sessionStorage.setItem('fantasy-field-result',JSON.stringify({token:params.get('token'),outcome:v.outcome??'abort'}))}catch{}}location.href='./field.html?v=21'};$('skip').onclick=()=>{if(session?.busy){session.advance(120000);update(getView(),true)}};
+$('submit').onclick=()=>{try{if(session?.complete&&!fieldChoice){session.submit();update(getView(),true)}}catch(e){$('notice').hidden=false;$('notice').textContent=e.message}};$('fieldReturn').onclick=()=>{const v=getView();if(v.busy)return;if(fromField){try{sessionStorage.setItem('fantasy-field-result',JSON.stringify({token:params.get('token'),outcome:v.outcome??'abort'}))}catch{}}location.href='./field.html?v=22'};$('skip').onclick=()=>{if(session?.busy){session.advance(120000);update(getView(),true)}};
 let runtime=null;function switchEnemy(id){if(getView().busy)return;closeChoice();$('notice').hidden=true;activeCommand='basic';encounter=id;selected='leon';preview=null;if(live)session=new PartySession(runtime.battle,makePartyConfig(runtime.core,runtime.reference,runtime.fixture,{boss:id==='boss',multi:multiTest}),meta.clips);update(getView())}
 function tick(t){try{const dt=previous?Math.min(100,t-previous):0;previous=t;clock+=dt;if(preview&&clock-preview.start>=preview.duration)preview=null;const v=session?session.advance(dt*speed):sample();draw(v);update(v);frames++;requestAnimationFrame(tick)}catch(e){err=e.message;$('message').textContent='描画エラー：'+err;console.error(e)}}
-try{[meta,assets]=await Promise.all([fetch('assets/leon-clips.json').then(r=>r.json()),Promise.all(imgNames.map(async n=>[n,await loadImage(n)])).then(Object.fromEntries)]);const requested=new URLSearchParams(location.search).get('live');const availability=await fetch('./runtime-status.json',{cache:'no-store'}).then(r=>r.ok?r.json():{live:false}).catch(()=>({live:false}));if(requested==='1'&&!availability.live)throw Error('戦闘エンジンを読み込めませんでした。ページを再読み込みしてください。');if(requested!=='0'&&availability.live){runtime=await import('./runtime.js?v=21').then(x=>x.loadRuntime());live=true;session=new PartySession(runtime.battle,makePartyConfig(runtime.core,runtime.reference,runtime.fixture,{multi:multiTest,boss:initialEnemy==='boss'}),meta.clips);$('mode').textContent='R21・実戦闘エンジン接続・仮素材／仮技能'}else $('mode').textContent='演出確認モード（戦闘計算なし）';window.__r12={get frames(){return frames},get err(){return err},get view(){return getView()},get formation(){return formation},get visibleBounds(){return Object.fromEntries(PARTY.map(id=>[id,visibleBounds(id,formation[id],true)]))},get fieldChoice(){return fieldChoice},get encounter(){return encounter},get live(){return live},get state(){return session?.state??null},get sequence(){return session?.seq??null}};requestAnimationFrame(tick)}catch(e){err=e.message;$('message').textContent='読み込みエラー：'+err;console.error(e)}
+try{[meta,partyMeta,assets]=await Promise.all([fetch('assets/leon-clips.json').then(r=>{if(!r.ok)throw Error('leon-clips');return r.json()}),fetch('assets/r22/motion.json?v=22').then(r=>{if(!r.ok)throw Error('R22 motion');return r.json()}),Promise.all(imgNames.map(async n=>[n,await loadImage(n)])).then(Object.fromEntries)]);const requested=new URLSearchParams(location.search).get('live');const availability=await fetch('./runtime-status.json',{cache:'no-store'}).then(r=>r.ok?r.json():{live:false}).catch(()=>({live:false}));if(requested==='1'&&!availability.live)throw Error('戦闘エンジンを読み込めませんでした。ページを再読み込みしてください。');if(requested!=='0'&&availability.live){runtime=await import('./runtime.js?v=22').then(x=>x.loadRuntime());live=true;session=new PartySession(runtime.battle,makePartyConfig(runtime.core,runtime.reference,runtime.fixture,{multi:multiTest,boss:initialEnemy==='boss'}),meta.clips);$('mode').textContent='R22・実戦闘エンジン接続・仮素材／仮技能'}else $('mode').textContent='演出確認モード（戦闘計算なし）';window.__r12={get frames(){return frames},get err(){return err},get view(){return getView()},get formation(){return formation},get poses(){const v=getView();return Object.fromEntries(PARTY.map(id=>[id,id==='leon'?leonPose(v,meta):atlasPose(v,id,partyMeta)]))},get visibleBounds(){return Object.fromEntries(PARTY.map(id=>[id,visibleBounds(id,formation[id],true)]))},get fieldChoice(){return fieldChoice},get encounter(){return encounter},get live(){return live},get state(){return session?.state??null},get sequence(){return session?.seq??null}};requestAnimationFrame(tick)}catch(e){err=e.message;$('message').textContent='読み込みエラー：'+err;console.error(e)}

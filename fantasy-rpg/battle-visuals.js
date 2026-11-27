@@ -26,9 +26,9 @@ export function battleMessage(v,names,selected){
 export const STAGE=Object.freeze({w:480,h:400,ground:116,margin:10});
 export const profiles=Object.freeze({
  leon:{scale:.78,left:100*.78,right:48*.78,above:99*.78,below:5*.78,idleLeft:37*.78,idleRight:25*.78,idleAbove:88*.78,idleBelow:1*.78,h:69},
- fia:{left:Math.round(64*128/131)/2,right:Math.round(64*128/131)/2,above:64,below:0,h:64},
- glen:{left:Math.round(66*153/145)/2,right:Math.round(66*153/145)/2,above:66,below:0,h:66},
- lucia:{left:Math.round(70*159/185)/2,right:Math.round(70*159/185)/2,above:70,below:0,h:70}
+ fia:{scale:1.4,left:38*1.4,right:19*1.4,above:56*1.4,below:0,idleLeft:34*1.4,idleRight:17*1.4,idleAbove:46*1.4,h:64},
+ glen:{scale:1.4,left:32*1.4,right:24*1.4,above:52*1.4,below:0,idleLeft:31*1.4,idleRight:23*1.4,idleAbove:46*1.4,h:65},
+ lucia:{scale:1.4,left:35*1.4,right:22*1.4,above:52*1.4,below:0,idleLeft:33*1.4,idleRight:13*1.4,idleAbove:49*1.4,h:69}
 });
 export const partyFormation=Object.freeze(Object.fromEntries(['leon','fia','glen','lucia'].map((id,i)=>[id,Object.freeze({x:390+i*13,y:148+i*77,h:profiles[id].h})])));
 export function visibleBounds(id,p,idle=false){
@@ -44,7 +44,9 @@ export function travel(m){
  if(!m)return 0;
  const t=m.progress*m.duration, contact=m.contact??m.duration*.46;
  const arrive=Math.max(1,contact-35),leave=Math.min(m.duration-1,contact+Math.min(115,m.duration*.22));
- if(t<arrive)return ease(t/arrive);
+ const windup=Math.min(105,arrive*.42);
+ if(t<=windup)return 0;
+ if(t<arrive)return ease((t-windup)/Math.max(1,arrive-windup));
  if(t<=leave)return 1;
  return 1-ease((t-leave)/Math.max(1,m.duration-leave));
 }
