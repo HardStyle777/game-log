@@ -1,0 +1,8 @@
+{
+  "version": "R48",
+  "checks": 173,
+  "failures": 0,
+  "scope": "schema, old-save migration, 64 configuration roundtrips, 34 blade transforms; JS syntax; Python prototype visual check. Browser raster and full UI not yet verified.",
+  "asset": "d49daec12d98a40387dfb930b6981cc713268846",
+  "remaining": "full blade replacement/hand-specific overlap polish, separate armour shape variants, iPhone and user visual review"
+}
