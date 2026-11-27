@@ -2,8 +2,40 @@
   "version": "R47",
   "checks": 195,
   "failures": 0,
-  "scope": "schema and 16 combinations storage, per-source-cell anchors, JS syntax; Python visual prototype inspected, browser raster and full UI not yet run",
+  "scope": "Schema, anchor checks, actual engine/motion/field regression, local Chromium raster; public DNS failed; full game UI/iPhone not run",
   "asset": "5829532572dfece6aa5c0057006c236a7d2d81f7",
   "sources": 49,
-  "remaining": "main/offhand independent artwork; body and feet shape variants; user visual approval"
+  "remaining": "main/offhand independent artwork; body and feet shape variants; user visual approval",
+  "regression": {
+    "battle": 6978,
+    "stance": 3704,
+    "field": 17521,
+    "failures": 0
+  },
+  "canvas": {
+    "checks": 59154529,
+    "failures": 0,
+    "combinations": 16,
+    "frames": 38,
+    "sourceCells": 49,
+    "sourceAlphaEqual": true,
+    "atlasAlphaEqual": true,
+    "defaultPixelEqual": true,
+    "allVisibleOrnamentCellsChanged": true,
+    "hiddenCellsUnchanged": true,
+    "allFramesInset": true,
+    "method": "local Chromium, data URI import rewriting after Git blob match",
+    "initialFailure": "alpha battle: source-over blending changes partial alpha",
+    "correction": "blend RGB only with original source alpha",
+    "moduleSha": "312de286998b665c3b73ced74835c2339b7a6d48",
+    "sourceShas": {
+      "field": "0f3b14390be81af8558b494e791fff748ca69e32",
+      "motion": "73d213be359d46fca2f34cbcf918881a66dad636",
+      "battle": "dda082eb4286f7fbb961461972e28df31cb8c70e",
+      "recovery": "52864cf9b1a626984ea83d264b14958b469f7d2b",
+      "attack": "c6784945e0aba55c88682cf5503001319fc27264",
+      "stance": "bb38fe66afd1493ce93081d1bc75172cfd6c2dd7",
+      "gear": "5829532572dfece6aa5c0057006c236a7d2d81f7"
+    }
+  }
 }
