@@ -1,0 +1,50 @@
+{
+  "version": "R53",
+  "implementation": "6376f19fcbba4b3fc7be4fbcfdac22e0896c9903",
+  "asset": {
+    "path": "assets/r53/leon-equipment.png",
+    "sha": "5a76fc26a07d39efdc2b0058df271ce4c8af9ef9",
+    "dimensions": [
+      256,
+      96
+    ],
+    "parts": [
+      "sapphire blade reinforcement",
+      "kite shield",
+      "circlet",
+      "brooch"
+    ]
+  },
+  "appearanceModule": "fe3a8687693f0d706cc015f5fad2c19ee3b19fb3",
+  "checks": {
+    "settingsAndGeometry": 329,
+    "runChromium": 3240,
+    "battleAndWalkSoftwareRaster": 7152,
+    "battleEngine": 7002,
+    "terminalPose": 201,
+    "fieldMovement": 17521,
+    "compositionRoutingAndStaticUI": 216,
+    "total": 35661,
+    "failures": 0
+  },
+  "raster": {
+    "run": {
+      "method": "local Chromium, data URI modules, actual PNG and exact three module Git blob hashes checked",
+      "combinations": 64,
+      "frames": 1024,
+      "failures": 0
+    },
+    "battleAndWalk": {
+      "method": "nearest-neighbour software canvas implementation in JS isolate with actual Git PNG bytes, actual R53 functions; not browser",
+      "combinations": 64,
+      "frames": 2304,
+      "failures": 0,
+      "sources": {
+        "battle": "176e05929918ebedc2a4be93b2928e858ffab813",
+        "field": "62c98fb3bb98d759075349aad3425ac80e70bcf5",
+        "gear": "5a76fc26a07d39efdc2b0058df271ce4c8af9ef9"
+      }
+    }
+  },
+  "scope": "Leon six slots, 64 settings, R50 migration, R51 shared normal/victory route; battle/walk rendered in software not actual Chromium; visible sample contact sheets inspected; full idle raster not executed, review-r53.html includes it for future browser verification. Actual engine/movement regression, mocked routing + static UI check. No complete game browser navigation, public HTTP or iPhone check. R52 full Fia raster is previous evidence, not counted. Fia complete weapon/clothing replacement remains; no stats or equipment logic changes."
+}
