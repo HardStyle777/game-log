@@ -64,3 +64,6 @@ main{padding:5px;gap:6px;background:#081727 url(assets/ui-navy.png) repeat;min-h
 
 /* R18: compact action strip immediately below the battlefield. Frame assets unchanged. */
 .action-strip{display:flex;align-items:center;gap:6px;min-height:54px;padding:5px 8px}.action-strip::after{border-width:10px}.action-strip #message{flex:1;min-width:0;font-size:clamp(11px,3.2vw,14px);line-height:1.35;color:#ffe5ab;overflow-wrap:anywhere}.action-strip button{position:relative;flex:none;min-height:44px;min-width:104px;padding:5px 9px;border:1px solid #c7a25d;background:#142a40 url(assets/ui-button-fill.png) center/100% 100%;font-size:13px;font-weight:700;white-space:nowrap;touch-action:manipulation;color:#fff6df}.action-strip button:not(:disabled){background:#134e72 url(assets/ui-button-active-fill.png) center/100% 100%;border-color:#eec27b}.action-strip button:disabled{opacity:.5}.field-target,.member{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}@media(max-width:350px){.action-strip button{min-width:96px;font-size:12px}.action-strip{padding:4px 6px}}
+
+/* R19: keep the encounter controls compact; no changes to the accepted battle panels. */
+#fieldReturn{min-width:72px;white-space:nowrap}

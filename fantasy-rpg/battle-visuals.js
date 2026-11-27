@@ -22,7 +22,7 @@ export function battleMessage(v,names,selected){
 }
 
 // R16: four fixed party slots; only the acting member travels to the action point.
-export const partyFormation=Object.freeze({leon:{x:414,y:103,h:88},fia:{x:422,y:169,h:71},glen:{x:430,y:235,h:75},lucia:{x:438,y:301,h:91}});
+export const partyFormation=Object.freeze({leon:{x:396,y:126,h:88},fia:{x:408,y:186,h:71},glen:{x:420,y:246,h:75},lucia:{x:432,y:306,h:91}});
 const ease=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)};
 export function travel(m){
  if(!m)return 0;
