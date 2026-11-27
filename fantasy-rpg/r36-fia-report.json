@@ -1,0 +1,11 @@
+{
+  "version": "R36",
+  "checks": 289730,
+  "frames": 18,
+  "failures": 0,
+  "scope": "pure sprite pixels, timing, stage bounds, source wiring; not browser runtime",
+  "contact": [
+    360,
+    455
+  ]
+}
