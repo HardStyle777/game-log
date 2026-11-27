@@ -2,18 +2,11 @@
 import {W as VIEW_W,H as VIEW_H} from './field-model.js?v=28';
 
 const groundCache=new WeakMap();
-const houseCache=new WeakMap();
 const gardenBeds=[[231,204],[345,204],[231,277],[345,277],[230,306],[346,306]];
 const fountainCenter=[288,248];
 const gold={dark:'#718198',light:'#f5f9ff'};
-const houseStyles={
- inn:{roof:'#56a8ec',shade:'#376aac',shine:'#c4efff',trim:'#c7c3d8',linen:['#a8e5f4','#e8b6e5','#b9abf1'],flowers:['#ef92cb','#ffcf94','#cab5fe']},
- shop:{roof:'#ea8494',shade:'#ae526f',shine:'#ffdbe6',trim:'#e0bdcd',linen:['#f6b5cc','#b9e3e7','#f3cbab'],flowers:['#fc90b2','#ffe2a1','#c399ed']},
- hall:{roof:'#73c8cf',shade:'#478fa4',shine:'#d4f7ee',trim:'#c5bfd9',linen:['#bedff5','#eecee2','#bab7ef'],flowers:['#c8aff2','#ffe2b2','#f29dbb']},
- home:{roof:'#eb8796',shade:'#ad6078',shine:'#ffdbe4',trim:'#d6bac9',linen:['#edccdb','#b8e2e8','#f6b8b1'],flowers:['#ef9ecb','#ffe0a3','#d4b8f8']}
-};
 
-function panel(w,h,scale){
+export function panel(w,h,scale){
  const tile=document.createElement('canvas');
  tile.width=w*scale;
  tile.height=h*scale;
@@ -21,11 +14,11 @@ function panel(w,h,scale){
  c.setTransform(scale,0,0,scale,0,0);
  return {tile,c}
 }
-function rect(c,x,y,w,h,paint){
+export function rect(c,x,y,w,h,paint){
  c.fillStyle=paint;
  c.fillRect(x,y,w,h)
 }
-function shape(c,points,paint){
+export function shape(c,points,paint){
  c.beginPath();
  for(const [i,[x,y]] of points.entries()){
   if(i)c.lineTo(x,y);else c.moveTo(x,y);
@@ -34,7 +27,7 @@ function shape(c,points,paint){
  c.fillStyle=paint;
  c.fill()
 }
-function line(c,points,paint,width){
+export function line(c,points,paint,width){
  c.beginPath();
  for(const [i,[x,y]] of points.entries()){
   if(i)c.lineTo(x,y);else c.moveTo(x,y);
@@ -43,7 +36,7 @@ function line(c,points,paint,width){
  c.strokeStyle=paint;
  c.stroke()
 }
-function oval(c,x,y,rx,ry,paint){
+export function oval(c,x,y,rx,ry,paint){
  c.beginPath();
  c.ellipse(x,y,rx,ry,0,0,Math.PI*2);
  c.fillStyle=paint;
@@ -56,10 +49,10 @@ function ring(c,x,y,rx,ry,paint,width){
  c.lineWidth=width;
  c.stroke()
 }
-function diamond(c,x,y,rx,ry,paint){
+export function diamond(c,x,y,rx,ry,paint){
  shape(c,[[x-rx,y],[x,y-ry],[x+rx,y],[x,y+ry]],paint)
 }
-function lamp(c,x,y){
+export function lamp(c,x,y){
  rect(c,x-2,y+4,4,2,'#52647d');
  shape(c,[[x-4,y-1],[x-2,y-4],[x+2,y-4],[x+4,y-1],[x+3,y+4],[x-3,y+4]],'#586b88');
  rect(c,x-2.5,y-1.4,5,4.7,'#efaf63');
@@ -68,7 +61,7 @@ function lamp(c,x,y){
  rect(c,x-.6,y-5,1.2,2,'#c8c5df')
 }
 
-function flowers(c,x,y,count,colors){
+export function flowers(c,x,y,count,colors){
  for(let i=0;i<count;i++){
   const u=x+i*2.7,v=y-(i%3)*.8;
   line(c,[[u-.6,v+2],[u,v-1],[u+.3,v-2]],i%2?'#69b68c':'#468e77',.7);
@@ -109,9 +102,9 @@ function plaza(c,x,y){
  oval(c,x+1.5,y+3,55,37,'#7b8c82a8');
  oval(c,x,y,55,37,'#a1b9cd');
  oval(c,x,y-.7,53,35.4,'#e6eff6');
- oval(c,x,y-.7,50.4,33.2,'#70aec0');
- oval(c,x,y-.8,47.7,31.4,'#a9dde4');
- oval(c,x,y-.65,41,27.9,'#e7f1f6');
+ oval(c,x,y-.7,50.4,33.2,'#619dbf');
+ oval(c,x,y-.8,47.7,31.4,'#79c5da');
+ oval(c,x,y-.65,41,27.9,'#dbe9f4');
  for(let i=0;i<32;i++){
   const a=i*Math.PI/16,k=i%4===0;
   const sin=Math.sin(a),cos=Math.cos(a);
@@ -134,9 +127,9 @@ export function townGround(ground,map,scale){
  const {tile,c}=panel(map.w,map.h,scale);
  c.drawImage(ground,0,0,map.w,map.h);
  const light=c.createLinearGradient(10,32,518,472);
- light.addColorStop(0,'#f6fbff29');
- light.addColorStop(.51,'#fffaff14');
- light.addColorStop(1,'#65a6d116');
+ light.addColorStop(0,'#f6fbff18');
+ light.addColorStop(.51,'#fffaff08');
+ light.addColorStop(1,'#65a6d113');
  rect(c,0,0,map.w,map.h,light);
  pavement(c);
  plaza(c,...fountainCenter);
@@ -145,94 +138,14 @@ export function townGround(ground,map,scale){
  return tile
 }
 
-function glass(c,x,y,style){
- rect(c,x-.75,y-1,13.5,18.5,'#657590');
- rect(c,x,y,12,16,'#437c9d');
- rect(c,x+.55,y+.65,10.8,15,'#8acfdf');
- shape(c,[[x+.6,y+.7],[x+11.1,y+.7],[x+6.4,y+7.7],[x+.6,y+11.7]],'#c9ebf1');
- shape(c,[[x+7.6,y+1],[x+10.2,y+1],[x+1.3,y+12],[x+1.3,y+9]],'#f4fbff');
- rect(c,x+5.2,y,.9,16,style.trim);
- rect(c,x,y+7.5,12,1,style.trim);
- rect(c,x+.1,y+14.5,11.8,.8,'#a0e1e9');
- rect(c,x-1.5,y+16.1,15,2.2,'#92758a');
- rect(c,x-.8,y+16.1,13.5,.7,'#d4b7c4')
-}
-function sash(c,x,y,style){
- rect(c,x-6.5,y-.3,13,3.7,'#956980');
- rect(c,x-6.1,y,12.2,1.2,'#d7a4b5');
- flowers(c,x-4.6,y+.25,4,style.flowers)
-}
-function ridge(c,w,style){
- shape(c,[[4,29],[15,6],[w-15,6],[w-6,28],[w-17,31],[6,31]],style.shade+'54');
- for(let j=0;j<6;j++){
-  const y=6.8+j*4.25,left=15-j*1.8,right=w-15+j*1.8;
-  const shift=(j%2)*2.2;
-  for(let x=left+shift;x<right-4.2;x+=6.8){
-   const lit=x<w*.55;
-   rect(c,x,y,4.6,1.4,style.roof+(lit?'a8':'58'));
-   if((Math.floor(x/3)+j)%4===0)rect(c,x+.45,y-.05,2.5,.58,style.shine+'bc');
-   rect(c,x+4.8,y+.65,.55,2.1,style.shade+'75');
-  }
- }
- line(c,[[1,31.8],[14.5,5],[w-14.5,5],[w-1,31.8]],style.shine+'a0',.75);
- rect(c,16,2.1,w-32,1,style.shine+'d2');
- rect(c,11,32.6,w-22,.6,'#e7f5ff85')
-}
-function pennants(c,w,style){
- line(c,[[15,37],[w*.3,42],[w*.5,43.5],[w*.7,42],[w-15,37]],'#8c7b9e',.65);
- for(let j=0;j<7;j++){
-  const x=19+j*(w-38)/6;
-  const y=37.7+5.1*Math.sin(j*Math.PI/6);
-  const color=style.linen[j%style.linen.length];
-  shape(c,[[x-3.1,y],[x+2.7,y],[x+1.5,y+5.9],[x-1.3,y+4.3]],color);
-  line(c,[[x-2.6,y+.3],[x+2.3,y+.3]],'#fdf6ffa3',.65)
- }
-}
-function facade(b,scale){
- const cached=houseCache.get(b);
- if(cached)return cached;
- const style=houseStyles[b.id],{tile,c}=panel(b.w+20,b.h+19,scale);
- const door=b.door[0]-b.x;
- c.translate(10,12);
- ridge(c,b.w,style);
- c.save();
- c.globalAlpha=.8;
- for(const u of [12,b.w-27]){
-  rect(c,u-3,45,3,12,style.shade);
-  rect(c,u-.6,46,.6,10,style.trim);
-  rect(c,u+14,45,3,12,style.shade);
-  rect(c,u+14,48,3,.65,style.shine);
-  glass(c,u+1.2,44,style);
-  sash(c,u+7.2,60,style);
- }
- c.restore();
- if(b.id==='inn'||b.id==='shop')pennants(c,b.w,style);
- if(b.id==='hall'){
-  shape(c,[[door-12,21],[door-11,8],[door,2],[door+11,8],[door+12,21]],'#32667f');
-  line(c,[[door-12,20],[door-11,8],[door,2],[door+11,8],[door+12,20]],'#bfe5e7',1);
-  oval(c,door,12.7,6.5,5.9,'#2f5c85');
-  oval(c,door,12.6,5,4.9,'#c7b6e6');
-  diamond(c,door,12.6,4,4,'#71d5de');
-  diamond(c,door,12.4,2.5,2.7,'#e9fbfc');
-  rect(c,door-11,20.2,22,1.25,'#bcaed2');
- }
- line(c,[[door-9,b.h-1],[door-9,b.h-25],[door-6,b.h-29],[door+6,b.h-29],
-         [door+9,b.h-25],[door+9,b.h-1]],style.trim+'cc',.85);
- rect(c,door-12,b.h-1.45,24,.75,'#eef2ff');
- lamp(c,door-13,b.h-23);
- lamp(c,door+13,b.h-23);
- houseCache.set(b,tile);
- return tile
-}
-
-function ambient(c,x,y,r,palette){
+export function ambient(c,x,y,r,palette){
  const glow=c.createRadialGradient(x,y,0,x,y,r);
  glow.addColorStop(0,palette[0]);
  glow.addColorStop(.38,palette[1]);
  glow.addColorStop(1,palette[2]);
  rect(c,x-r,y-r,2*r,2*r,glow)
 }
-function glint(c,t,x,y,delay,size,color){
+export function glint(c,t,x,y,delay,size,color){
  const period=3800;
  const p=((t+delay)%period)/period;
  if(p>=.21)return;
@@ -290,18 +203,7 @@ function streetLamp(c,o,t){
  glint(c,t,x+.7,y-13,(y*3+x*13)%3800,1.7,'#fff3c1')
 }
 
-export function decorateTownProp(c,o,t,scale){
- if(o.kind==='house'){
-  const plan=facade(o,scale),x=o.x,y=o.y,door=o.door[0];
-  c.drawImage(plan,x-10,y-12,o.w+20,o.h+19);
-  for(const side of [-1,1]){
-   const sx=door+side*13,sy=y+o.h-23;
-   ambient(c,sx,sy,8,['#ffebad56','#ffd28627','#ffc97e00']);
-  }
-  glint(c,t,x+o.w*.26,y+9,(x*23)%3800,3.1,'#eefaff');
-  glint(c,t,x+o.w-18,y+49,(x*13+1100)%3800,1.85,'#fff1b5');
-  return;
- }
+export function decorateTownProp(c,o,t){
  if(o.kind==='fountain')fountainLight(c,o,t);
  if(o.kind==='gate')gateLight(c,o,t);
  if(o.kind==='streetLamp')streetLamp(c,o,t)

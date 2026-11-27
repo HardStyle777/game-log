@@ -1,5 +1,7 @@
 import {MAPS,W,H} from './field-model.js?v=28';
-import {townGround,sunOnStreet,decorateTownProp} from './town-light.js?v=29';
+import {townGround,sunOnStreet,decorateTownProp} from './town-light.js?v=30';
+
+import {houseImage,houseLights} from './town-houses.js?v=30';
 
 function artFor(object,map){
  if(object.kind==='enemy')return object.encounter;
@@ -28,7 +30,8 @@ function visible(cam,x,y,w,h){
 function prop(c,images,o,cam,inTown){
  const {scale,props}=images.art,s=props[o.art],x=o.x+s.dx,y=o.y+s.dy;
  if(!visible(cam,x,y,s.w,s.h))return false;
- c.drawImage(inTown?images.townProps:images.props,s.x*scale,s.y*scale,s.w*scale,s.h*scale,x,y,s.w,s.h);
+ if(inTown&&o.kind==='house')c.drawImage(houseImage(o,scale),x,y,s.w,s.h);
+ else c.drawImage(inTown?images.townProps:images.props,s.x*scale,s.y*scale,s.w*scale,s.h*scale,x,y,s.w,s.h);
  return true
 }
 function shadow(c,x,y,rx,ry){
@@ -56,14 +59,16 @@ function player(c,s,images,anim,run){
 
 function drawObject(c,o,cam,t,images,cleared,inTown){
  if(o.kind==='streetLamp'){
-  if(visible(cam,o.x-9,o.y-24,18,28))decorateTownProp(c,o,t,images.art.scale);
+  if(visible(cam,o.x-9,o.y-24,18,28))decorateTownProp(c,o,t);
   return;
  }
  if(o.kind==='enemy'&&cleared.includes(o.id))return;
  const sprite=o.kind==='enemy'?{...o,y:o.y+Math.round(Math.sin(t/240))}:o;
  if(!prop(c,images,sprite,cam,inTown))return;
  if(o.kind==='fountain')water(c,o,t);
- if(inTown)decorateTownProp(c,o,t,images.art.scale)
+ if(!inTown)return;
+ if(o.kind==='house')houseLights(c,o,t);
+ else decorateTownProp(c,o,t)
 }
 
 export function render(c,s,cam,t,images,anim,run){

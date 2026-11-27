@@ -1,8 +1,8 @@
 import {MAPS,W,H,newState,restore,move,transition,interact,encounter,returnBattle,camera} from './field-model.js?v=28';
-import {render} from './field-art.js?v=29';
+import {render} from './field-art.js?v=30';
 import {createPixelSurface} from './battle-surface.js?v=27';
 const $=id=>document.getElementById(id),cv=$('map'),ctx=cv.getContext('2d'),mini=$('mini').getContext('2d');
-const surface=createPixelSurface(cv,ctx,{w:W,h:H}),artRoot='assets/r27/',townArt='assets/r29/';
+const surface=createPixelSurface(cv,ctx,{w:W,h:H}),artRoot='assets/r27/',townArt='assets/r30/';
 const KEY='fantasy-field-r19',RESULT='fantasy-field-result',PENDING='fantasy-field-pending';
 function get(k){try{return JSON.parse(sessionStorage.getItem(k)||'null')}catch{return null}}
 function put(k,v){try{sessionStorage.setItem(k,JSON.stringify(v))}catch{}}
