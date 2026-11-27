@@ -1,0 +1,9 @@
+{
+  "version": "R47",
+  "checks": 195,
+  "failures": 0,
+  "scope": "schema and 16 combinations storage, per-source-cell anchors, JS syntax; Python visual prototype inspected, browser raster and full UI not yet run",
+  "asset": "5829532572dfece6aa5c0057006c236a7d2d81f7",
+  "sources": 49,
+  "remaining": "main/offhand independent artwork; body and feet shape variants; user visual approval"
+}
