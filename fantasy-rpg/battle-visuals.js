@@ -22,7 +22,7 @@ export function battleMessage(v,names,selected){
 }
 
 // R16: four fixed party slots; only the acting member travels to the action point.
-export const partyFormation=Object.freeze({leon:{x:310,y:132,h:88},fia:{x:353,y:185,h:71},glen:{x:396,y:238,h:75},lucia:{x:439,y:291,h:91}});
+export const partyFormation=Object.freeze({leon:{x:414,y:103,h:88},fia:{x:422,y:169,h:71},glen:{x:430,y:235,h:75},lucia:{x:438,y:301,h:91}});
 const ease=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)};
 export function travel(m){
  if(!m)return 0;
@@ -64,3 +64,13 @@ export function targetBox(id,boxes,formation=partyFormation){
  const p=formation[id];return p?{x:p.x-27,y:p.y-p.h,w:54,h:p.h}:null;
 }
 export function targetCursor(b){return {x:Math.max(17,Math.min(463,b.x+b.w*.5)),y:Math.max(17,b.y-5)}}
+
+// R18: first tap selects; a second tap on the same target within the window confirms.
+// Selection persists after the window expires; a different target never confirms.
+export const DOUBLE_TAP_MS=450;
+export function tapTarget(choice,id,now){
+ if(!choice||!choice.spec.ids.includes(id)||!Number.isFinite(now))return {choice,confirm:false};
+ const same=choice.target===id,elapsed=now-(choice.lastTap??-Infinity);
+ if(same&&elapsed>=0&&elapsed<=DOUBLE_TAP_MS)return {choice,confirm:true,target:choice.spec.mode==='all'?null:id};
+ return {choice:{...choice,target:id,lastTap:now},confirm:false};
+}
