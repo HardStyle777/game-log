@@ -2,7 +2,7 @@ import {read,claim,trade} from './adventure-r34.js';
 import {MAPS,W,H,newState,restore,move,transition,interact,encounter,returnBattle,camera} from './field-model-r34.js?v=34';
 import {render} from './field-art-r50.js?v=50';
 import {fieldActor,nextFieldActor,fieldFrame,motionClock} from './field-actor-r50.js?v=50';
-import {appearance,readAppearance,saveAppearance,equippedImage} from './fia-appearance-r48.js?v=48';
+import {appearance,readAppearance,saveAppearance,equippedImage} from './fia-armour-r50.js?v=50';
 import {character,normalBattleFrame,drawPreview,slotIds} from './character-visual-r50.js?v=50';
 import * as leonGearApi from './leon-appearance-r50.js?v=50';
 import {createPixelSurface} from './battle-surface.js?v=27';
@@ -77,7 +77,7 @@ function openBag(shop=false){stop();$('bagTitle').textContent=shop?'道具屋':'
 function refreshBag(){const s=read();$('bagGold').textContent=s.gold+' G';$('bagItems').textContent='回復薬 × '+s.potion;$('buy').disabled=s.gold<20;$('sell').disabled=s.potion<1;$('money').textContent=s.gold+' G'}
 $('bagOpen').onclick=()=>openBag();$('bagClose').onclick=()=>$('bag').close();$('buy').onclick=()=>{trade(1);refreshBag()};$('sell').onclick=()=>{trade(-1);refreshBag()};$('bag').addEventListener('close',stop);
 
-function applyAppearance(next){const g=appearance(next);const field=equippedImage(originalFia.field,'field',g,images.fiaGear),motion=equippedImage(originalFia.motion,'motion',g,images.fiaGear);images.fia=field;images.fiaMotion=motion;gear=g}
+function applyAppearance(next){const g=appearance(next);const field=equippedImage(originalFia.field,'field',g,images.fiaGear,images.fiaWeapons),motion=equippedImage(originalFia.motion,'motion',g,images.fiaGear,images.fiaWeapons);images.fia=field;images.fiaMotion=motion;gear=g}
 function applyLeonAppearance(value){
  const g=leonGearApi.appearance(value),field=leonGearApi.equippedImage(originalLeon.field,'field',g),battle=leonGearApi.equippedImage(originalLeon.battle,'battle',g);
  const runImage=leonGearApi.fieldMotion(field,'run'),idleImage=leonGearApi.fieldMotion(field,'idle');
@@ -89,7 +89,7 @@ function draftAppearance(){return appearance({...gear,...Object.fromEntries(slot
 function previewAppearance(){
  const c=character(gearActor),field=$('gearPreview'),battle=$('gearBattle');
  let fieldImage,battleImage;
- if(gearActor==='fia'){const g=draftAppearance();fieldImage=equippedImage(originalFia.field,'field',g,images.fiaGear);battleImage=equippedImage(images.fiaBattle,'battle',g,images.fiaGear,images.fiaWeapons)}
+ if(gearActor==='fia'){const g=draftAppearance();fieldImage=equippedImage(originalFia.field,'field',g,images.fiaGear,images.fiaWeapons);battleImage=equippedImage(images.fiaBattle,'battle',g,images.fiaGear,images.fiaWeapons)}
  else{const g=draftLeon();fieldImage=leonGearApi.equippedImage(originalLeon.field,'field',g);battleImage=leonGearApi.equippedImage(originalLeon.battle,'battle',g)}
  drawPreview(field.getContext('2d'),fieldImage,c.fieldFrame,field.width,field.height);
  drawPreview(battle.getContext('2d'),battleImage,normalBattleFrame(gearActor,images.battleMeta),battle.width,battle.height);
@@ -97,7 +97,7 @@ function previewAppearance(){
 function showGearActor(id){
  const c=character(id);gearActor=id;$('gearCharacter').value=id;$('gearTitle').textContent=c.name+'・装備外観';$('gearPortrait').src=c.portrait;
  $('gearFiaSlots').hidden=id!=='fia';$('gearLeonSlots').hidden=id!=='leon';
- $('gearNote').textContent=id==='fia'?'外観確認専用。能力・所持品は変化しません。補強刃は抜刀時に表示。':'外観確認専用。胴・足の色を変更できます。他の4部位は固定です。';
+ $('gearNote').textContent=id==='fia'?'外観確認専用。能力・所持品は変化しません。補強刃は抜刀時に表示。肩・脛の追加装甲を選択できます。':'外観確認専用。胴・足の色を変更できます。他の4部位は固定です。';
  previewAppearance();
 }
 $('gearOpen').onclick=()=>{if(!ready||leaving||$('bag').open)return;stop();for(const k of slotIds)$(gearControls[k]).value=gear[k];$('leonBody').value=leonGear.body;$('leonFeet').value=leonGear.feet;showGearActor(actor);$('gear').showModal()};
