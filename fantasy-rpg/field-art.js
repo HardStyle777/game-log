@@ -1,11 +1,11 @@
 // R19 handcrafted, deterministic pixel-tile preview. No baked-in actors.
-import {TILE,MAPS,W,H} from './field-model.js?v=19';
+import {TILE,MAPS,W,H} from './field-model.js?v=19.1';
 const seed=(x,y,n=0)=>{let v=Math.imul(x+371,374761393)^Math.imul(y+183,668265263)^Math.imul(n+1,1274126177);return (v^(v>>>13))>>>0};
 const R=(c,x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(Math.round(x),Math.round(y),w,h)};
 const poly=(c,pts,col)=>{c.fillStyle=col;c.beginPath();pts.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.closePath();c.fill()};
 const ellipse=(c,x,y,rx,ry,col)=>{c.fillStyle=col;c.beginPath();c.ellipse(x,y,rx,ry,0,0,Math.PI*2);c.fill()};
 function grass(c,x,y){let n=seed(x,y);R(c,x,y,16,16,['#618b45','#668f47','#6a9349','#638e48'][n%4]);for(let i=0;i<13;i++){const k=seed(x,y,i),a=x+k%16,b=y+(k>>>8)%16;R(c,a,b,1+(k%2),1,['#779e50','#507b3c','#83a655','#5a8241'][k%4])}if(n%5===0){R(c,x+4,y+8,1,3,'#426b36');R(c,x+3,y+9,3,1,'#8fae58');R(c,x+12,y+4,2,2,n%2?'#efd18a':'#e8e2ca')}}
-function stone(c,x,y){R(c,x,y,16,16,'#777d71');for(let j=0;j<2;j++)for(let i=-1;i<3;i++){let a=x+i*8+(j?4:0),b=y+j*8,n=seed(a,b);R(c,Math.max(x,a),b,Math.min(x+16,a+7)-Math.max(x,a),7,['#b7b6a4','#a9ad9d','#c2c1ab','#a5a89a'][n%4]);if(a>=x&&a+7<=x+16){R(c,a,b,7,1,'#d6d0b9');R(c,a,b+6,7,1,'#939587')}}}
+function stone(c,x,y){R(c,x,y,16,16,'#777d71');for(let j=0;j<2;j++)for(let i=-1;i<3;i++){let a=x+i*8+(j?4:0),b=y+j*8,n=seed(a,b);R(c,Math.max(x,a),b,Math.max(0,Math.min(x+16,a+7)-Math.max(x,a)),7,['#b7b6a4','#a9ad9d','#c2c1ab','#a5a89a'][n%4]);if(a>=x&&a+7<=x+16){R(c,a,b,7,1,'#d6d0b9');R(c,a,b+6,7,1,'#939587')}}}
 function wood(c,x,y){R(c,x,y,16,16,'#9a7650');R(c,x,y,16,1,'#684a34');R(c,x+(y%32?4:12),y,1,16,'#684a34');R(c,x,y+2,16,1,'#b58b59');for(let i=0;i<4;i++)R(c,x+seed(x,y,i)%12,y+4+i*3,4,1,'#896341')}
 function pathAt(m,x,y){return m.paths.some(([a,b,w,h])=>x>=a&&x<a+w&&y>=b&&y<b+h)}
 export function terrain(map){const m=MAPS[map],cv=document.createElement('canvas');cv.width=m.w;cv.height=m.h;const c=cv.getContext('2d');c.imageSmoothingEnabled=false;for(let y=0;y<m.h;y+=16)for(let x=0;x<m.w;x+=16){if(m.ground==='wood')wood(c,x,y);else if(pathAt(m,x+8,y+8)){if(map==='town')stone(c,x,y);else{R(c,x,y,16,16,'#b4a174');for(let i=0;i<14;i++)R(c,x+seed(x,y,i)%16,y+(seed(x,y,i)>>>9)%16,2,1,['#a39165','#c2b389','#9e926a'][i%3])}}else grass(c,x,y)}

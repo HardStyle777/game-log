@@ -1,5 +1,5 @@
-import {MAPS,W,H,newState,restore,move,transition,interact,encounter,returnBattle,camera} from './field-model.js?v=19';
-import {terrain,render} from './field-art.js?v=19';
+import {MAPS,W,H,newState,restore,move,transition,interact,encounter,returnBattle,camera} from './field-model.js?v=19.1';
+import {terrain,render} from './field-art.js?v=19.1';
 const $=id=>document.getElementById(id),cv=$('map'),ctx=cv.getContext('2d'),mini=$('mini').getContext('2d');
 const KEY='fantasy-field-r19',RESULT='fantasy-field-result',PENDING='fantasy-field-pending';
 function get(k){try{return JSON.parse(sessionStorage.getItem(k)||'null')}catch{return null}}

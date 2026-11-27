@@ -23,6 +23,8 @@ export const MAPS={
 const inside=(x,y,b)=>x>=b.x&&x<=b.x+b.w&&y>=b.y&&y<=b.y+b.h;
 export function blockers(map){
  const b=map.buildings.map(o=>({x:o.x+3,y:o.y+24,w:o.w-6,h:o.h-24}));
+ if(map===MAPS.room)b.push({x:0,y:0,w:256,h:27},{x:0,y:0,w:7,h:320},{x:249,y:0,w:7,h:320},{x:0,y:304,w:99,h:16},{x:157,y:304,w:99,h:16});
+ if(map===MAPS.town)b.push({x:0,y:475,w:244,h:21},{x:332,y:475,w:244,h:21},{x:0,y:0,w:248,h:13},{x:328,y:0,w:248,h:13});
  for(const o of map.objects){const q={tree:[-7,-8,14,10],fountain:[-22,-14,44,28],rock:[-9,-8,18,11],npc:[-7,-8,14,12],chest:[-10,-7,20,12],sign:[-5,-5,10,8],table:[-24,-13,48,26],bed:[-14,-22,28,32]}[o.kind];if(q)b.push({x:o.x+q[0],y:o.y+q[1],w:q[2],h:q[3]})}
  return b;
 }
