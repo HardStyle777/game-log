@@ -1,0 +1,33 @@
+{
+  "version": "R42",
+  "checks": 7765,
+  "failures": 0,
+  "scope": "actual field movement model, eight input directions, four sprite rows, walk cadence and run reuse, idle, actor switch and drawImage arguments; not browser integration",
+  "source": {
+    "sprite": "assets/r42/fia-field.png",
+    "blob": "e78c761e343a2b27666867679e59b09fdda9a066",
+    "dimensions": [
+      384,
+      384
+    ],
+    "cell": [
+      96,
+      96
+    ],
+    "poses": 16,
+    "display": [
+      48,
+      48
+    ],
+    "foot": [
+      48,
+      90
+    ]
+  },
+  "limitations": [
+    "run uses faster walk frames, dedicated run poses not yet drawn",
+    "four cardinal sprite rows for eight directional input, same rule as Leon",
+    "field actor is a display-only comparison switch; actual party/story unchanged",
+    "browser and iPhone not tested"
+  ]
+}
