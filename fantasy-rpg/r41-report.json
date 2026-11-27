@@ -104,5 +104,23 @@
       ]
     ]
   },
-  "limits": "Real engine and sequence tested; full browser game and iPhone not yet verified."
+  "limits": "Real engine and sequence tested; full browser game and iPhone not yet verified.",
+  "canvas": {
+    "environment": "local Chromium via Playwright; source and JS verified against Git blobs",
+    "frames": 26,
+    "atlas": [
+      1440,
+      1080
+    ],
+    "idleExact": true,
+    "recoveryExact": true,
+    "allFramesInset": true,
+    "minX": 29,
+    "minY": 42,
+    "maxX": 237,
+    "maxY": 196,
+    "jsBlob": "1855e6d18741dabecf22c709082119d6f0fe38c9",
+    "recoveryBlob": "52864cf9b1a626984ea83d264b14958b469f7d2b",
+    "limitations": "Full game browser UI and iPhone not tested"
+  }
 }
