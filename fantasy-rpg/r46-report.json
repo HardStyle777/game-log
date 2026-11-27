@@ -119,5 +119,34 @@
     "failures": 0
   },
   "syntax": "pass",
-  "scope": "Actual engine and frame selection. Source PNG crop/alpha inspected; full game browser and iPhone not run. R44 four colour variants retained; independent remaining gear not completed."
+  "scope": "Actual engine and frame selection. Source PNG crop/alpha inspected; full game browser and iPhone not run. R44 four colour variants retained; independent remaining gear not completed.",
+  "fieldRegression": {
+    "version": "R43",
+    "checks": 17521,
+    "failures": 0,
+    "scope": "real field model, frame selection, anchor, mode resets, source image routing; not browser operation"
+  },
+  "canvas": {
+    "checks": 14788589,
+    "frames": 38,
+    "failures": 0,
+    "combinations": 4,
+    "old32Equal": true,
+    "new6Equal": true,
+    "sourceAndAtlasAlphaUnchanged": true,
+    "defaultExact": true,
+    "allFramesInset": true,
+    "moduleShas": {
+      "art": "2f32c89bc392b37c98d3fb66263ba86ed39c9adf",
+      "appearance": "cd610781b469d9e30840e8a6817f8c5b70e08cfd"
+    },
+    "changedStancePixels": [
+      0,
+      2700,
+      1739,
+      4439
+    ],
+    "method": "local Chromium, exact Git blob matched PNG/JS; data URI import rewrite for local evaluation; not full game"
+  },
+  "publicPage": "curl failed DNS resolution"
 }
