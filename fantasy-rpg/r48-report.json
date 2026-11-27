@@ -2,7 +2,37 @@
   "version": "R48",
   "checks": 173,
   "failures": 0,
-  "scope": "schema, old-save migration, 64 configuration roundtrips, 34 blade transforms; JS syntax; Python prototype visual check. Browser raster and full UI not yet verified.",
+  "scope": "Schema, anchors and matrix, local Chromium raster, actual battle/motion/field regression; not full browser UI. Public curl DNS failed.",
   "asset": "d49daec12d98a40387dfb930b6981cc713268846",
-  "remaining": "full blade replacement/hand-specific overlap polish, separate armour shape variants, iPhone and user visual review"
+  "remaining": "full blade replacement/hand-specific overlap polish, separate armour shape variants, iPhone and user visual review",
+  "regression": {
+    "battle": 6978,
+    "stance": 3704,
+    "field": 17521,
+    "failures": 0
+  },
+  "canvas": {
+    "checks": 7184,
+    "pixelComparisons": 75276288,
+    "combinations": 64,
+    "frames": 38,
+    "failures": 0,
+    "allFramesInset": true,
+    "oldAppearanceExactWithBaseWeapons": true,
+    "fieldAndMotionUnchangedByBladeChoice": true,
+    "sourceAlphaNeverReduced": true,
+    "allBattleSourceCellsChangedWithReinforcement": true,
+    "method": "Local Chromium data URI modules; R48 JS and source PNG hashes verified against repository. Not full page integration.",
+    "moduleSha": "7b9a4f5a61b3e582450d902da7832dde7cbe5539",
+    "sourceShas": {
+      "field": "0f3b14390be81af8558b494e791fff748ca69e32",
+      "motion": "73d213be359d46fca2f34cbcf918881a66dad636",
+      "battle": "dda082eb4286f7fbb961461972e28df31cb8c70e",
+      "recovery": "52864cf9b1a626984ea83d264b14958b469f7d2b",
+      "attack": "c6784945e0aba55c88682cf5503001319fc27264",
+      "stance": "bb38fe66afd1493ce93081d1bc75172cfd6c2dd7",
+      "gear": "5829532572dfece6aa5c0057006c236a7d2d81f7",
+      "weapons": "d49daec12d98a40387dfb930b6981cc713268846"
+    }
+  }
 }
