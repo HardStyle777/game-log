@@ -1,0 +1,83 @@
+{
+  "version": "R40",
+  "checks": 6291,
+  "failures": 0,
+  "actualBattles": [
+    {
+      "seed": 17,
+      "boss": false,
+      "multi": false,
+      "outcome": "win",
+      "round": 4,
+      "ticks": 674,
+      "events": 76
+    },
+    {
+      "seed": 41,
+      "boss": false,
+      "multi": false,
+      "outcome": "win",
+      "round": 3,
+      "ticks": 635,
+      "events": 65
+    },
+    {
+      "seed": 91,
+      "boss": false,
+      "multi": false,
+      "outcome": "win",
+      "round": 3,
+      "ticks": 635,
+      "events": 67
+    },
+    {
+      "seed": 17,
+      "boss": false,
+      "multi": true,
+      "outcome": "win",
+      "round": 6,
+      "ticks": 1286,
+      "events": 142
+    },
+    {
+      "seed": 17,
+      "boss": true,
+      "multi": false,
+      "outcome": "win",
+      "round": 19,
+      "ticks": 2900,
+      "events": 359
+    }
+  ],
+  "seen": {
+    "victory": 4,
+    "guard": 5,
+    "attack": 16,
+    "hit": 18,
+    "knockout": 1,
+    "revive": 1
+  },
+  "reviveCase": {
+    "seed": 1,
+    "round": 2,
+    "events": [
+      {
+        "type": "knockout",
+        "seq": 15
+      },
+      {
+        "type": "revive",
+        "seq": 26,
+        "hp": 1
+      }
+    ]
+  },
+  "reviveErrors": [],
+  "r39Regression": {
+    "version": "R39",
+    "checks": 124,
+    "failures": 0,
+    "scope": "completion lock, deliberate edit, next round, busy/outcome, party sizes 1/3/4, stale taps and existing target rules; mock session"
+  },
+  "scope": "Actual published battle-engine timeline, guard/victory/attack and snapshot checks; frame selection only, not image rendering. Guard/victory/revive are original-pixel articulated candidates, not hand-drawn poses. Browser and iPhone untested."
+}
