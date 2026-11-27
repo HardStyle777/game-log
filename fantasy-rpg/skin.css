@@ -55,3 +55,6 @@ main{padding:5px;gap:6px;background:#081727 url(assets/ui-navy.png) repeat;min-h
 .member:disabled{opacity:1}.member.downed{opacity:.55}.member:disabled:not(.downed){cursor:default}
 /* Game controls are nonselectable; prevent iOS text callout during taps. */
 .menu,.member,.top,.target-dialog,.switch{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}.target-dialog button{position:relative;border:0;background:#0d2033 url(assets/ui-button-fill.png) center/100% 100%;font-family:var(--ui-face);font-weight:700}.target-dialog button::after{content:'';position:absolute;inset:0;border:8px solid transparent;border-image:url(assets/ui-button.png) 16 stretch;pointer-events:none}.target-dialog button:focus-visible{outline:2px solid #f3d58f;outline-offset:2px}.target-dialog button:active{background:#064371 url(assets/ui-button-active-fill.png) center/100% 100%}
+
+/* R15: preserve the approved painted skin and formation. */
+.member.planned .lv{color:#bce8bc;font-weight:700;font-size:10px;overflow:hidden;text-overflow:ellipsis}.member.lowhp .rowstat:first-of-type strong,.member.lowhp [data-val=hp]{color:#ffbd93}.member.lowhp .bar.hp i{background:linear-gradient(#ffd18e,#bb5337)}.switch #speed{min-width:64px;white-space:nowrap}.member .name>span:first-child{min-width:0}.footer #message{overflow-wrap:anywhere}
