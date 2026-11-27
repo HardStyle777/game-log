@@ -1,0 +1,18 @@
+{
+  "version": "R43",
+  "checks": 17521,
+  "failures": 0,
+  "scope": "real field model, frame selection, anchor, mode resets, source image routing; not browser operation",
+  "asset": {
+    "sha": "73d213be359d46fca2f34cbcf918881a66dad636",
+    "size": [
+      384,
+      384
+    ],
+    "cells": 16,
+    "run": 12,
+    "idle": 4,
+    "edgeCorrections": 61
+  },
+  "visual": "Generated sheet inspected after key removal; browser integration not tested."
+}
