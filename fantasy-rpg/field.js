@@ -1,5 +1,5 @@
-import {MAPS,W,H,newState,restore,move,transition,interact,encounter,returnBattle,camera} from './field-model.js?v=20';
-import {render} from './field-art.js?v=27';
+import {MAPS,W,H,newState,restore,move,transition,interact,encounter,returnBattle,camera} from './field-model.js?v=28';
+import {render} from './field-art.js?v=28';
 import {createPixelSurface} from './battle-surface.js?v=27';
 const $=id=>document.getElementById(id),cv=$('map'),ctx=cv.getContext('2d'),mini=$('mini').getContext('2d');
 const surface=createPixelSurface(cv,ctx,{w:W,h:H}),artRoot='assets/r27/';

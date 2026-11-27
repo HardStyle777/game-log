@@ -1,4 +1,5 @@
-import {MAPS,W,H} from './field-model.js?v=20';
+import {MAPS,W,H} from './field-model.js?v=28';
+import {townGround,sunOnStreet,decorateTownProp} from './town-light.js?v=28';
 
 function artFor(object,map){
  if(object.kind==='enemy')return object.encounter;
@@ -12,7 +13,12 @@ const scene=Object.fromEntries(Object.entries(MAPS).map(([name,map])=>{
   ...map.buildings.map(b=>({...b,art:b.id,depth:b.y+b.h})),
   ...map.objects.map(o=>({...o,art:artFor(o,name),depth:o.y}))
  ];
- if(name==='town')props.push({kind:'gate',art:'gate',x:288,y:484,depth:484});
+ if(name==='town'){
+  props.push({kind:'gate',art:'gate',x:288,y:484,depth:484});
+  for(const y of [332,412])for(const x of [245,331]){
+   props.push({kind:'streetLamp',x,y,depth:y});
+  }
+ }
  return [name,props.sort((a,b)=>a.depth-b.depth)];
 }));
 
@@ -48,23 +54,31 @@ function player(c,s,images,anim,run){
  c.drawImage(images.leon,step*96,row*96,96,96,x-24,y-45,48,48)
 }
 
-function drawObject(c,o,cam,t,images,cleared){
+function drawObject(c,o,cam,t,images,cleared,inTown){
+ if(o.kind==='streetLamp'){
+  if(visible(cam,o.x-9,o.y-24,18,28))decorateTownProp(c,o,t,images.art.scale);
+  return;
+ }
  if(o.kind==='enemy'&&cleared.includes(o.id))return;
  const sprite=o.kind==='enemy'?{...o,y:o.y+Math.round(Math.sin(t/240))}:o;
- if(prop(c,images,sprite,cam)&&o.kind==='fountain')water(c,o,t)
+ if(!prop(c,images,sprite,cam))return;
+ if(o.kind==='fountain')water(c,o,t);
+ if(inTown)decorateTownProp(c,o,t,images.art.scale)
 }
 
 export function render(c,s,cam,t,images,anim,run){
- const map=MAPS[s.map], scale=images.art.scale;
+ const map=MAPS[s.map], scale=images.art.scale,inTown=s.map==='town';
+ const ground=inTown?townGround(images.town,map,scale):images[s.map];
  c.fillStyle='#1a2826';c.fillRect(0,0,W,H);
  const x=Math.max(0,cam.x),y=Math.max(0,cam.y);
  const w=Math.min(map.w,cam.x+W)-x,h=Math.min(map.h,cam.y+H)-y;
- c.drawImage(images[s.map],x*scale,y*scale,w*scale,h*scale,x-cam.x,y-cam.y,w,h);
+ c.drawImage(ground,x*scale,y*scale,w*scale,h*scale,x-cam.x,y-cam.y,w,h);
  c.save();c.translate(-cam.x,-cam.y);
+ if(inTown)sunOnStreet(c,cam,t);
  let drawn=false;
  for(const o of scene[s.map]){
   if(!drawn&&o.depth>s.y){player(c,s,images,anim,run);drawn=true}
-  drawObject(c,o,cam,t,images,s.cleared);
+  drawObject(c,o,cam,t,images,s.cleared,inTown);
  }
  if(!drawn)player(c,s,images,anim,run);
  c.restore()

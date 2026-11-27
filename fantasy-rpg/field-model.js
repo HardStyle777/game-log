@@ -74,4 +74,4 @@ export function returnBattle(s,outcome,id){
  if(!['wolf','boss'].includes(id))return s;
  return {...s,cleared:outcome==='win'?[...new Set([...s.cleared,id])]:s.cleared,blockedEnemy:id,moving:false};
 }
-export function camera(s){const m=MAPS[s.map];return {x:Math.round(m.w<W?(m.w-W)/2:Math.max(0,Math.min(m.w-W,s.x-W/2))),y:Math.round(m.h<H?(m.h-H)/2:Math.max(0,Math.min(m.h-H,s.y-H*.55)))}}
+export function camera(s){const m=MAPS[s.map];return {x:Math.round(m.w<W?(m.w-W)/2:Math.max(0,Math.min(m.w-W,s.x-W/2))),y:Math.round(m.h<H?(m.h-H)/2:Math.max(0,Math.min(m.h-H,s.y-H*(s.map==='town'?.75:.55))))}}
