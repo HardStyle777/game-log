@@ -1,0 +1,52 @@
+{
+  "version": "R50",
+  "implementation": [
+    "1dbe2f492e82c020d9ee67f952bebc21d3296c93",
+    "e1ad623f17da5da4fba189bb754cd765cfdeecb5"
+  ],
+  "leon": {
+    "configurationChecks": 10,
+    "sourcePixelChecks": 210,
+    "failures": 0,
+    "source": {
+      "field": "62c98fb3bb98d759075349aad3425ac80e70bcf5",
+      "battle": "176e05929918ebedc2a4be93b2928e858ffab813"
+    },
+    "decodedPNG": {
+      "field": "RGBA",
+      "battle": "indexed with transparency"
+    },
+    "runCells": 32,
+    "idleCells": 16,
+    "runMs": 70,
+    "idleMs": 240,
+    "runMinY": 1,
+    "runMaxY": 90,
+    "idleMinY": 3,
+    "idleMaxY": 89,
+    "variants": 4,
+    "scope": "actual source pixels decoded in JS; integer copy/colour variants, not independently illustrated run artwork; no browser Leon test"
+  },
+  "fia": {
+    "configurationChecks": 152,
+    "configurations": 144,
+    "canvasChecks": 268,
+    "failures": 0,
+    "sourceCells": 49,
+    "armourOnlyCombinations": 4,
+    "canvasMethod": "local Chromium, actual source PNG SHA matched, exact armour module 408e1c6f0be0ff52afec52623cce59153c84240a; previous appearance dependency stubbed for isolated new armour layer test",
+    "scope": "shoulder and shin armour overlays, no complete replacement; full 144 rendering not tested"
+  },
+  "regression": {
+    "battle": 7002,
+    "field": 17521,
+    "stance": 3704,
+    "failures": 0,
+    "method": "actual published functions executed"
+  },
+  "publicHttp": "curl DNS resolution failed HTTP 000 before implementation",
+  "fullBrowserUI": "not run",
+  "iphone": "not run",
+  "retainedTests": "test-r50-field.mjs verified function; test-r50-browser.js includes additional full composition and Leon browser tests not executed yet",
+  "remaining": "Leon other 4 equipment slots; independent full running poses; Fia full blade replacement, full body/boot shape; complete UI integration and visual review"
+}
