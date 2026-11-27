@@ -5,7 +5,7 @@
   "scope": "actual field movement model, eight input directions, four sprite rows, walk cadence and run reuse, idle, actor switch and drawImage arguments; not browser integration",
   "source": {
     "sprite": "assets/r42/fia-field.png",
-    "blob": "e78c761e343a2b27666867679e59b09fdda9a066",
+    "blob": "0f3b14390be81af8558b494e791fff748ca69e32",
     "dimensions": [
       384,
       384
@@ -22,12 +22,30 @@
     "foot": [
       48,
       90
-    ]
+    ],
+    "edgePixelsCorrected": 87
   },
   "limitations": [
     "run uses faster walk frames, dedicated run poses not yet drawn",
     "four cardinal sprite rows for eight directional input, same rule as Leon",
     "field actor is a display-only comparison switch; actual party/story unchanged",
     "browser and iPhone not tested"
-  ]
+  ],
+  "canvas": {
+    "checks": 49,
+    "failures": 0,
+    "frames": 16,
+    "uniqueFrames": 16,
+    "alpha": [
+      0,
+      255
+    ],
+    "footBottom": 89,
+    "renderScale": 3,
+    "helperBlob": "22b683c347a028fedbb1a7bd38b821488e6e04cd",
+    "sourceBlob": "0f3b14390be81af8558b494e791fff748ca69e32",
+    "environment": "local Chromium via set_content and data URI; all 16 drawFieldActor calls rendered",
+    "publicPage": "curl DNS resolution failed (HTTP 000); full game browser and iPhone not tested"
+  },
+  "ui": "comparison switch moved to existing footer alongside reset to avoid adding a control row; layout not device-tested"
 }
