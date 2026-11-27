@@ -22,7 +22,7 @@ export function battleMessage(v,names,selected){
 }
 
 // R16: four fixed party slots; only the acting member travels to the action point.
-export const partyFormation=Object.freeze({leon:{x:396,y:126,h:88},fia:{x:408,y:186,h:71},glen:{x:420,y:246,h:75},lucia:{x:432,y:306,h:91}});
+export const partyFormation=Object.freeze({leon:{x:384,y:151,h:88},fia:{x:400,y:228,h:71},glen:{x:416,y:305,h:75},lucia:{x:432,y:382,h:91}});
 const ease=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)};
 export function travel(m){
  if(!m)return 0;
@@ -35,7 +35,7 @@ export function travel(m){
 export function actorPosition(v,id,box){
  const p=partyFormation[id],m=activeMotion(v,id);let {x,y,h}=p;
  if(m?.clip==='attack'||m?.clip==='cast'){
-  const ranged=m.reach==='ranged'||m.clip==='cast',tx=ranged?Math.max(290,x-48):box.x+box.w+25,ty=ranged?y:Math.min(269,box.y+box.h+5);
+  const ranged=m.reach==='ranged'||m.clip==='cast',tx=ranged?Math.max(290,x-48):box.x+box.w+25,ty=ranged?y:Math.min(346,box.y+box.h+5);
   const f=travel(m);x+=(tx-x)*f;y+=(ty-y)*f;
  }else if(m?.clip==='hit')x+=Math.sin(m.progress*12)*3*(1-m.progress);
  return {x:Math.round(x),y:Math.round(y),h};
@@ -57,7 +57,7 @@ export function targetSpec(session,actor,skill){
 export function enemyLayout(v,bounds){
  const ids=v.enemies??[v.enemy];
  if(ids.length===1)return {[ids[0]]:bounds[v.enemy]};
- return Object.fromEntries(ids.map((id,i)=>[id,{x:16+(i%2)*86,y:87+i*75,w:128,h:80}]));
+ return Object.fromEntries(ids.map((id,i)=>[id,{x:16+(i%2)*86,y:115+i*91,w:128,h:80}]));
 }
 export function targetBox(id,boxes,formation=partyFormation){
  if(boxes[id])return boxes[id];

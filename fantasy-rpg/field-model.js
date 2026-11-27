@@ -1,5 +1,5 @@
 // R19 field vertical slice. All positions are foot anchors in native pixel coordinates.
-export const TILE=16,W=256,H=320,R=5;
+export const TILE=16,W=320,H=400,R=5;
 const rect=(id,x,y,w,h,kind,extra={})=>({id,x,y,w,h,kind,...extra});
 const obj=(id,x,y,kind,extra={})=>({id,x,y,kind,...extra});
 const townBuildings=[
@@ -38,7 +38,7 @@ export function direction(dx,dy){
 export function spriteDirection(dir,last='south'){if(!dir)return last;return dir==='east'||dir==='west'?dir:dir.includes('north')?'north':'south'}
 export function move(state,dx,dy,dt,run=false){
  const map=MAPS[state.map],d=direction(dx,dy);if(!d.dir||dt<=0)return {...state,moving:false};
- const distance=Math.min(.1,dt)*(run?100:63),steps=Math.max(1,Math.ceil(distance/2)),sx=d.x*distance/steps,sy=d.y*distance/steps;let x=state.x,y=state.y;
+ const distance=Math.min(.1,dt)*(run?146:90),steps=Math.max(1,Math.ceil(distance/2)),sx=d.x*distance/steps,sy=d.y*distance/steps;let x=state.x,y=state.y;
  for(let i=0;i<steps;i++){
   if(walkable(map,x+sx,y))x+=sx;
   if(walkable(map,x,y+sy))y+=sy;
@@ -74,4 +74,4 @@ export function returnBattle(s,outcome,id){
  if(!['wolf','boss'].includes(id))return s;
  return {...s,cleared:outcome==='win'?[...new Set([...s.cleared,id])]:s.cleared,blockedEnemy:id,moving:false};
 }
-export function camera(s){const m=MAPS[s.map];return {x:Math.round(Math.max(0,Math.min(m.w-W,s.x-W/2))),y:Math.round(Math.max(0,Math.min(m.h-H,s.y-H*.55)))}}
+export function camera(s){const m=MAPS[s.map];return {x:Math.round(m.w<W?(m.w-W)/2:Math.max(0,Math.min(m.w-W,s.x-W/2))),y:Math.round(m.h<H?(m.h-H)/2:Math.max(0,Math.min(m.h-H,s.y-H*.55)))}}

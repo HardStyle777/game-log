@@ -1,0 +1,2 @@
+# R20
+Battle viewport 480x400 (was 480x326); removed trial footer, battle return available after outcome. Normal/boss direct links on field page. Same GUI assets. Wider field camera 320x400 (was 256x320); walk 90, run 146 native px/s (was 63/100); diagonal normalized. Grass and trees redrawn as deterministic limited-palette pixel motifs. Four-direction character art remains provisional for diagonals. Model and syntax checks passed; browser and iPhone visual review pending.

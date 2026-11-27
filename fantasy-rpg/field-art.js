@@ -1,10 +1,12 @@
 // R19 handcrafted, deterministic pixel-tile preview. No baked-in actors.
-import {TILE,MAPS,W,H} from './field-model.js?v=19.1';
+import {TILE,MAPS,W,H} from './field-model.js?v=20';
 const seed=(x,y,n=0)=>{let v=Math.imul(x+371,374761393)^Math.imul(y+183,668265263)^Math.imul(n+1,1274126177);return (v^(v>>>13))>>>0};
 const R=(c,x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(Math.round(x),Math.round(y),w,h)};
 const poly=(c,pts,col)=>{c.fillStyle=col;c.beginPath();pts.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.closePath();c.fill()};
 const ellipse=(c,x,y,rx,ry,col)=>{c.fillStyle=col;c.beginPath();c.ellipse(x,y,rx,ry,0,0,Math.PI*2);c.fill()};
-function grass(c,x,y){let n=seed(x,y);R(c,x,y,16,16,['#618b45','#668f47','#6a9349','#638e48'][n%4]);for(let i=0;i<13;i++){const k=seed(x,y,i),a=x+k%16,b=y+(k>>>8)%16;R(c,a,b,1+(k%2),1,['#779e50','#507b3c','#83a655','#5a8241'][k%4])}if(n%5===0){R(c,x+4,y+8,1,3,'#426b36');R(c,x+3,y+9,3,1,'#8fae58');R(c,x+12,y+4,2,2,n%2?'#efd18a':'#e8e2ca')}}
+// Deliberately limited palette and reusable 16px tile motifs; no photographic texture.
+const grassMotifs=[[[3,9],[12,4]],[[5,5],[10,13]],[[2,3],[12,11]],[[7,8]],[[3,12],[11,6]],[]];
+function grass(c,x,y){const n=seed(x,y),motif=grassMotifs[n%grassMotifs.length];R(c,x,y,16,16,'#668f47');for(const [a,b] of motif){R(c,x+a,y+b,3,1,'#557e3d');R(c,x+a+1,y+b-2,1,3,'#80a852');R(c,x+a+2,y+b-1,1,1,'#779c4b')}if(n%17===0){R(c,x+5,y+9,1,3,'#476e36');R(c,x+4,y+8,3,1,'#d7c879');R(c,x+5,y+7,1,3,'#eddf9a')}}
 function stone(c,x,y){R(c,x,y,16,16,'#777d71');for(let j=0;j<2;j++)for(let i=-1;i<3;i++){let a=x+i*8+(j?4:0),b=y+j*8,n=seed(a,b);R(c,Math.max(x,a),b,Math.max(0,Math.min(x+16,a+7)-Math.max(x,a)),7,['#b7b6a4','#a9ad9d','#c2c1ab','#a5a89a'][n%4]);if(a>=x&&a+7<=x+16){R(c,a,b,7,1,'#d6d0b9');R(c,a,b+6,7,1,'#939587')}}}
 function wood(c,x,y){R(c,x,y,16,16,'#9a7650');R(c,x,y,16,1,'#684a34');R(c,x+(y%32?4:12),y,1,16,'#684a34');R(c,x,y+2,16,1,'#b58b59');for(let i=0;i<4;i++)R(c,x+seed(x,y,i)%12,y+4+i*3,4,1,'#896341')}
 function pathAt(m,x,y){return m.paths.some(([a,b,w,h])=>x>=a&&x<a+w&&y>=b&&y<b+h)}
@@ -13,7 +15,12 @@ export function terrain(map){const m=MAPS[map],cv=document.createElement('canvas
  if(map==='town'){R(c,0,0,248,13,'#385e38');R(c,328,0,248,13,'#385e38');for(let x=0;x<m.w;x+=16)if(x<248||x>=328){R(c,x,3,12,5,'#557c3e');R(c,x+2,0,8,3,'#749449')}for(let x=0;x<m.w;x+=12)if(x<246||x>328){R(c,x,478,9,13,'#735338');R(c,x+1,476,7,4,'#bd995d');R(c,x,487,12,3,'#a67d49')}}
  return cv;
 }
-function tree(c,o){const x=o.x,y=o.y;ellipse(c,x+5,y+1,25,9,'#365a33');R(c,x-5,y-25,10,27,'#65472e');R(c,x-3,y-24,3,25,'#a07a44');for(const [dx,dy,r] of [[-13,-28,14],[13,-31,14],[-12,-47,15],[10,-48,16],[0,-57,15],[0,-35,22]]){ellipse(c,x+dx,y+dy,r,r*.8,'#254f32');ellipse(c,x+dx-2,y+dy-3,r-3,r*.68,'#42733b');ellipse(c,x+dx-5,y+dy-6,r*.6,r*.45,'#5c8b42')}for(let i=0;i<60;i++){let n=seed(x,y,i),dx=n%39-19,dy=(n>>>7)%45-62;if((dx/23)**2+((dy+39)/28)**2<1)R(c,x+dx,y+dy,2,1,['#7da14c','#355f36','#699344'][i%3])}}
+// Pixel silhouettes built from integer stepped clusters, with one consistent light direction.
+function tree(c,o){const x=o.x,y=o.y;ellipse(c,x+5,y+1,23,7,'#365a33');R(c,x-5,y-23,10,25,'#59432f');R(c,x-3,y-23,3,24,'#967346');R(c,x+1,y-17,2,15,'#735739');
+const shape=[[-3,0,7],[-6,1,13],[-8,3,17],[-10,5,21],[-11,7,23],[-11,10,23],[-9,13,19],[-6,15,13],[-3,17,7]];
+function clump(cx,cy,shade){for(let i=0;i<shape.length;i++){const [a,b,w]=shape[i],h=i===shape.length-1?2:shape[i+1][1]-b;R(c,cx+a,cy+b,w,h,'#254b31');if(w>5)R(c,cx+a+2,cy+b,w-4,h,shade)}R(c,cx-5,cy+3,9,2,'#71954c');R(c,cx-7,cy+5,10,2,'#648a45');R(c,cx-8,cy+7,5,2,'#81a35a');R(c,cx+3,cy+12,6,2,'#355c35')}
+for(const [a,b,k] of [[-14,-42,'#426f3b'],[12,-43,'#3d6638'],[0,-60,'#527d3e'],[-15,-56,'#4c763b'],[13,-57,'#466f3a'],[0,-43,'#578442'],[-7,-32,'#466f3a'],[10,-32,'#3e6637']])clump(x+a,y+b,k);
+}
 function house(c,b){const {x,y,w,h}=b,roof=b.roof==='blue'?['#233c57','#355b82','#4d78a0','#6e91b6']:['#613a36','#914c42','#b46650','#ce8161'];ellipse(c,x+w/2+6,y+h-1,w*.55,8,'#37523a');R(c,x+4,y+29,w-8,h-29,'#3e3027');R(c,x+8,y+32,w-16,h-34,'#d9c399');R(c,x+8,y+33,w-16,4,'#a58d67');for(let k=10;k<w-10;k+=22){R(c,x+k,y+35,3,h-39,'#654831');R(c,x+k+3,y+37,1,h-42,'#a47b4b')}R(c,x+5,y+h-9,w-10,7,'#756c59');R(c,x+6,y+h-10,w-12,2,'#c2b295');const d=b.door[0];R(c,d-10,y+h-29,20,28,'#493125');R(c,d-7,y+h-26,14,25,'#8d623a');R(c,d-5,y+h-24,2,21,'#b38c54');R(c,d+3,y+h-14,3,3,'#e5bc68');for(const wx of [x+20,x+w-32]){R(c,wx,y+46,13,16,'#4d3829');R(c,wx+2,y+48,9,12,'#355f75');R(c,wx+3,y+49,3,4,'#9cc8cf');R(c,wx+6,y+48,1,12,'#c4a46a');R(c,wx+2,y+54,9,1,'#c4a46a');R(c,wx-1,y+62,15,3,'#8d6a40')}
  poly(c,[[x-5,y+34],[x+12,y+3],[x+w-12,y+3],[x+w+5,y+34]],roof[0]);poly(c,[[x,y+29],[x+15,y+7],[x+w-15,y+7],[x+w,y+29]],roof[1]);for(let row=0;row<4;row++){let yy=y+7+row*6,left=x+15-row*4,right=x+w-15+row*4;R(c,left,yy,right-left,1,roof[3]);for(let xx=left+(row%2)*4;xx<right-4;xx+=8){R(c,xx,yy+1,6,3,roof[2]);R(c,xx+6,yy+1,1,4,roof[0])}}R(c,x-5,y+32,w+10,4,'#332c2c');R(c,x+13,y+1,w-26,4,roof[3]);R(c,x+w-24,y-4,10,18,'#61564a');R(c,x+w-25,y-6,12,4,'#a09280');R(c,x+w-21,y,2,10,'#b3a18c');}
 function fountain(c,o,t){const {x,y}=o;ellipse(c,x,y,29,19,'#3d5948');ellipse(c,x,y-2,25,16,'#e0d6b6');ellipse(c,x,y-3,21,12,'#778c8e');ellipse(c,x,y-3,18,9,'#3b83a7');ellipse(c,x,y-3,15,6,'#65bfda');R(c,x-4,y-27,8,25,'#a4ad9e');R(c,x-7,y-27,14,3,'#ded9be');ellipse(c,x,y-30,9,5,'#d2ceba');for(let i=0;i<5;i++){let k=(t/100+i*7)%28;R(c,x-2+i, y-31+k,1,3,'#d6f6ff')}}
@@ -27,7 +34,7 @@ export function object(c,o,t,images,cleared){let {x,y}=o;
  else if(o.kind==='enemy'&&!cleared.includes(o.id)){const im=images[o.encounter],h=o.encounter==='boss'?50:31,w=Math.round(h*im.width/im.height);ellipse(c,x,y, w*.38,4,'#2c4731');c.drawImage(im,Math.round(x-w/2),Math.round(y-h+Math.sin(t/240)),w,h)}
 }
 export function render(c,s,cam,t,images,ground,anim,run){
- c.imageSmoothingEnabled=false;c.drawImage(ground,-cam.x,-cam.y);c.save();c.translate(-cam.x,-cam.y);
+ c.imageSmoothingEnabled=false;c.fillStyle='#142322';c.fillRect(0,0,W,H);c.drawImage(ground,-cam.x,-cam.y);c.save();c.translate(-cam.x,-cam.y);
  const m=MAPS[s.map],list=[...m.buildings.map(b=>({...b,depth:b.y+b.h})),...m.objects.map(o=>({...o,depth:o.y})),{kind:'player',depth:s.y}].sort((a,b)=>a.depth-b.depth);
  for(const o of list){if(o.kind==='player'){const x=Math.round(s.x),y=Math.round(s.y),row=['south','east','north','west'].indexOf(s.spriteFacing),seq=[1,2,3,0],idx=s.moving?seq[Math.floor(anim/(run?83:125))%4]:0;ellipse(c,x,y,9,3,'#283c2f90');c.drawImage(images.leon,idx*96,row*96,96,96,x-24,y-45,48,48)}else object(c,o,t,images,s.cleared)}
  c.restore();

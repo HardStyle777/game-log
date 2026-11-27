@@ -67,3 +67,6 @@ main{padding:5px;gap:6px;background:#081727 url(assets/ui-navy.png) repeat;min-h
 
 /* R19: keep the encounter controls compact; no changes to the accepted battle panels. */
 #fieldReturn{min-width:72px;white-space:nowrap}
+
+/* R20: taller native battlefield, no visible developer footer. */
+.battle-screen #notice{padding:6px 9px;color:#ffe0a1}.battle-screen .action-strip #fieldReturn{min-width:104px}.battle-screen .field canvas{aspect-ratio:480/400;height:auto}.battle-screen .top{flex:none}
