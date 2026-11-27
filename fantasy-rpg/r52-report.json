@@ -1,11 +1,64 @@
 {
   "version": "R52",
-  "field": {
-    "version": "R52",
-    "checks": 17521,
-    "failures": 0,
-    "scope": "real field model, frame selection, anchor, mode resets, source image routing; not browser operation"
+  "implementation": [
+    "20856d21f124a19885d77ef459e69d5ef60695eb",
+    "7c9ad6613b9813a113bb4d060a5335954917f433"
+  ],
+  "asset": {
+    "path": "assets/r52/leon-run.png",
+    "sha": "7d0b57cca1434aafeb9e26fe654f9f6f1d19bebf",
+    "dimensions": [
+      384,
+      384
+    ],
+    "cells": 16,
+    "frameMs": 100,
+    "source": "new independent illustrated run poses",
+    "edgeCorrections": {
+      "initial": 10,
+      "additionalDarkMagenta": 703
+    }
   },
-  "asset": "edb7768362a9ea977fb7cd8f2b1d2f309cfaef42",
-  "scope": "16 independent running poses; R50 idle and walk retained; 100ms/cell; movement speed unchanged; source PNG processed locally; full browser not yet tested"
+  "canvas": {
+    "fia": {
+      "combinations": 144,
+      "framesPerCombination": 70,
+      "frames": 10080,
+      "checks": 21895,
+      "failures": 0,
+      "fullRealDependencies": true,
+      "defaultExact": true,
+      "sourceAlphaNotReduced": true,
+      "allFramesNonemptyAndInset": true
+    },
+    "leon": {
+      "combinations": 4,
+      "frames": 64,
+      "checks": 136,
+      "failures": 0,
+      "sourceAlphaEqual": true,
+      "defaultExact": true,
+      "finalCorrectedAsset": true
+    },
+    "method": "Local Chromium with actual repository modules and source PNGs verified by Git blob SHA. Rewrote import paths to data URIs for offline execution only; no stub dependencies. Fia and Leon tests run separately, same checks retained in review-r52.html; published review runner itself not executed.",
+    "modules": {
+      "fia-appearance-r46.js": "cd610781b469d9e30840e8a6817f8c5b70e08cfd",
+      "fia-appearance-r47.js": "312de286998b665c3b73ced74835c2339b7a6d48",
+      "fia-appearance-r48.js": "7b9a4f5a61b3e582450d902da7832dde7cbe5539",
+      "fia-armour-r50.js": "408e1c6f0be0ff52afec52623cce59153c84240a",
+      "fia-art-r41.js": "1855e6d18741dabecf22c709082119d6f0fe38c9",
+      "fia-art-r45.js": "e8216b6e0317544157ce2e54ba61bdc9a879814b",
+      "fia-art-r46.js": "2f32c89bc392b37c98d3fb66263ba86ed39c9adf",
+      "leon-appearance-r50.js": "058f4ff28d480e41e6782f7390f98989ee5719cc",
+      "leon-run-r52.js": "8dee49fd76fca2cee49ec25d89c9b37919d26e43"
+    }
+  },
+  "regression": {
+    "field": 17521,
+    "battle": 7002,
+    "terminalPose": 201,
+    "failures": 0,
+    "totalWithRaster": 46755
+  },
+  "scope": "No new equipment slots added. R51 victory, R39 inputs and original walk preserved. Full game UI/browser navigation and iPhone not run. Public R51 curl DNS error; R52 HTTP not checked. Leon four remaining equipment slots and Fia full weapon/clothing replacement remain. Mechanical raster tests are not visual approval."
 }
