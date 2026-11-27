@@ -8,8 +8,9 @@
     "actualEngineVictoryReviveParity": 1107,
     "terminalPose": 201,
     "mockedAppearanceRouting": 440,
-    "total": 8750,
-    "failures": 0
+    "total": 8790,
+    "failures": 0,
+    "returnAndPersistence": 40
   },
   "battles": [
     {
@@ -68,5 +69,5 @@
       }
     }
   ],
-  "scope": "actual engine and actual pose functions; mock image assembly routes for 4 Leon and 144 Fia settings; no new art; browser raster, full UI and field return end-to-end not tested; no public HTTP/iPhone check. Other pending equipment and independently drawn running poses remain. Glen/Lucia use older assets unchanged."
+  "scope": "actual engine and actual pose functions; mock image assembly routes for 4 Leon and 144 Fia settings; no new art; browser raster, full UI and field return end-to-end not tested; no public HTTP/iPhone check. Other pending equipment and independently drawn running poses remain. Glen/Lucia use older assets unchanged. Additional actual field/economy/appearance function tests with in-memory sessionStorage cover win/loss/abort, duplicate settlement, encounter suppression, and saved appearance preservation; not browser navigation."
 }
