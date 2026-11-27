@@ -1,0 +1,83 @@
+{
+  "version": "R49",
+  "previewChecks": 17,
+  "parity": {
+    "checks": 1107,
+    "failures": 0,
+    "wins": [
+      {
+        "seed": 17,
+        "boss": false,
+        "multi": false,
+        "outcome": "win",
+        "seen": {
+          "leon": true,
+          "fia": true
+        }
+      },
+      {
+        "seed": 41,
+        "boss": false,
+        "multi": false,
+        "outcome": "win",
+        "seen": {
+          "leon": true,
+          "fia": true
+        }
+      },
+      {
+        "seed": 17,
+        "boss": false,
+        "multi": true,
+        "outcome": "win",
+        "seen": {
+          "leon": true,
+          "fia": true
+        }
+      },
+      {
+        "seed": 17,
+        "boss": true,
+        "multi": false,
+        "outcome": "win",
+        "seen": {
+          "leon": true,
+          "fia": false
+        }
+      }
+    ],
+    "revives": [
+      {
+        "id": "leon",
+        "events": [
+          "knockout",
+          "revive"
+        ]
+      },
+      {
+        "id": "fia",
+        "events": [
+          "knockout",
+          "revive"
+        ]
+      }
+    ]
+  },
+  "regression": {
+    "battle": {
+      "checks": 7002,
+      "failures": 0,
+      "battles": 5,
+      "reviveCases": 1
+    },
+    "field": {
+      "checks": 17521,
+      "failures": 0
+    },
+    "stance": {
+      "checks": 3704,
+      "failures": 0
+    }
+  },
+  "scope": "Actual published engine functions executed, mock draw context and source wiring. Not full browser or iPhone test. Leon appearance preview read-only; R6 gear not ported to R26. Fia R48 assets unchanged. Armor shape differences not implemented in R49."
+}
