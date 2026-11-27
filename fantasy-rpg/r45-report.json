@@ -116,5 +116,26 @@
   },
   "extraChecks": 1543,
   "failures": 0,
-  "scope": "actual engine and pure motion selection. PNG crop and alpha bounds checked locally; full browser raster and iPhone not run. Body/feet colour support extended to attack cells, independent other gear artwork remains."
+  "scope": "Actual engine and frame selection, local Chromium raster regression. Public curl DNS failed; full game browser operation and iPhone not run. Other gear independent art remains.",
+  "canvas": {
+    "checks": 12118201,
+    "frames": 32,
+    "failures": 0,
+    "combinations": 4,
+    "allOldCellsEqual": true,
+    "allAttackCellsEqual": true,
+    "alphaUnchanged": true,
+    "defaultExact": true,
+    "moduleShas": {
+      "art": "e8216b6e0317544157ce2e54ba61bdc9a879814b",
+      "appearance": "abd9c0213dfadc9b88d333f2fe309e066625ee6d"
+    },
+    "method": "local Chromium set_content and data URI modules; relative legacy import rewritten to data URI after Git blob verification; not whole game",
+    "changedAttackPixels": [
+      0,
+      2682,
+      2601,
+      5283
+    ]
+  }
 }
