@@ -1,3 +1,5 @@
+import {motionScale} from './party-motion.js?v=25';
+
 // R15: pure presentation helpers. Never modify combat state.
 export const actionNames={basic:'通常攻撃',guard:'防御',potion:'回復薬',blade:'踏み込み斬り',double:'連撃',heavy:'強撃',spell:'魔法',claw:'爪撃',wait:'待機'};
 export const shortActionNames={basic:'攻撃',guard:'防御',potion:'回復薬',blade:'特技',double:'連撃',heavy:'特技',spell:'魔法',wait:'待機'};
@@ -25,18 +27,18 @@ export function battleMessage(v,names,selected){
 // R21: fixed foot anchors and measured visible-pixel extents.
 export const STAGE=Object.freeze({w:480,h:400,ground:116,margin:10});
 export const profiles=Object.freeze({
- leon:{scale:1.4,left:39*1.4,right:27*1.4,above:52*1.4,below:0,idleLeft:35*1.4,idleRight:24*1.4,idleAbove:48*1.4,h:69},
- fia:{scale:1.4,left:38*1.4,right:19*1.4,above:56*1.4,below:0,idleLeft:34*1.4,idleRight:17*1.4,idleAbove:46*1.4,h:64},
- glen:{scale:1.4,left:32*1.4,right:24*1.4,above:52*1.4,below:0,idleLeft:31*1.4,idleRight:23*1.4,idleAbove:46*1.4,h:65},
- lucia:{scale:1.4,left:35*1.4,right:22*1.4,above:52*1.4,below:0,idleLeft:33*1.4,idleRight:13*1.4,idleAbove:49*1.4,h:69}
+ leon:{left:70,right:51,above:95,idleLeft:67,idleRight:46,idleAbove:94,h:69},
+ fia:{left:73,right:47,above:97,idleLeft:65,idleRight:34,idleAbove:93,h:64},
+ glen:{left:77,right:49,above:94,idleLeft:62,idleRight:46,idleAbove:93,h:65},
+ lucia:{left:72,right:50,above:99,idleLeft:65,idleRight:26,idleAbove:99,h:69}
 });
 export const partyFormation=Object.freeze(Object.fromEntries(['leon','fia','glen','lucia'].map((id,i)=>[id,Object.freeze({x:390+i*13,y:148+i*77,h:profiles[id].h})])));
 export function visibleBounds(id,p,idle=false){
- const a=profiles[id],l=idle?(a.idleLeft??a.left):a.left,r=idle?(a.idleRight??a.right):a.right,t=idle?(a.idleAbove??a.above):a.above,b=idle?(a.idleBelow??a.below):a.below;
- return {x:p.x-Math.ceil(l),y:p.y-Math.ceil(t),w:Math.ceil(l)+Math.ceil(r),h:Math.ceil(t)+Math.ceil(b)};
+ const a=profiles[id],l=idle?(a.idleLeft??a.left):a.left,r=idle?(a.idleRight??a.right):a.right,t=idle?(a.idleAbove??a.above):a.above,b=idle?(a.idleBelow??a.below??0):(a.below??0);
+ return {x:p.x-Math.ceil(l*motionScale),y:p.y-Math.ceil(t*motionScale),w:Math.ceil(l*motionScale)+Math.ceil(r*motionScale),h:Math.ceil(t*motionScale)+Math.ceil(b*motionScale)};
 }
 export function safePosition(id,p){
- const a=profiles[id];return {...p,x:Math.round(Math.max(STAGE.margin+Math.ceil(a.left),Math.min(STAGE.w-STAGE.margin-Math.ceil(a.right),p.x))),y:Math.round(Math.max(STAGE.ground+12,STAGE.margin+Math.ceil(a.above),Math.min(STAGE.h-STAGE.margin-Math.ceil(a.below),p.y)))};
+ const a=profiles[id];return {...p,x:Math.round(Math.max(STAGE.margin+Math.ceil(a.left*motionScale),Math.min(STAGE.w-STAGE.margin-Math.ceil(a.right*motionScale),p.x))),y:Math.round(Math.max(STAGE.ground+12,STAGE.margin+Math.ceil(a.above*motionScale),Math.min(STAGE.h-STAGE.margin-Math.ceil((a.below??0)*motionScale),p.y)))};
 }
 
 const ease=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)};

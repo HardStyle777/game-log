@@ -1,11 +1,10 @@
-// R22: role-specific motion frames, pixel-native 80x72 atlas, planted feet.
+// R25: role-specific motion frames, 160×144 sprite cells, planted feet.
 // Animation clock only; no mutation of damage, actions or initiative.
-export const artActors={fia:'fia',glen:'glen',lucia:'eris'};
-export const motionScale=1.4;
+export const motionScale=.7;
 const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
 function choose(fs,p){return fs[Math.min(fs.length-1,Math.floor(clamp(p,0,.99999)*fs.length))]}
-export function atlasPose(v,id,meta){
- const actor=meta.actors[artActors[id]],c=actor.clips,m=v.motion[id],phase={leon:0,fia:110,glen:270,lucia:420}[id]??0;
+export function atlasPose(v,id,actor){
+ const c=actor.clips,m=v.motion[id],phase={leon:0,fia:110,glen:270,lucia:420}[id]??0;
  const t=m?v.clock-m.start:-1,active=m&&t>=0&&t<m.duration;
  let clip='idle',p=((v.clock+phase)%680+680)%680/680;
  if(active){
@@ -26,5 +25,5 @@ export function leonPose(v,meta){
  const fs=meta.clips[clip],total=fs.reduce((n,f)=>n+f.ms,0);
  let k=active?Math.min(t,total-1):v.clock%total;
  const frame=fs.find(f=>{if(k<f.ms)return true;k-=f.ms;return false})??fs.at(-1);
- return {frame,clip:clip==='idle'?'ready':clip};
+ return {frame,clip:clip==='idle'?'ready':clip,file:meta.file};
 }

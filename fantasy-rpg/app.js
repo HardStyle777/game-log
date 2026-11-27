@@ -1,6 +1,6 @@
 import {PARTY,NAMES,PartySession,makePartyConfig} from './party-session.js?v=22';
-import {activeMotion,enemyOpacity,impactLabel,impactAnchor,plannedLabel,battleMessage,partyFormation,actorPosition,targetSpec,enemyLayout,targetBox,targetCursor,tapTarget,STAGE,visibleBounds} from './battle-visuals.js?v=24';
-import {atlasPose,leonPose,motionScale} from './party-motion.js?v=23';
+import {activeMotion,enemyOpacity,impactLabel,impactAnchor,plannedLabel,battleMessage,partyFormation,actorPosition,targetSpec,enemyLayout,targetBox,targetCursor,tapTarget,STAGE,visibleBounds} from './battle-visuals.js?v=25';
+import {atlasPose,leonPose,motionScale} from './party-motion.js?v=25';
 const $=id=>document.getElementById(id), c=$('field'),ctx=c.getContext('2d'), W=STAGE.w,H=STAGE.h;
 const artIds={leon:'leon',fia:'fia',glen:'glen',lucia:'eris'};
 // Same world-space coordinates for both encounters; no shrinking allies for boss.
@@ -10,18 +10,20 @@ const loadImage=n=>new Promise((resolve,reject)=>{const i=new Image();i.onload=(
 let activeCommand='basic', lastUi='', pendingChoice=null, speed=1, fieldChoice=null, targetLayoutKey='';
 
 const params=new URLSearchParams(location.search),multiTest=params.get('test')==='multi',fromField=params.get('from')==='field',initialEnemy=params.get('encounter')==='boss'?'boss':'wolf';
-let assets={},meta,partyMeta,session=null,live=false,encounter=initialEnemy,selected='leon',clock=0,previous=0,preview=null,hoverTarget=false,err=null,frames=0;
-const imgNames=['meadow','wolf','boss','r24/leon-battle','r22/fia-r22','r22/glen-r22','r22/eris-r22'];
+let assets={},partyMeta,session=null,live=false,encounter=initialEnemy,selected='leon',clock=0,previous=0,preview=null,hoverTarget=false,err=null,frames=0;
+const imgNames=['meadow','wolf','boss',...PARTY.map(id=>'r25/'+artIds[id]+'-battle')];
 const demoStats=[[482,96],[398,152],[540,84],[376,198]];
 const sample=()=>({vitals:{...Object.fromEntries(PARTY.map((id,i)=>[id,{hp:demoStats[i][0],hpMax:demoStats[i][0],mp:demoStats[i][1],mpMax:demoStats[i][1],spCenti:10000}])),wolf:{hp:700,hpMax:700},boss:{hp:3200,hpMax:3200}},round:1,clock,motion:preview?{[preview.id]:preview}: {},impacts:[],selected:{},active:[...PARTY],busy:!!preview,enemy:encounter,complete:false,inventory:{potion:4},outcome:null});
 const getView=()=>session?session.view():sample();
 const commandFor=s=>({basic:'basic',guard:'guard',potion:'potion',spell:'skill',blade:'tech',double:'tech',heavy:'tech'})[s];
 for(const id of PARTY){const b=document.createElement('button');b.className='gold member';b.id='member-'+id;b.setAttribute('aria-pressed','false');b.innerHTML='<img class="portrait" alt="" src="assets/'+artIds[id]+'-portrait.png"><span class="stat"><span class="name"><span>'+NAMES[id]+'</span><span class="lv">Lv.<span class="level">34</span></span></span>'+['hp','mp','sp'].map(k=>'<span class="rowstat"><strong>'+k.toUpperCase()+'</strong><span class="meter"><span class="val" data-val="'+k+'"></span><span class="bar '+k+'"><i data-bar="'+k+'"></i></span></span></span>').join('')+'</span>';b.onclick=()=>{if(fieldChoice&&fieldChoice.spec.ids.includes(id)){chooseFieldTarget(id);return}if(!getView().busy&&(!live||session.active.includes(id))){closeChoice();selected=id;activeCommand=commandFor(session?.selected[id]?.skill)??'basic';update(getView(),true)}};$('party').append(b)}
 function shadow(x,y,w,h=4){ctx.fillStyle='#1c351d88';ctx.beginPath();ctx.ellipse(x,y,w,h,0,0,2*Math.PI);ctx.fill()}
-function partyPose(v,id){return id==='leon'?leonPose(v,meta):atlasPose(v,id,partyMeta)}
+function partyPose(v,id){
+ const actor=partyMeta.actors[artIds[id]];
+ return id==='leon'?leonPose(v,actor):atlasPose(v,id,actor)
+}
 function drawParty(v,id,x,y){
- const pose=partyPose(v,id),f=pose.frame,isLeon=id==='leon';
- const im=assets[isLeon?'r24/leon-battle':'r22/'+pose.file],anchor=(isLeon?meta:partyMeta).anchor;
+ const pose=partyPose(v,id),f=pose.frame,im=assets['r25/'+pose.file],anchor=partyMeta.anchor;
  ctx.drawImage(im,f.x,f.y,f.w,f.h,Math.round(x-anchor[0]*motionScale),Math.round(y-anchor[1]*motionScale),Math.round(f.w*motionScale),Math.round(f.h*motionScale));
 }
 function roleEffect(v,id,p,m){
@@ -77,7 +79,7 @@ function mapAction(a){return a==='basic'?'basic':a==='guard'?'guard':a==='potion
 function startPreview(actor,action){
  closeChoice();
  const clip=action==='guard'?'guard':action==='skill'||action==='potion'?'cast':'attack';
- const fs=actor==='leon'?meta?.clips[clip]:null;
+ const fs=actor==='leon'?partyMeta?.actors.leon.clips[clip]:null;
  const mark=fs?.findIndex(f=>f.contact);
  const duration=fs?.reduce((sum,f)=>sum+f.ms,0)??(clip==='guard'?590:1000);
  const contact=mark>=0?fs.slice(0,mark).reduce((sum,f)=>sum+f.ms,0):duration*.5;
@@ -118,7 +120,7 @@ function renderFieldTargets(v){
 }
 
 for(const b of document.querySelectorAll('[data-action]'))b.onclick=()=>{const a=b.dataset.action;if(getView().busy||b.disabled)return;activeCommand=a;if(live){pickAction(a);update(getView(),true)}else{const actor=selected;if(a==='guard'){startPreview(actor,a);return}pendingChoice={actor,skill:a};$('choiceTitle').textContent=NAMES[actor]+' — '+(a==='potion'?'回復対象':'対象を選択');$('choiceInfo').textContent='演出確認のみ（HP・MP・SPは変化しません）';const list=$('choiceList');list.replaceChildren();for(const id of a==='potion'?PARTY:[encounter]){const b=document.createElement('button');b.dataset.target=id;b.textContent=NAMES[id];b.onclick=()=>{if(pendingChoice)startPreview(actor,a)};list.append(b)}$('choice').showModal();update(getView(),true)}};
-$('submit').onclick=()=>{try{if(session?.complete&&!fieldChoice){session.submit();update(getView(),true)}}catch(e){$('notice').hidden=false;$('notice').textContent=e.message}};$('fieldReturn').onclick=()=>{const v=getView();if(v.busy)return;if(fromField){try{sessionStorage.setItem('fantasy-field-result',JSON.stringify({token:params.get('token'),outcome:v.outcome??'abort'}))}catch{}}location.href='./field.html?v=24'};$('skip').onclick=()=>{if(session?.busy){session.advance(120000);update(getView(),true)}};
-let runtime=null;function switchEnemy(id){if(getView().busy)return;closeChoice();$('notice').hidden=true;activeCommand='basic';encounter=id;selected='leon';preview=null;if(live)session=new PartySession(runtime.battle,makePartyConfig(runtime.core,runtime.reference,runtime.fixture,{boss:id==='boss',multi:multiTest}),meta.clips);update(getView())}
+$('submit').onclick=()=>{try{if(session?.complete&&!fieldChoice){session.submit();update(getView(),true)}}catch(e){$('notice').hidden=false;$('notice').textContent=e.message}};$('fieldReturn').onclick=()=>{const v=getView();if(v.busy)return;if(fromField){try{sessionStorage.setItem('fantasy-field-result',JSON.stringify({token:params.get('token'),outcome:v.outcome??'abort'}))}catch{}}location.href='./field.html?v=25'};$('skip').onclick=()=>{if(session?.busy){session.advance(120000);update(getView(),true)}};
+let runtime=null;function switchEnemy(id){if(getView().busy)return;closeChoice();$('notice').hidden=true;activeCommand='basic';encounter=id;selected='leon';preview=null;if(live)session=new PartySession(runtime.battle,makePartyConfig(runtime.core,runtime.reference,runtime.fixture,{boss:id==='boss',multi:multiTest}),partyMeta.actors.leon.clips);update(getView())}
 function tick(t){try{const dt=previous?Math.min(100,t-previous):0;previous=t;clock+=dt;if(preview&&clock-preview.start>=preview.duration)preview=null;const v=session?session.advance(dt*speed):sample();draw(v);update(v);frames++;requestAnimationFrame(tick)}catch(e){err=e.message;$('message').textContent='描画エラー：'+err;console.error(e)}}
-try{[meta,partyMeta,assets]=await Promise.all([fetch('assets/r23/leon-clips.json').then(r=>{if(!r.ok)throw Error('R23 Leon motion');return r.json()}),fetch('assets/r22/motion.json?v=22').then(r=>{if(!r.ok)throw Error('R22 motion');return r.json()}),Promise.all(imgNames.map(async n=>[n,await loadImage(n)])).then(Object.fromEntries)]);const requested=new URLSearchParams(location.search).get('live');const availability=await fetch('./runtime-status.json',{cache:'no-store'}).then(r=>r.ok?r.json():{live:false}).catch(()=>({live:false}));if(requested==='1'&&!availability.live)throw Error('戦闘エンジンを読み込めませんでした。ページを再読み込みしてください。');if(requested!=='0'&&availability.live){runtime=await import('./runtime.js?v=22').then(x=>x.loadRuntime());live=true;session=new PartySession(runtime.battle,makePartyConfig(runtime.core,runtime.reference,runtime.fixture,{multi:multiTest,boss:initialEnemy==='boss'}),meta.clips);$('mode').textContent='R24・実戦闘エンジン接続・仮素材／仮技能'}else $('mode').textContent='演出確認モード（戦闘計算なし）';window.__r12={get frames(){return frames},get err(){return err},get view(){return getView()},get formation(){return formation},get poses(){const v=getView();return Object.fromEntries(PARTY.map(id=>[id,partyPose(v,id)]))},get visibleBounds(){return Object.fromEntries(PARTY.map(id=>[id,visibleBounds(id,formation[id],true)]))},get fieldChoice(){return fieldChoice},get encounter(){return encounter},get live(){return live},get state(){return session?.state??null},get sequence(){return session?.seq??null}};requestAnimationFrame(tick)}catch(e){err=e.message;$('message').textContent='読み込みエラー：'+err;console.error(e)}
+try{[partyMeta,assets]=await Promise.all([fetch('assets/r25/motion.json').then(r=>{if(!r.ok)throw Error('R25 party motion');return r.json()}),Promise.all(imgNames.map(async n=>[n,await loadImage(n)])).then(Object.fromEntries)]);const requested=new URLSearchParams(location.search).get('live');const availability=await fetch('./runtime-status.json',{cache:'no-store'}).then(r=>r.ok?r.json():{live:false}).catch(()=>({live:false}));if(requested==='1'&&!availability.live)throw Error('戦闘エンジンを読み込めませんでした。ページを再読み込みしてください。');if(requested!=='0'&&availability.live){runtime=await import('./runtime.js?v=22').then(x=>x.loadRuntime());live=true;session=new PartySession(runtime.battle,makePartyConfig(runtime.core,runtime.reference,runtime.fixture,{multi:multiTest,boss:initialEnemy==='boss'}),partyMeta.actors.leon.clips);$('mode').textContent='R25・実戦闘エンジン接続・仮素材／仮技能'}else $('mode').textContent='演出確認モード（戦闘計算なし）';window.__r12={get frames(){return frames},get err(){return err},get view(){return getView()},get formation(){return formation},get poses(){const v=getView();return Object.fromEntries(PARTY.map(id=>[id,partyPose(v,id)]))},get visibleBounds(){return Object.fromEntries(PARTY.map(id=>[id,visibleBounds(id,formation[id],true)]))},get fieldChoice(){return fieldChoice},get encounter(){return encounter},get live(){return live},get state(){return session?.state??null},get sequence(){return session?.seq??null}};requestAnimationFrame(tick)}catch(e){err=e.message;$('message').textContent='読み込みエラー：'+err;console.error(e)}
