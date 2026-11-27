@@ -20,7 +20,7 @@ const P=[
  [2,5,0,45,55,67,59,70,31,36,34,47,96,80,96,0],
  [5,0,4,48,70,83,71,30,84,102,79,50,96,82,96,0],
  [4,2,2,48,73,80,72,31,89,99,84,50,96,80,96,0],
- [0,0,0,43,68,77,62,21,77,98,45,49,96,78,96,1],
+ [0,0,0,45,66,76,65,44,90,78,90,56,96,70,96,1],
  [0,-3,-1,42,54,76,51,22,31,94,28,49,96,78,96,0]
 ];
 const rgb=Object.fromEntries(Object.entries(C).map(([k,v])=>[k,[parseInt(v.slice(1,3),16),parseInt(v.slice(3,5),16),parseInt(v.slice(5,7),16),255]]));
@@ -28,7 +28,7 @@ export function fiaPixels(index){
  const p=P[index];if(!p)throw RangeError('Fia frame');
  const [dx,dy,lean,fx,fy,rx,ry,ftx,fty,rtx,rty,lx,ly,bx,by,down]=p;
  const data=new Uint8ClampedArray(W*H*4);
- const put=(x,y,k)=>{x=Math.round(x);y=Math.round(y);if(down){const a=x-AX,b=y-AY;x=AX-b*.89+a*.25-24;y=AY+a*.25+b*.06-6;x=Math.round(x);y=Math.round(y)}if(x>=0&&x<W&&y>=0&&y<H)data.set(rgb[k],(y*W+x)*4)};
+ const put=(x,y,k)=>{x=Math.round(x);y=Math.round(y);if(down){const a=x-AX,b=y-AY;x=18-b;y=75+a;x=Math.round(x);y=Math.round(y)}if(x>=0&&x<W&&y>=0&&y<H)data.set(rgb[k],(y*W+x)*4)};
  function poly(k,a){const xx=a.map(q=>q[0]),yy=a.map(q=>q[1]);for(let y=Math.floor(Math.min(...yy));y<=Math.ceil(Math.max(...yy));y++)for(let x=Math.floor(Math.min(...xx));x<=Math.ceil(Math.max(...xx));x++){let inP=false;for(let i=0,j=a.length-1;i<a.length;j=i++){const [u,v]=a[i],[s,t]=a[j];if((v>y+.5)!==(t>y+.5)&&x+.5<(s-u)*(y+.5-v)/(t-v)+u)inP=!inP}if(inP)put(x,y,k)}}
  function line(k,x,y,u,v,r=0){const n=Math.max(Math.abs(u-x),Math.abs(v-y),1);for(let i=0;i<=n;i++){const a=Math.round(x+(u-x)*i/n),b=Math.round(y+(v-y)*i/n);for(let j=-r;j<=r;j++)for(let z=-r;z<=r;z++)if(j*j+z*z<=r*r+1)put(a+j,b+z,k)}}
  const body=(k,a)=>poly(k,a.map(([x,y])=>[x+dx+(y<60?lean:0),y+dy]));
