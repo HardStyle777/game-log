@@ -79,5 +79,86 @@
     "failures": 0,
     "scope": "completion lock, deliberate edit, next round, busy/outcome, party sizes 1/3/4, stale taps and existing target rules; mock session"
   },
-  "scope": "Actual published battle-engine timeline, guard/victory/attack and snapshot checks; frame selection only, not image rendering. Guard/victory/revive are original-pixel articulated candidates, not hand-drawn poses. Browser and iPhone untested."
+  "scope": "Actual published battle-engine timeline, guard/victory/attack and snapshot checks; frame selection only, not image rendering. Guard/victory/revive are original-pixel articulated candidates, not hand-drawn poses. Browser and iPhone untested.",
+  "retainedEngineTest": {
+    "version": "R40",
+    "checks": 6976,
+    "failures": 0,
+    "battles": [
+      {
+        "seed": 17,
+        "boss": false,
+        "multi": false,
+        "outcome": "win",
+        "round": 4,
+        "ticks": 674
+      },
+      {
+        "seed": 41,
+        "boss": false,
+        "multi": false,
+        "outcome": "win",
+        "round": 3,
+        "ticks": 635
+      },
+      {
+        "seed": 91,
+        "boss": false,
+        "multi": false,
+        "outcome": "win",
+        "round": 3,
+        "ticks": 635
+      },
+      {
+        "seed": 17,
+        "boss": false,
+        "multi": true,
+        "outcome": "win",
+        "round": 6,
+        "ticks": 1286
+      },
+      {
+        "seed": 17,
+        "boss": true,
+        "multi": false,
+        "outcome": "win",
+        "round": 19,
+        "ticks": 2900
+      }
+    ],
+    "counts": {
+      "guard": 5,
+      "hit": 18,
+      "attack": 16,
+      "victory": 4,
+      "knockout": 1
+    },
+    "revive": [
+      {
+        "type": "knockout",
+        "seq": 15
+      },
+      {
+        "type": "revive",
+        "seq": 26,
+        "hp": 1
+      }
+    ],
+    "scope": "actual engine and target input transitions, frame selection, snapshots; not full UI"
+  },
+  "canvas": {
+    "environment": "local Chromium, verified local source PNG Git blob dda082eb4286f7fbb961461972e28df31cb8c70e and corrected JS Git blob 743d57ecb2199de141e11cb39e8715e1ca6de042; script evaluated with data URI",
+    "frames": 25,
+    "atlas": [
+      1440,
+      1080
+    ],
+    "idleByteEquality": true,
+    "allFramesInset": true,
+    "initialVictoryFrameEdge": 239,
+    "correctedVictoryFrameEdge": 237,
+    "maxX": 237,
+    "knownVisualLimit": "knockout still old rotated reduced pose; needs independent lying/recovery art",
+    "publicPage": "DNS resolution failed, full browser/iPhone integration not tested"
+  }
 }

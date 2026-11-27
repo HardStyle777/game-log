@@ -27,7 +27,7 @@ export function frameBounds(i){
 // Extract the original illustrated pixels, not replacement line-art. Keep the original idle intact.
 const FRONT=[[115,101],[123,104],[120,112],[114,119],[105,124],[101,128],[97,132],[90,146],[0,146],[0,100],[93,100],[104,99]];
 const REAR=[[145,93],[160,92],[175,94],[195,105],[240,110],[240,163],[207,163],[185,140],[178,133],[173,129],[169,124],[163,119],[155,114],[150,108],[145,105]];
-export const jointAngles=Object.freeze({3:[20,-4],4:[43,-14],5:[28,-8],6:[43,-14],7:[-27,-10],8:[-12,-32],9:[4,120],10:[12,135],18:[-43,0],19:[25,105],20:[42,128],21:[32,-12],22:[57,-32],23:[65,-42],24:[16,65]});
+export const jointAngles=Object.freeze({3:[20,-4],4:[43,-14],5:[28,-8],6:[43,-14],7:[-27,-10],8:[-12,-32],9:[4,120],10:[12,135],18:[-43,0],19:[25,105],20:[42,128],21:[32,-12],22:[57,-32],23:[65,-30],24:[16,65]});
 function inside(x,y,poly){let b=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const [a,c]=poly[i],[d,e]=poly[j];if((c>y)!==(e>y)&&x<(d-a)*(y-c)/(e-c)+a)b=!b}return b}
 function canvas(){const c=document.createElement('canvas');c.width=W;c.height=H;return c}
 function largestComponent(pixels){

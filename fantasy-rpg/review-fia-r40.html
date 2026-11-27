@@ -1,0 +1,9 @@
+<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fia R40 atlas regression</title><body style="background:#203344;color:white"><p>フィア R40 素材検証（ゲーム画面ではありません）</p><pre id="report">実行中</pre><script type="module">
+import {makeFiaAtlas} from './fia-art-r40.js';
+try{
+const img=new Image();img.src='assets/r37/fia-sprite.png';await img.decode();const atlas=makeFiaAtlas(img);document.body.append(atlas);atlas.style.imageRendering='pixelated';atlas.style.maxWidth='100%';
+const src=document.createElement('canvas');src.width=240;src.height=216;const ctx=src.getContext('2d');ctx.drawImage(img,0,0);const orig=ctx.getImageData(0,0,240,216).data;const g=atlas.getContext('2d');const frames=[];
+for(let i=0;i<25;i++){const d=g.getImageData(i%6*240,Math.floor(i/6)*216,240,216).data;let n=0,minX=240,minY=216,maxX=-1,maxY=-1;for(let y=0;y<216;y++)for(let x=0;x<240;x++)if(d[(y*240+x)*4+3]){n++;minX=Math.min(minX,x);minY=Math.min(minY,y);maxX=Math.max(maxX,x);maxY=Math.max(maxY,y)}if(!n||minX<1||minY<1||maxX>238||maxY>214)throw Error('frame edge '+i);frames.push({i,n,minX,minY,maxX,maxY});if(i===0&&d.some((v,k)=>v!==orig[k]))throw Error('idle changed')}
+window.report={frames,atlas:[atlas.width,atlas.height],exactIdle:true};document.getElementById('report').textContent=JSON.stringify({passed:true,frames:25,exactIdle:true},null,2);
+}catch(e){document.getElementById('report').textContent='FAIL: '+e.message;throw e}
+</script></body></html>
