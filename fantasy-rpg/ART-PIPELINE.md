@@ -1,0 +1,7 @@
+# Field and character asset pipeline
+
+- Native grid: 16px terrain tiles, 48px character design cells; battle atlas may use larger cells for weapon/effects. Keep foot anchor and alpha envelopes separate from cell size.
+- Draw by palette clusters; no random photo-texture, antialiased outlines, gradient noise, or AI-generated full-screen raster as production map. Author reusable terrain edge variants, roofs, walls, windows, doors, foliage, props, shadows; compose scenes from these assets. Lock upper-left light direction and ground-plane projection.
+- Use indexed/limited-color sprite art; reuse body/head silhouette and palette across directions; hand-author intermediate poses rather than independent image regeneration. Native pixel coordinates and nearest-neighbor sampling; screen fit may require fractional display scale, never different X/Y scales for actors.
+- Before new actors: verify idle and every animation frame against foot-relative alpha envelope, including weapon/effect; compare actual rendered actor sizes; ensure nonoverlapping four-party idle rectangles and all feet on ground. Verify normal/multi/boss and target hitboxes. Preserve R18 targeting and R20 walk/run speeds (90/146 native px/s).
+- Existing background and non-Leon characters remain provisional. R21 is the placement baseline candidate, not final art approval. Next character should receive its own consistent idle, walk, attack, cast, guard, hit and down/revive assets; four diagonal field directions remain missing.

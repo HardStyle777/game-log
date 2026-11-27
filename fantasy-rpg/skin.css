@@ -70,3 +70,28 @@ main{padding:5px;gap:6px;background:#081727 url(assets/ui-navy.png) repeat;min-h
 
 /* R20: taller native battlefield, no visible developer footer. */
 .battle-screen #notice{padding:6px 9px;color:#ffe0a1}.battle-screen .action-strip #fieldReturn{min-width:104px}.battle-screen .field canvas{aspect-ratio:480/400;height:auto}.battle-screen .top{flex:none}
+
+/* R21: fit all four portraits and commands to the actual browser viewport. No change to the painted skin. */
+.battle-screen{width:100%;height:min(100dvh,calc(min(83.333vw,400px) + clamp(240px,38dvh,320px) + 114px));min-height:590px;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:40px minmax(0,1fr) 48px auto;gap:5px;align-content:stretch}
+.battle-screen .top{min-height:0;padding:5px 11px}
+.battle-screen .field{display:grid;place-items:center;min-height:0;container-type:size;background:#0a1b27}
+.battle-screen .battle-stage{position:relative;width:min(100cqw,120cqh);aspect-ratio:6/5;max-width:100%;isolation:isolate;overflow:hidden}
+.battle-screen .field .battle-stage canvas{width:100%;height:auto;display:block;aspect-ratio:6/5;image-rendering:pixelated}
+.battle-screen #fieldTargets{inset:0}
+.battle-screen .enemy-hud{top:6px;left:6px}
+.battle-screen .field[data-encounter=boss] .enemy-hud{left:6px;right:auto}
+.battle-screen .action-strip{min-height:0;padding:3px 8px}
+.battle-screen .action-strip button{min-height:40px}
+.battle-screen .lower{height:clamp(240px,38dvh,320px);min-height:0}
+.battle-screen .party{min-height:0;grid-template-rows:repeat(4,minmax(0,1fr))}
+.battle-screen .member{min-height:0;height:100%;padding:2px 9px 3px 3px}
+.battle-screen .member .name{font-size:clamp(12px,3.3vw,15px);padding-bottom:1px}
+.battle-screen .rowstat{min-height:0;line-height:1}
+.battle-screen .meter{gap:0}
+.battle-screen .val{font-size:10px;line-height:1}
+.battle-screen .bar{height:4px}
+.battle-screen .menu{min-height:0;gap:3px;padding:5px}
+.battle-screen .menu button{flex:1;min-height:0;height:auto;font-size:clamp(11px,3.5vw,16px)}
+.battle-screen .cmd-icon{width:25px;height:25px}
+@media(max-height:700px){.battle-screen{grid-template-rows:36px minmax(0,1fr) 46px auto;gap:4px}.battle-screen .lower{height:244px}.battle-screen .member .portrait{width:31%}.battle-screen .cmd-icon{width:22px;height:22px}.battle-screen .rowstat{font-size:9px}.battle-screen .member .name{font-size:12px}}
+@supports not (width:1cqw){.battle-screen .battle-stage{height:100%;width:auto;max-width:100%}}

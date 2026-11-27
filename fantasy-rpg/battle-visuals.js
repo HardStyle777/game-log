@@ -22,7 +22,23 @@ export function battleMessage(v,names,selected){
 }
 
 // R16: four fixed party slots; only the acting member travels to the action point.
-export const partyFormation=Object.freeze({leon:{x:384,y:151,h:88},fia:{x:400,y:228,h:71},glen:{x:416,y:305,h:75},lucia:{x:432,y:382,h:91}});
+// R21: fixed foot anchors, measured visible-pixel extents; Leon atlas includes effects.
+export const STAGE=Object.freeze({w:480,h:400,ground:116,margin:10});
+export const profiles=Object.freeze({
+ leon:{scale:.78,left:100*.78,right:48*.78,above:99*.78,below:5*.78,idleLeft:37*.78,idleRight:25*.78,idleAbove:88*.78,idleBelow:1*.78,h:69},
+ fia:{left:Math.round(64*128/131)/2,right:Math.round(64*128/131)/2,above:64,below:0,h:64},
+ glen:{left:Math.round(66*153/145)/2,right:Math.round(66*153/145)/2,above:66,below:0,h:66},
+ lucia:{left:Math.round(70*159/185)/2,right:Math.round(70*159/185)/2,above:70,below:0,h:70}
+});
+export const partyFormation=Object.freeze(Object.fromEntries(['leon','fia','glen','lucia'].map((id,i)=>[id,Object.freeze({x:390+i*13,y:148+i*77,h:profiles[id].h})])));
+export function visibleBounds(id,p,idle=false){
+ const a=profiles[id],l=idle?(a.idleLeft??a.left):a.left,r=idle?(a.idleRight??a.right):a.right,t=idle?(a.idleAbove??a.above):a.above,b=idle?(a.idleBelow??a.below):a.below;
+ return {x:p.x-Math.ceil(l),y:p.y-Math.ceil(t),w:Math.ceil(l)+Math.ceil(r),h:Math.ceil(t)+Math.ceil(b)};
+}
+export function safePosition(id,p){
+ const a=profiles[id];return {...p,x:Math.round(Math.max(STAGE.margin+Math.ceil(a.left),Math.min(STAGE.w-STAGE.margin-Math.ceil(a.right),p.x))),y:Math.round(Math.max(STAGE.ground+12,STAGE.margin+Math.ceil(a.above),Math.min(STAGE.h-STAGE.margin-Math.ceil(a.below),p.y)))};
+}
+
 const ease=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)};
 export function travel(m){
  if(!m)return 0;
@@ -38,7 +54,7 @@ export function actorPosition(v,id,box){
   const ranged=m.reach==='ranged'||m.clip==='cast',tx=ranged?Math.max(290,x-48):box.x+box.w+25,ty=ranged?y:Math.min(346,box.y+box.h+5);
   const f=travel(m);x+=(tx-x)*f;y+=(ty-y)*f;
  }else if(m?.clip==='hit')x+=Math.sin(m.progress*12)*3*(1-m.progress);
- return {x:Math.round(x),y:Math.round(y),h};
+ return safePosition(id,{x,y,h});
 }
 
 // R17: target candidates are derived from legal engine commands, not canvas hit boxes.
@@ -61,7 +77,7 @@ export function enemyLayout(v,bounds){
 }
 export function targetBox(id,boxes,formation=partyFormation){
  if(boxes[id])return boxes[id];
- const p=formation[id];return p?{x:p.x-27,y:p.y-p.h,w:54,h:p.h}:null;
+ const p=formation[id];return p?visibleBounds(id,p,true):null;
 }
 export function targetCursor(b){return {x:Math.max(17,Math.min(463,b.x+b.w*.5)),y:Math.max(17,b.y-5)}}
 
