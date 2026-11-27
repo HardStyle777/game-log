@@ -1,0 +1,131 @@
+{
+  "version": "R37",
+  "source": "new illustrated source, separate portrait",
+  "assetSizes": {
+    "sprite": [
+      240,
+      216
+    ],
+    "portrait": [
+      200,
+      165
+    ]
+  },
+  "sourceBlob": {
+    "sprite": "dda082eb4286f7fbb961461972e28df31cb8c70e",
+    "portrait": "06ce57225d623a68d7a821cd0ef1d11bfa9da4e1"
+  },
+  "frameBounds": [
+    [
+      35,
+      50,
+      217,
+      192
+    ],
+    [
+      35,
+      49,
+      217,
+      191
+    ],
+    [
+      35,
+      48,
+      220,
+      194
+    ],
+    [
+      36,
+      45,
+      226,
+      197
+    ],
+    [
+      38,
+      44,
+      230,
+      200
+    ],
+    [
+      36,
+      49,
+      222,
+      197
+    ],
+    [
+      23,
+      43,
+      215,
+      199
+    ],
+    [
+      15,
+      38,
+      214,
+      203
+    ],
+    [
+      34,
+      46,
+      221,
+      196
+    ],
+    [
+      19,
+      42,
+      214,
+      200
+    ],
+    [
+      29,
+      46,
+      216,
+      196
+    ],
+    [
+      35,
+      50,
+      217,
+      192
+    ],
+    [
+      37,
+      46,
+      225,
+      199
+    ],
+    [
+      38,
+      48,
+      226,
+      201
+    ],
+    [
+      40,
+      44,
+      233,
+      202
+    ],
+    [
+      38,
+      46,
+      226,
+      197
+    ],
+    [
+      76,
+      63,
+      176,
+      191
+    ],
+    [
+      30,
+      44,
+      217,
+      194
+    ]
+  ],
+  "geometryAndTiming": "pass",
+  "syntax": "pass",
+  "limits": "One illustrated stance; 18 transformed cells, not independently drawn motion artwork. Browser and iPhone review pending. R36 procedural artwork is not used."
+}
