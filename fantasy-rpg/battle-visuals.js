@@ -20,3 +20,23 @@ export function battleMessage(v,names,selected){
  if(v.complete)return '全員の行動選択完了';
  return (names[selected]??selected)+'の行動を選択';
 }
+
+// R16: four fixed party slots; only the acting member travels to the action point.
+export const partyFormation=Object.freeze({leon:{x:326,y:257,h:88},fia:{x:341,y:151,h:71},glen:{x:408,y:200,h:75},lucia:{x:435,y:277,h:91}});
+const ease=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)};
+export function travel(m){
+ if(!m)return 0;
+ const t=m.progress*m.duration, contact=m.contact??m.duration*.46;
+ const arrive=Math.max(1,contact-35),leave=Math.min(m.duration-1,contact+Math.min(115,m.duration*.22));
+ if(t<arrive)return ease(t/arrive);
+ if(t<=leave)return 1;
+ return 1-ease((t-leave)/Math.max(1,m.duration-leave));
+}
+export function actorPosition(v,id,box){
+ const p=partyFormation[id],m=activeMotion(v,id);let {x,y,h}=p;
+ if(m?.clip==='attack'||m?.clip==='cast'){
+  const ranged=m.reach==='ranged'||m.clip==='cast',tx=ranged?Math.max(290,x-48):box.x+box.w+25,ty=ranged?y:Math.min(269,box.y+box.h+5);
+  const f=travel(m);x+=(tx-x)*f;y+=(ty-y)*f;
+ }else if(m?.clip==='hit')x+=Math.sin(m.progress*12)*3*(1-m.progress);
+ return {x:Math.round(x),y:Math.round(y),h};
+}
