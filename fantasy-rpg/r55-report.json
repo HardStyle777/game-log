@@ -1,0 +1,56 @@
+{
+  "version": "R55",
+  "scope": "Fia: R54 ten shape-replacement poses preserved; seven overlap/recovery source poses now use original visible steel silhouette with artwork-derived chroma and left/right selection, instead of drawing duplicate blades. No full weapon or garment replacement. Leon art unchanged; both use shared pose inspector.",
+  "moduleSha": "c32c010c2977aad6204ef87607b2f08e4bf6d7c7",
+  "canvas": {
+    "checks": 25567,
+    "frames": 10080,
+    "configurations": 144,
+    "failures": 0,
+    "environment": "Local Chromium actual Git-blob-matched source and dependency modules; data URI import rewriting only. Seven poses preserve bare silhouette, outside masks identical, independent left/right material; old R54 cells exact; nonempty and inset all frames. Adapted public review runner not executed."
+  },
+  "preview": {
+    "checks": 1251,
+    "rows": [
+      {
+        "id": "leon",
+        "modes": [
+          "normal",
+          "attack",
+          "guard",
+          "cast",
+          "hit",
+          "knockout",
+          "down",
+          "revive",
+          "victory",
+          "resolve",
+          "awaken"
+        ],
+        "frameChecks": 247
+      },
+      {
+        "id": "fia",
+        "modes": [
+          "normal",
+          "attack",
+          "windup",
+          "guard",
+          "cast",
+          "hit",
+          "knockout",
+          "down",
+          "revive",
+          "victory"
+        ],
+        "frameChecks": 150
+      }
+    ],
+    "failures": 0
+  },
+  "syntax": "pass",
+  "engine": "not yet rerun",
+  "publicHttp": "R54 curl DNS failure; R55 HTTP not checked",
+  "fullBrowserUI": "not run",
+  "iphone": "not run"
+}
