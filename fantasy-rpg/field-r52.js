@@ -4,6 +4,7 @@ import {render} from './field-art-r52.js?v=52';
 import {fieldActor,nextFieldActor,fieldFrame,motionClock} from './field-actor-r52.js?v=52';
 import {appearance,readAppearance,saveAppearance,equippedImage} from './fia-armour-r50.js?v=50';
 import {character,normalBattleFrame,drawPreview,slotIds} from './character-visual-r52.js?v=52';
+import {runningImage} from './leon-run-r52.js?v=52';
 import * as leonGearApi from './leon-appearance-r50.js?v=50';
 import {appearanceSources,configureBattleMeta,buildBattleAppearance} from './battle-appearance-r51.js?v=51';
 import {victoryFrame} from './result-pose-r51.js?v=51';
@@ -81,7 +82,7 @@ $('bagOpen').onclick=()=>openBag();$('bagClose').onclick=()=>$('bag').close();$(
 function applyAppearance(next){const g=appearance(next);const field=equippedImage(originalFia.field,'field',g,images.fiaGear,images.fiaWeapons),motion=equippedImage(originalFia.motion,'motion',g,images.fiaGear,images.fiaWeapons);images.fia=field;images.fiaMotion=motion;gear=g}
 function applyLeonAppearance(value){
  const g=leonGearApi.appearance(value),field=leonGearApi.equippedImage(originalLeon.field,'field',g),battle=leonGearApi.equippedImage(originalLeon.battle,'battle',g);
- const runImage=leonGearApi.equippedImage(originalLeon.run,'field',g),idleImage=leonGearApi.fieldMotion(field,'idle');
+ const runImage=runningImage(originalLeon.run,g),idleImage=leonGearApi.fieldMotion(field,'idle');
  images.leon=field;images.leonBattle=battle;images.leonRun=runImage;images.leonIdle=idleImage;leonGear=g;
 }
 function draftLeon(){return leonGearApi.appearance({body:$('leonBody').value,feet:$('leonFeet').value})}
