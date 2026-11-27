@@ -1,0 +1,21 @@
+{
+  "version": "R44",
+  "schemaChecks": 47,
+  "canvas": {
+    "checks": 9423337,
+    "combinations": 4,
+    "frames": 26,
+    "sourceAlphaUnchanged": true,
+    "atlasAlphaUnchanged": true,
+    "defaultPixelEquality": true,
+    "sourceBlob": {
+      "field": "0f3b14390be81af8558b494e791fff748ca69e32",
+      "motion": "73d213be359d46fca2f34cbcf918881a66dad636",
+      "battle": "dda082eb4286f7fbb961461972e28df31cb8c70e",
+      "recovery": "52864cf9b1a626984ea83d264b14958b469f7d2b"
+    },
+    "moduleBlob": "0edc6a8430714f1ec1ec48f50f26a5ec834fa5ca",
+    "atlasBuilderBlob": "1855e6d18741dabecf22c709082119d6f0fe38c9"
+  },
+  "scope": "body/feet colour variants only; main/offhand/head/accessory fixed; no game equipment stats. local Chromium raster checks, not full page. public DNS failed."
+}
