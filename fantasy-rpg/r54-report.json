@@ -1,0 +1,43 @@
+{
+  "version": "R54",
+  "scope": "Fia exposed-blade replacement candidate: 10 of 17 source poses (20 hand masks). The original grips remain. 7 overlapping/recovery poses retain R50 reinforcement. Not a complete weapon or garment replacement. Leon R53 unchanged.",
+  "moduleSha": "ab333277ad6e434b17f2a11f6e79736c33a1230a",
+  "sourceHashes": {
+    "battle": "dda082eb4286f7fbb961461972e28df31cb8c70e",
+    "recovery": "52864cf9b1a626984ea83d264b14958b469f7d2b",
+    "attack": "c6784945e0aba55c88682cf5503001319fc27264",
+    "stance": "bb38fe66afd1493ce93081d1bc75172cfd6c2dd7",
+    "gear": "d49daec12d98a40387dfb930b6981cc713268846"
+  },
+  "replaced": {
+    "battle": [
+      0
+    ],
+    "attack": [
+      0,
+      1,
+      2,
+      4,
+      5
+    ],
+    "stance": [
+      2,
+      3,
+      4,
+      5
+    ]
+  },
+  "canvas": {
+    "checks": 24372,
+    "frames": 10080,
+    "configurations": 144,
+    "failures": 0,
+    "environment": "Local Chromium using actual R50 and R46 dependencies and source PNGs, with data URI import rewriting. Tests compare unchanged poses, selected masks, frame bounds. The adapted public review runner has not been executed.",
+    "visual": "Thin residual outline traces and potential weapon overlap remain; mechanical pass is not approval."
+  },
+  "syntax": "pass",
+  "actualEngine": "not rerun in this batch; engine/session/motion imports unchanged",
+  "publicHttp": "R53 curl DNS resolution failed; R54 HTTP not checked",
+  "fullBrowserUI": "not run",
+  "iphone": "not run"
+}
