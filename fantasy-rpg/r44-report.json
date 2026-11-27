@@ -15,7 +15,68 @@
       "recovery": "52864cf9b1a626984ea83d264b14958b469f7d2b"
     },
     "moduleBlob": "0edc6a8430714f1ec1ec48f50f26a5ec834fa5ca",
-    "atlasBuilderBlob": "1855e6d18741dabecf22c709082119d6f0fe38c9"
+    "atlasBuilderBlob": "1855e6d18741dabecf22c709082119d6f0fe38c9",
+    "rows": [
+      {
+        "body": "green",
+        "feet": "brown",
+        "changed": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "body": "green",
+        "feet": "black",
+        "changed": [
+          1623,
+          1847,
+          458,
+          1028
+        ]
+      },
+      {
+        "body": "blue",
+        "feet": "brown",
+        "changed": [
+          710,
+          660,
+          656,
+          1737
+        ]
+      },
+      {
+        "body": "blue",
+        "feet": "black",
+        "changed": [
+          2333,
+          2507,
+          1114,
+          2765
+        ]
+      }
+    ],
+    "changedOrder": [
+      "field",
+      "motion",
+      "battle",
+      "recovery"
+    ]
   },
-  "scope": "body/feet colour variants only; main/offhand/head/accessory fixed; no game equipment stats. local Chromium raster checks, not full page. public DNS failed."
+  "scope": "body/feet colour variants only; main/offhand/head/accessory fixed; no game equipment stats. local Chromium raster checks, not full page. public DNS failed.",
+  "regressions": {
+    "battleR41": {
+      "checks": 6978,
+      "failures": 0,
+      "actualBattles": 5,
+      "reviveCases": 1
+    },
+    "fieldR43": {
+      "checks": 17521,
+      "failures": 0
+    },
+    "method": "existing verify functions executed with actual published modules"
+  }
 }
