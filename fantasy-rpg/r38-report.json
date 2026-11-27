@@ -1,0 +1,7 @@
+{
+  "version": "R38",
+  "checks": 3055,
+  "failures": 0,
+  "scope": "pure target legality and double-tap transitions, frame selection and stage bounds; syntax checked",
+  "art": "R37 original pixel layers, independent shoulder rotation; no original replacement. Python visual prototype inspected. Browser rendering and user iPhone not verified."
+}
