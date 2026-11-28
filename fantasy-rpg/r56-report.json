@@ -1,0 +1,51 @@
+{
+  "version": "R56",
+  "implementation": "3f8608d05c6cca24f19bd88d1c161c40af088066",
+  "source": {
+    "battle": "176e05929918ebedc2a4be93b2928e858ffab813",
+    "gear": "5a76fc26a07d39efdc2b0058df271ce4c8af9ef9"
+  },
+  "blade": {
+    "shapeCells": [
+      0,
+      1,
+      2,
+      6,
+      10,
+      11,
+      14,
+      15,
+      16,
+      18
+    ],
+    "materialCells": [
+      3,
+      4,
+      5,
+      7,
+      8,
+      9,
+      12,
+      13,
+      17,
+      19
+    ],
+    "scope": "exposed distal blade only; original proximal steel/grips remain; other ten visible steel material mapping",
+    "checks": 2414,
+    "failures": 0,
+    "method": "software pixel operations using decoded actual Git PNGs; 24 atlas cells incl four unused; inspected contact sheet of cells 0,4,18. Not real Canvas composition."
+  },
+  "delta": {
+    "checks": 2048,
+    "failures": 0,
+    "method": "synthetic per-pixel merge regression; preserve dye on nonblade pixels and new blade RGB"
+  },
+  "engine": {
+    "battle": 7002,
+    "terminalPose": 201,
+    "field": 17521,
+    "failures": 0
+  },
+  "totalChecks": 29186,
+  "scope": "R56 shared battle and preview routes updated. R55 Fia unchanged. Full 64-combination Canvas runner retained but not executed, no full game DOM/iPhone/public HTTP verification. No new full clothing shape, no Glen transition."
+}
