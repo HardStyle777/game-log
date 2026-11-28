@@ -1,0 +1,35 @@
+{
+  "version": "R60",
+  "implementation": [
+    "f7f16664c6d89ee31de0d87b5e713d44ec0e7c91",
+    "b136794ccd8a1f48a3013b5a557e65bcb76d6350"
+  ],
+  "source": {
+    "plate": "36e0d8c5efdff1a5f55a198ebea4d1910975e5fd",
+    "battle": "176e05929918ebedc2a4be93b2928e858ffab813",
+    "field": "62c98fb3bb98d759075349aad3425ac80e70bcf5",
+    "run": "7d0b57cca1434aafeb9e26fe654f9f6f1d19bebf",
+    "victory": "9dd4b524c911a1f89946a57254f545df8db31bb8",
+    "cheer": "eda7602627cef0b3cdeb874f77477f5ec277cf01"
+  },
+  "scope": "Independent front/back plate and sabaton illustration fitted to existing silhouette. 54 source poses: 20 original battle, 2 result, 16 walk, 16 run. Not fully independently redrawn clothing or boots. Existing other actors and approved R58 loop unchanged.",
+  "checks": {
+    "actualSourcePixelAndConfiguration": 415,
+    "mockedRouteAndWiring": 437,
+    "battle": 7044,
+    "victory": 10609,
+    "field": 17521,
+    "total": 36026,
+    "failures": 0
+  },
+  "visual": "Exact software-pixel output shown in contact sheets for 6 battle/result and 8 field/run examples; high-contrast gold ornament detail remains a subjective review item. New layer is clipped to raw silhouette. Full Canvas old/other equipment composition not tested this turn.",
+  "configuration": {
+    "leon": 144,
+    "fia": 256,
+    "previousLeon": 64
+  },
+  "testMethod": "Actual Git PNGs decoded in JS and outfitPixels executed, prior placement and schemas from actual modules. Source test includes default equality, alpha, nonempty change per body/feet, protected removed pixels and 144 config roundtrip. Shared route test used mocks for rendering. Actual published engine, victory and movement functions executed. Node equivalent pixel test retained but not run via Node in this turn. Browser review runner retained but not executed.",
+  "publicHttp": "raw GitHub DNS failed in container; web fetch also failed; R60 public page not verified",
+  "fullBrowserUI": "not run",
+  "iphone": "not run"
+}
