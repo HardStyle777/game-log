@@ -1,0 +1,84 @@
+{
+  "version": "R57",
+  "implementation": [
+    "220c680b808b8950dad70352ffd19a768b119e83",
+    "fa4f994a555df717476869c3a15e85fd0bd485b1"
+  ],
+  "victoryAsset": "9dd4b524c911a1f89946a57254f545df8db31bb8",
+  "moduleSha": "7eec127f1f34bc52bcb437ba4005968053f546e7",
+  "art": {
+    "newIndependentPoses": [
+      "leon",
+      "glen",
+      "lucia"
+    ],
+    "fia": "existing R46 unchanged",
+    "sourceCell": [
+      240,
+      216
+    ],
+    "footBottom": 189,
+    "oldAtlasDimensions": [
+      {
+        "path": "assets/r26/leon-battle.png",
+        "sha": "176e05929918ebedc2a4be93b2928e858ffab813",
+        "w": 1440,
+        "h": 864
+      },
+      {
+        "path": "assets/r26/glen-battle.png",
+        "sha": "0a840474cf0dcbd5e6a0a386d779096cc2dbeb2c",
+        "w": 1440,
+        "h": 648
+      },
+      {
+        "path": "assets/r26/eris-battle.png",
+        "sha": "81465844cbd3fb449f02d26ad4addca5c5883a4d",
+        "w": 1440,
+        "h": 432
+      },
+      {
+        "path": "assets/r57/party-victory.png",
+        "sha": "9dd4b524c911a1f89946a57254f545df8db31bb8",
+        "w": 720,
+        "h": 216
+      }
+    ],
+    "scope": "one independent full-body victory pose per new actor; 120ms normal transition + 780ms hold; not a multi-pose animation"
+  },
+  "engine": {
+    "legacyBattleChecks": 7023,
+    "fourPartyVictoryChecks": 1198,
+    "failures": 0,
+    "cases": [
+      "three single-enemy wins",
+      "multi-enemy win",
+      "boss win with Fia KO"
+    ],
+    "test": "test-r57-victory.mjs"
+  },
+  "canvas": {
+    "checks": 213,
+    "frames": 66,
+    "failures": 0,
+    "combinationsLeon": 64,
+    "scope": "local Chromium with exact final victory module, exact R53 equipment and R57 PNGs; reproduced R53 schema/rect definitions only; tests on original victory cells and mock old atlases at actual dimensions. Not full R56 equipment dependency or published app",
+    "slotChangedPixels": {
+      "main": 339,
+      "offhand": 1089,
+      "head": 241,
+      "body": 1586,
+      "feet": 434,
+      "accessory": 42
+    }
+  },
+  "metadata": {
+    "checks": 10,
+    "failures": 0
+  },
+  "issue": "Initial common 864px height assumption rejected actual Glen 648px and Lucia/Eris 432px sources; fixed by padding to 864 without rescaling. Narrow magenta key prevents loss of Lucia purple crystal; corrected dark edge spill on Leon/Glen.",
+  "publicHttp": "curl DNS resolution failed",
+  "fullBrowserUI": "not executed",
+  "iphone": "not executed",
+  "remaining": "Full game page loading/operation, original-atlas end-to-end Canvas composition, user visual approval, full equipment shape replacement and later character production"
+}
