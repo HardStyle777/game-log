@@ -56,7 +56,7 @@ function minimap(){
 }
 function battle(enemy){if(leaving)return;leaving=true;stop();const token=Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8);put(KEY,state);put(PENDING,{token,map:state.map,id:enemy.id});del(RESULT);location.href='./battle-r61.html?live=1&from=field&encounter='+encodeURIComponent(enemy.encounter)+'&token='+encodeURIComponent(token)}
 let victoryPreviewStart=null,previewMotion=null,explorePreviewStart=0,lastBattlePreview='',lastFieldPreview='';
-function tick(t){if(leaving)return;try{if($('bag').open||$('gear').open){if($('gear').open)tickPreview(t);prev=t;requestAnimationFrame(tick);return}const dt=prev?Math.min(.1,(t-prev)/1000):0;prev=t;let x=dx,y=dy;if(pointer===null){x=0;y=0;for(const k of keys){x+=keyDir[k][0];y+=keyDir[k][1]}}
+function tick(t){if(leaving)return;try{if($('bag').open||$('gear').open){if($('gear').open){try{tickPreview(t)}catch(e){stopVictoryPreview();$('gearError').textContent=String(e);previewCache.clear()}}prev=t;requestAnimationFrame(tick);return}const dt=prev?Math.min(.1,(t-prev)/1000):0;prev=t;let x=dx,y=dy;if(pointer===null){x=0;y=0;for(const k of keys){x+=keyDir[k][0];y+=keyDir[k][1]}}
  state=move(state,x,y,dt,run);
  const next=transition(state);if(next!==state){state=next;note=MAPS[state.map].name+' に移動しました。';put(KEY,state);updateMap()}
  const e=encounter(state);state=e.state;if(e.enemy){battle(e.enemy);return}
@@ -108,7 +108,7 @@ function previewBundle(){
 function paintBattlePreview(bundle,p){
  const c=$('gearBattle'),key=p.frame.x+':'+p.frame.y;
  if(lastBattlePreview!==key){drawPreview(c.getContext('2d'),bundle.battle,p.frame,c.width,c.height);lastBattlePreview=key}
- $('gearPoseCount').textContent=(p.index+1)+' / '+p.count;
+ const label=(p.index+1)+' / '+p.count;if($('gearPoseCount').textContent!==label)$('gearPoseCount').textContent=label;
 }
 function tickPreview(t){
  const bundle=previewCache.current();if(!bundle)return;
@@ -117,7 +117,7 @@ function tickPreview(t){
  if(victoryPreviewStart!==null){
   const actor=images.battleMeta.actors[gearActor],elapsed=t-victoryPreviewStart;
   const p=previewMotion==='victory'?loopFrame(actor,elapsed):timedClipFrame(actor.clips[previewMotion==='normal'?'idle':previewMotion],elapsed);
-  paintBattlePreview(bundle,p);
+  previewIndex=p.index;paintBattlePreview(bundle,p);
  }
 }
 function previewAppearance(){
@@ -146,7 +146,7 @@ function showGearActor(id){
 }
 $('gearOpen').onclick=()=>{if(!ready||leaving||$('bag').open)return;stop();previewMode='normal';previewIndex=null;previewCache.clear();$('gearExploreMode').value='idle';$('gearExploreDir').value='0';for(const k of slotIds)$(gearControls[k]).value=gear[k];for(const k of slotIds)$(leonControls[k]).value=leonGear[k];showGearActor(actor);$('gear').showModal()};
 $('gearCharacter').onchange=()=>showGearActor($('gearCharacter').value);
-for(const id of [...Object.values(gearControls),...Object.values(leonControls)])$(id).onchange=previewAppearance;
+for(const id of [...Object.values(gearControls),...Object.values(leonControls)])$(id).onchange=()=>{try{previewAppearance();$('gearError').textContent=''}catch(e){stopVictoryPreview();previewCache.clear();$('gearError').textContent=String(e)}};
 $('gearApply').onclick=()=>{try{
  const bundle=previewBundle();
  if(gearActor==='fia'){const next=draftAppearance();saveAppearance(sessionStorage,next);images.fia=bundle.walk;images.fiaMotion=bundle.motion;gear=next}
