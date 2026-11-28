@@ -25,13 +25,16 @@ function preserve(plan,pixels,filter){
 }
 const skin=(r,g,b)=>r>102&&r>g+20&&g>b+6;
 const cloth=(r,g,b)=>!skin(r,g,b)&&r<151&&b>=g*.95;
-function spots(raw,w,h,art,p,kind){
+function spots(raw,w,h,art,p){
  const box=(tile,rect,mode='ink',view)=>rectanglePlan(raw,w,h,art,tile,rect,mode,view);
+ const coat=preserve(box(3,p.coat),raw,cloth);
+ // Preserve the rear seams when the front clasps are outside the viewer’s sight.
+ const back=p.rear&&coat?{paint:new Uint32Array(),tint:coat.paint.filter((_,i)=>i%2===0),kind:'amethyst'}:coat;
  return {
   main:[preserve(box(0,p.book,'ink',p.opened?[0,.50]:[.50,1]),raw,(r,g,b)=>!skin(r,g,b))],
   offhand:[box(1,p.orbit)],
-  head:[box(2,p.head,p.rear?'ink':'over')],
-  body:[preserve(box(3,p.coat),raw,cloth)],
+  head:[p.rear?null:box(2,p.head,'over')],
+  body:[back],
   feet:p.boots.map((point,j)=>box(4,point,'ink',j%2?[0,1]:[1,0])),
   accessory:[box(5,p.pin)],
  };
@@ -43,7 +46,7 @@ function prepare(source,art,kind,w,h,rows){
  const ink=textures.get(art),ctx=raster(source);
  const cells=rows.map((p,i)=>{
   const x=i%4*w,y=Math.floor(i/4)*h,raw=ctx.getImageData(x,y,w,h).data;
-  return {x,y,raw,slots:spots(raw,w,h,ink,p,kind)};
+  return {x,y,raw,slots:spots(raw,w,h,ink,p)};
  });
  const entry={art,kind,ink,cells};bundle.set(source,entry);return entry;
 }

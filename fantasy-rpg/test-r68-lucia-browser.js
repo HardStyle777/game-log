@@ -44,7 +44,10 @@ export async function verifyLucia() {
     const field = frameChanges(buildLuciaField(assets,gear),base.field,96,96,16,'field');
     ok(combat.some(Boolean)===(altered.length>0), 'Battle choices visible');
     ok(field.some(Boolean)===(altered.length>0), 'Exploration alternatives are visible');
-    if (altered.length===1) changes[altered[0]] = {battle:combat.filter(Boolean).length,field:field.filter(Boolean).length};
+    if (altered.length===1) {
+      changes[altered[0]] = {battle:combat.filter(Boolean).length,field:field.filter(Boolean).length};
+      if(altered[0]==='head')ok(field.slice(8,12).every(n=>n===0),'Front circlet is hidden in the rear view');
+    }
   }
   for (const [id, gear] of [['leon',{main:'sunblade',offhand:'sunshield',body:'crimsonmantle',accessory:'sunclasp'}],
     ['fia',{main:'ivyfang',offhand:'amethystguard',head:'amethystband',body:'royalcloak'}],['glen',{main:'fortressblade',offhand:'fortressshield',head:'helm'}]]) {

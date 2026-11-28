@@ -1,4 +1,4 @@
-name: Fantasy RPG R67 Lucia and browser regression
+name: Fantasy RPG R68 Lucia and browser regression
 on:
   push:
     branches: [main, 'work/lucia-r68']

@@ -82,6 +82,10 @@ try {
  await page.locator('#actor').selectOption('leon');await page.locator('#gear').selectOption('accessory');
  await page.locator('#actor').selectOption('glen');
  await page.locator('#actor').selectOption('lucia');await page.locator('#pose').selectOption('cast');
+ for(const [width,height] of [[320,640],[430,932]]){
+  await page.setViewportSize({width,height});
+  ok(await page.evaluate(()=>document.documentElement.scrollWidth===document.documentElement.clientWidth),`comparison fits ${width}px`);
+ }
  ok(errors.length===0,'browser errors: '+errors.join(','));
  console.log(JSON.stringify({uiChecks:checks, failures:0}));
  const result=await page.evaluate(async()=>await (await import('./test-r68-lucia-browser.js')).verifyLucia());
