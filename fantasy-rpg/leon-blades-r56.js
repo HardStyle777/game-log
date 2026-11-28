@@ -43,10 +43,13 @@ export function equippedImage(source,kind,value={},asset=null){
  const original=raster(source),texture=raster(asset);
  if(original.width!==1440||original.height!==864||texture.width!==256||texture.height!==96)throw Error('R56 source dimensions');
  const p=bladePixels(original.data,texture.data,prior.placements('battle').map(p=>p.blade));
+ // Dye the original clothing separately, then copy only the changed blade pixels.
+ // Crimson armour must never recolour the new blue steel.
+ const dyed=raster(dye.equippedImage(source,'battle',{body:g.body,feet:g.feet}));
+ dyed.data.set(mergeBladeDelta(original.data,dyed.data,p.pixels));
  const c=document.createElement('canvas');c.width=1440;c.height=864;Object.defineProperties(c,{naturalWidth:{value:1440},naturalHeight:{value:864}});
- c.getContext('2d').putImageData(new ImageData(p.pixels,1440,864),0,0);
- // Armour dye and all other independent overlays are applied after the blade replacement.
- // R53's sapphire overlay is disabled so no old/new double blade is drawn.
- const base=dye.equippedImage(c,'battle',{body:g.body,feet:g.feet});
- return prior.addEquipment(base,'battle',{...g,main:'iron'},asset);
+ c.getContext('2d').putImageData(dyed,0,0);
+ return prior.addEquipment(c,'battle',{...g,main:'iron'},asset);
 }
+
+export function mergeBladeDelta(original,dyed,blade){if(original.length!==dyed.length||original.length!==blade.length||original.length%4)throw Error('R56 delta dimensions');const out=new Uint8ClampedArray(dyed);for(let i=0;i<original.length;i+=4){if([0,1,2,3].some(k=>original[i+k]!==blade[i+k]))out.set(blade.subarray(i,i+4),i)}return out}
