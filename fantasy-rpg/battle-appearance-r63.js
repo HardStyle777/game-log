@@ -1,5 +1,5 @@
 import * as old from './battle-appearance-r62.js?v=62';
-import * as fia from './fia-gear-r63.js?v=63';
+import * as fia from './fia-gear-r63.js?v=63.1';
 import {makeFiaAtlas} from './fia-art-r46.js?v=46';
 export const appearanceSources=old.appearanceSources,configureBattleMeta=old.configureBattleMeta,fiaSources=old.fiaSources;
 export function savedBattleAppearance(storage){return {...old.savedBattleAppearance(storage),fia:fia.readAppearance(storage)}}

@@ -1,6 +1,6 @@
 // New storage key; R59 gear remains readable. Exploration stays sheathed.
 import * as old from './fia-outfit-r59.js?v=59';
-import {makeDaggerPlans,applyDaggerPlans} from './fia-dagger-layer-r63.js?v=63';
+import {makeDaggerPlans,applyDaggerPlans} from './fia-dagger-layer-r63.js?v=63.1';
 export {outfitSource,cellCount,layerLayout} from './fia-outfit-r59.js?v=59';
 export const KEY='fantasy-fia-appearance-r63';
 export const slots=Object.freeze({...old.slots,main:Object.freeze([...old.slots.main,'moonfang']),offhand:Object.freeze([...old.slots.offhand,'moonfang'])});

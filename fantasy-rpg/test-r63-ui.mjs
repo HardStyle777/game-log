@@ -47,7 +47,7 @@ try{
  ok(poses.size>=2,'continuous victory');
  await Promise.all([page.waitForURL('**/field-r63.html'),page.locator('#fieldReturn').click()]);await page.waitForFunction(()=>window.__field?.ready&&window.__field.frames>1);
  ok(await page.evaluate(()=>window.__field.leonAppearance.main==='royalsword'&&window.__field.leonAppearance.body==='royalplate'&&window.__field.appearance.main==='moonfang'&&window.__field.appearance.offhand==='moonfang'&&window.__field.appearance.body==='rangercoat'),'return preserves outfits');ok(errors.length===0,'page errors: '+errors.join(';'));
- console.log(JSON.stringify({uiChecks:checks,failures:0}));
+ await page.goto(url+'/review-weapon-poses-r63.html');await page.waitForFunction(()=>window.__weaponReview?.poses===39,{},{timeout:60000});ok(await page.locator('canvas').count()===78,'39 pose visual review');await page.locator('#outfit').selectOption('full');ok(await page.locator('canvas').count()===78,'full gear visual review');ok(errors.length===0,'review page errors');console.log(JSON.stringify({uiChecks:checks,failures:0}));
  const raster=await page.evaluate(async()=>{const {createVerifier}=await import('./test-r63-browser.js'),v=await createVerifier();for(const g of v.list)v.verifyOne(g);return v.summary()});
  console.log(JSON.stringify(raster));if(raster.done!==576||raster.frames!==40320||raster.legacy!==256||raster.failures)throw Error('raster regression');
 }finally{await browser?.close();await new Promise(r=>server.close(r))}

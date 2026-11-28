@@ -1,0 +1,18 @@
+<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>全戦闘原画・武器比較 R63</title><style>body{font:14px system-ui;background:#132639;color:#fff5de;margin:10px}main{max-width:960px;margin:auto}h1{font-size:20px}h2{font-size:17px;margin:18px 0 6px}.pair{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#203647;border:1px solid #b59659;padding:5px;margin:7px 0}.pair h3{grid-column:1/-1;font-size:13px;margin:0}.pair div{text-align:center}.pair canvas{display:block;width:100%;height:auto;image-rendering:pixelated;background:#345348}a{color:#f4d69a}select{font:inherit;background:#253a49;color:#fff5de;border:1px solid #b59659;padding:6px}#status{white-space:pre-wrap}@media(min-width:720px){.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}}</style><main><h1>武器の全姿勢・同寸比較</h1><p>実ゲームの合成処理で、初期武器と新武器を同じセル・同じ寸法で表示します。保存状態は変更しません。</p><p><a href="field-r63.html">フィールド</a> / <a href="battle-r63.html">戦闘</a> / <a href="review-fia-r63.html">動作比較</a></p><label>衣装 <select id="outfit"><option value="base">初期装備</option><option value="full">重装備・装飾品</option></select></label><p id="status">読み込み中</p><section id="root"></section></main><script type="module">
+import * as current from './battle-appearance-r63.js?v=63.1';
+import * as old from './battle-appearance-r62.js?v=62';
+import * as fia from './fia-gear-r63.js?v=63.1';
+import * as previousFia from './fia-outfit-r59.js?v=59';
+const $=id=>document.getElementById(id),assets=Object.fromEntries(await Promise.all([...current.appearanceSources,'r26/glen-battle','r26/eris-battle'].map(async n=>{const i=new Image();i.src='assets/'+n+'.png';await i.decode();return [n,i]})));
+function cell(im,x,y){const c=document.createElement('canvas');c.width=240;c.height=216;const g=c.getContext('2d');g.imageSmoothingEnabled=false;g.drawImage(im,x,y,240,216,0,0,240,216);return c}
+function section(title){const h=document.createElement('h2');h.textContent=title;const grid=document.createElement('div');grid.className='grid';$('root').append(h,grid);return grid}
+function pair(grid,title,before,after,x,y){const el=document.createElement('article');el.className='pair';const h=document.createElement('h3');h.textContent=title;el.append(h);for(const [name,img] of [['初期武器',before],['新武器',after]]){const v=document.createElement('div');v.textContent=name;v.append(cell(img,x,y));el.append(v)}grid.append(el)}
+function render(){const full=$('outfit').value==='full',leon=full?{body:'royalplate',feet:'sabaton',offhand:'shield',head:'circlet',accessory:'brooch'}:{},f=full?{body:'rangercoat',feet:'rangerboots',head:'circlet',accessory:'brooch'}:{};$('root').replaceChildren();
+ const lb=old.buildBattleAppearance('leon',assets,{...leon,main:'iron'}),la=current.buildBattleAppearance('leon',assets,{...leon,main:'royalsword'}),lg=section('レオン・蒼王剣（22原画）');
+ for(let i=0;i<22;i++)pair(lg,i===20?'勝利・静止':i===21?'勝利・ガッツポーズ':'戦闘原画 '+(i+1),lb,la,i%6*240,Math.floor(i/6)*216);
+ const fg=section('フィア・翠月牙／金月牙（17元原画）'),labels={battle:'通常',attack:'攻撃',recovery:'被弾・戦闘不能・復帰',stance:'防御・勝利'},args=[assets['r47/fia-gear'],assets['r48/fia-equipment'],assets[fia.outfitSource]];
+ for(const [kind,name] of Object.entries(current.fiaSources)){const raw=assets[name],before=previousFia.equippedImage(raw,kind,f,...args),after=fia.equippedImage(raw,kind,{...f,main:'moonfang',offhand:'moonfang'},...args);for(let i=0;i<raw.naturalWidth/240;i++)pair(fg,labels[kind]+' '+(i+1),before,after,i*240,0)}
+ $('status').textContent='39姿勢・78画像を表示';window.__weaponReview={poses:document.querySelectorAll('.pair').length,canvases:document.querySelectorAll('canvas').length};
+}
+$('outfit').onchange=render;render();
+</script></html>

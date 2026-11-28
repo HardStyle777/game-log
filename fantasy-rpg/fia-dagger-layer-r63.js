@@ -28,7 +28,7 @@ export function makeDaggerPlans(raw,texture,kind,cell){
     if(mask[i]&&raw[j+3]&&t>=.06)cut.push(j);
     if(t<-.06||t>1.14||Math.abs(cross)>13||x===0||x===239||y===0||y===215)continue;
     // A wider curved edge, fitted around the same blade axis. No paint on the hand.
-    const yy=(y-f),xx=(x-e),u=Math.round((d*xx-c*yy)/det),v=Math.round((-b*xx+a*yy)/det);
+    const width=1.38,offset=cross*(1-1/width),yy=(y-dx/L*offset-f),xx=(x+dy/L*offset-e),u=Math.round((d*xx-c*yy)/det),v=Math.round((-b*xx+a*yy)/det);
     if(u<0||u>=sw||v<0||v>=sh)continue;
     const q=((sy+v)*416+sx+u)*4;if(texture[q+3]<128)continue;
     draw.push(j,q);

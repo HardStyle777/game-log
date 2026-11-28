@@ -2,7 +2,7 @@ import {read,settle} from './adventure-r34.js';
 import {PARTY,NAMES,PartySession,makePartyConfig} from './party-session-r57.js?v=57';
 import {activeMotion,enemyOpacity,impactLabel,impactAnchor,plannedLabel,battleMessage,partyFormation,actorPosition,targetSpec,enemyLayout,targetBox,targetCursor,tapTarget,STAGE,visibleBounds} from './battle-visuals-r38.js?v=38';
 import {atlasPose,leonPose,fiaPose,motionScale} from './party-motion-r58.js?v=58';
-import {appearanceSources,configureBattleMeta,savedBattleAppearance,buildBattleAppearance} from './battle-appearance-r63.js?v=63';
+import {appearanceSources,configureBattleMeta,savedBattleAppearance,buildBattleAppearance} from './battle-appearance-r63.js?v=63.1';
 import {currentTargetChoice,tapCurrentTarget,planningInputOpen} from './direct-target-r39.js?v=39';
 import {createPixelSurface} from './battle-surface.js?v=27';
 const $=id=>document.getElementById(id), c=$('field'),ctx=c.getContext('2d'), W=STAGE.w,H=STAGE.h;
