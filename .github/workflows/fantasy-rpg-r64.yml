@@ -1,0 +1,28 @@
+name: Fantasy RPG R64 cloak and browser regression
+on:
+  push:
+    branches: [main]
+    paths: ['fantasy-rpg/*r64*', 'fantasy-rpg/assets/r64/**', '.github/workflows/fantasy-rpg-r64.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node --experimental-default-type=module fantasy-rpg/test-r64-pixels.mjs
+          node --experimental-default-type=module fantasy-rpg/test-r63-pixels.mjs
+          node --experimental-default-type=module fantasy-rpg/test-r62-pixels.mjs
+          node --experimental-default-type=module fantasy-rpg/test-r61-preview.mjs
+          node --experimental-default-type=module fantasy-rpg/test-r59-battle.mjs
+          node --experimental-default-type=module fantasy-rpg/test-r58-victory.mjs
+          node --experimental-default-type=module fantasy-rpg/test-r52-field.mjs
+      - run: npm install --prefix "$RUNNER_TEMP/rpg-browser" --no-save --no-package-lock playwright
+      - name: Real mobile UI and all 720 Fia settings
+        run: PLAYWRIGHT_REQUIRE_FROM="$RUNNER_TEMP/rpg-browser/entry.cjs" node fantasy-rpg/test-r64-ui.mjs
