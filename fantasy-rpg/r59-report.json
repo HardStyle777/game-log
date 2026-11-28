@@ -1,0 +1,104 @@
+{
+  "version": "R59",
+  "implementation": "50683bfca3bcb5e3db4fa632125d3291e55d1ed0",
+  "userApprovedBaseline": "R58 victory loop; not changed",
+  "features": {
+    "body": "rangercoat",
+    "feet": "rangerboots",
+    "configurationCount": 256,
+    "previousCount": 144,
+    "sourceCells": 49,
+    "layerCount": 98,
+    "scope": "Independent illustrated outer coat front/back and tall boot surfaces, fitted for each source pose. Boots are clipped to old silhouette and old garment retained beneath new coat. Not full base garment or weapon replacement."
+  },
+  "assets": {
+    "outfit": "5e5bbfc9de1e90f20cfcb3b28b5d33bd52757fa5",
+    "parts": "549a3ac060a9dbf1cc4e747d4fa773f7bc9e953c",
+    "generator": "2c8a9dddac40a9a807f56894992f5b680e08cc25",
+    "rebuildByteExact": true,
+    "dimensions": [
+      1440,
+      2064
+    ],
+    "alpha": "binary, no saturated magenta found"
+  },
+  "test": {
+    "config": {
+      "checks": 874,
+      "failures": 0,
+      "method": "actual repository modules on Node 22, migration and all 256 save/read, prior storage unchanged"
+    },
+    "isolatedCanvas": {
+      "checks": 4983,
+      "frames": 196,
+      "failures": 0,
+      "method": "actual R59 module and actual sources, prior schema shim only for isolated new layer and simulated competing gear pixels"
+    },
+    "fullCanvas": {
+      "checks": 50784,
+      "frames": 17920,
+      "sourceCells": 12544,
+      "configurations": 256,
+      "failures": 0,
+      "batches": [
+        {
+          "range": [
+            0,
+            128
+          ],
+          "checks": 25392,
+          "frames": 8960
+        },
+        {
+          "range": [
+            128,
+            192
+          ],
+          "checks": 12696,
+          "frames": 4480
+        },
+        {
+          "range": [
+            192,
+            256
+          ],
+          "checks": 12696,
+          "frames": 4480
+        }
+      ],
+      "method": "Local Chromium with all 10 actual Git-blob-matched modules and 9 actual PNGs, only module import paths rewritten via import map. First run timed out after 128 completed; remaining two batches passed. Optimized equivalent comparison loop used for second half. All legacy 144 configurations match R55/R50 pixel output, other equipment changed pixels protected, source cell nonempty, all 70 final frames per combination nonempty and inset. No stub dependencies in full test.",
+      "runner": "071e3f582ee903c62919753c51f6ef3bba6321ca",
+      "moduleHashes": {
+        "fia-appearance-r46.js": "cd610781b469d9e30840e8a6817f8c5b70e08cfd",
+        "fia-appearance-r47.js": "312de286998b665c3b73ced74835c2339b7a6d48",
+        "fia-appearance-r48.js": "7b9a4f5a61b3e582450d902da7832dde7cbe5539",
+        "fia-armour-r50.js": "408e1c6f0be0ff52afec52623cce59153c84240a",
+        "fia-blades-r54.js": "ab333277ad6e434b17f2a11f6e79736c33a1230a",
+        "fia-blades-r55.js": "c32c010c2977aad6204ef87607b2f08e4bf6d7c7",
+        "fia-art-r41.js": "1855e6d18741dabecf22c709082119d6f0fe38c9",
+        "fia-art-r45.js": "e8216b6e0317544157ce2e54ba61bdc9a879814b",
+        "fia-art-r46.js": "2f32c89bc392b37c98d3fb66263ba86ed39c9adf",
+        "fia-outfit-r59.js": "0dca68e1cfaa83b5a5c860cea7ed8ad530acccd3"
+      },
+      "sourceHashes": {
+        "battle": "dda082eb4286f7fbb961461972e28df31cb8c70e",
+        "recovery": "52864cf9b1a626984ea83d264b14958b469f7d2b",
+        "attack": "c6784945e0aba55c88682cf5503001319fc27264",
+        "stance": "bb38fe66afd1493ce93081d1bc75172cfd6c2dd7",
+        "field": "0f3b14390be81af8558b494e791fff748ca69e32",
+        "motion": "73d213be359d46fca2f34cbcf918881a66dad636",
+        "ornaments": "5829532572dfece6aa5c0057006c236a7d2d81f7",
+        "gear": "d49daec12d98a40387dfb930b6981cc713268846",
+        "outfit": "5e5bbfc9de1e90f20cfcb3b28b5d33bd52757fa5"
+      }
+    },
+    "engine": {
+      "battleAndInput": 7044,
+      "victoryLoop": 10609,
+      "field": 17521,
+      "failures": 0,
+      "method": "actual published verify functions, R46 static victory assertion adapted to R58 approved loop. No engine changes."
+    }
+  },
+  "scope": "Local real Canvas and engine verification; R59 game-wide DOM/navigation and public Pages deployment/iPhone not tested, curl DNS failed. Integrated visual contact sheet checked. Leon art unchanged, complete weapon/grip and garment replacement remain. Preview page itself not run."
+}
