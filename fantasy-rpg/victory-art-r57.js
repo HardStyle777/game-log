@@ -45,8 +45,10 @@ export function makeVictoryCell(id,source,gear={},asset=null){
 }
 export function appendVictory(base,id,source,gear,asset){
  const w=base.naturalWidth??base.width,h=base.naturalHeight??base.height;
- if(w!==1440||h!==864)throw Error('unexpected original atlas '+id+' '+w+'x'+h);
- const c=canvas(w,h),ctx=c.getContext('2d',{willReadFrequently:true});ctx.imageSmoothingEnabled=false;ctx.drawImage(base,0,0);
+ const expectedHeight={leon:864,glen:648,lucia:432}[id];
+ if(w!==1440||h!==expectedHeight)throw Error('unexpected original atlas '+id+' '+w+'x'+h);
+ // Glen and Lucia's original sheets have fewer rows. Extend, never rescale.
+ const c=canvas(w,864),ctx=c.getContext('2d',{willReadFrequently:true});ctx.imageSmoothingEnabled=false;ctx.drawImage(base,0,0);
  const p=ctx.getImageData(resultCell.x,resultCell.y,240,216).data;
  for(let i=3;i<p.length;i+=4)if(p[i])throw Error('victory target cell occupied '+id);
  ctx.drawImage(makeVictoryCell(id,source,gear,asset),resultCell.x,resultCell.y);
