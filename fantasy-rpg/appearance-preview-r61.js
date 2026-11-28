@@ -1,3 +1,4 @@
+import {fieldFrame} from './field-actor-r52.js?v=52';
 // R61: one current equipped preview bundle, no atlas allocations during playback.
 export function createPreviewCache(){
  let key=null,bundle=null;
@@ -11,10 +12,8 @@ export function timedClipFrame(frames,time){
 }
 export function explorationFrame(id,mode,dir,time=0){
  if(!['leon','fia'].includes(id)||!['walk','run','idle'].includes(mode)||!Number.isInteger(dir)||dir<0||dir>3)throw Error('invalid exploration preview');
- const t=Math.max(0,Number.isFinite(time)?time:0);
- let col,asset;
- if(id==='leon'){col=Math.floor(t/(mode==='run'?100:mode==='idle'?240:160))%4;asset=mode;}
- else if(mode==='walk'){asset='walk';col=Math.floor(t/160)%4}
- else{asset='motion';col=mode==='idle'?3:Math.floor(t/95)%3}
- return {asset,x:col*96,y:dir*96,w:96,h:96};
+ const moving=mode!=='idle',t=Math.max(0,Number.isFinite(time)?time:0),state={x:0,y:0,spriteFacing:['south','east','north','west'][dir],moving};
+ const f=fieldFrame(state,moving?t:0,mode==='run',id,moving?0:t);
+ const asset={leon:'walk',leonRun:'run',leonIdle:'idle',fia:'walk',fiaMotion:'motion'}[f.asset];
+ return {asset,x:f.sx,y:f.sy,w:f.sw,h:f.sh};
 }
