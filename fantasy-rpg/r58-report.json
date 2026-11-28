@@ -1,0 +1,109 @@
+{
+  "version": "R58",
+  "commit": "d7ee510648aca6ca7bbe227f8f3731443240312b",
+  "loopChecks": 7748,
+  "engine": {
+    "checks": 10609,
+    "rows": [
+      {
+        "seed": 17,
+        "boss": false,
+        "multi": false,
+        "skip": false,
+        "alive": [
+          "leon",
+          "fia",
+          "glen",
+          "lucia"
+        ],
+        "dead": [],
+        "distinct": {
+          "leon": 2,
+          "fia": 3,
+          "glen": 2,
+          "lucia": 2
+        }
+      },
+      {
+        "seed": 41,
+        "boss": false,
+        "multi": false,
+        "skip": true,
+        "alive": [
+          "leon",
+          "fia",
+          "glen",
+          "lucia"
+        ],
+        "dead": [],
+        "distinct": {
+          "leon": 2,
+          "fia": 3,
+          "glen": 2,
+          "lucia": 2
+        }
+      },
+      {
+        "seed": 17,
+        "boss": false,
+        "multi": true,
+        "skip": false,
+        "alive": [
+          "leon",
+          "fia",
+          "glen",
+          "lucia"
+        ],
+        "dead": [],
+        "distinct": {
+          "leon": 2,
+          "fia": 3,
+          "glen": 2,
+          "lucia": 2
+        }
+      },
+      {
+        "seed": 17,
+        "boss": true,
+        "multi": false,
+        "skip": false,
+        "alive": [
+          "leon",
+          "glen",
+          "lucia"
+        ],
+        "dead": [
+          "fia"
+        ],
+        "distinct": {
+          "leon": 2,
+          "fia": 1,
+          "glen": 2,
+          "lucia": 2
+        }
+      },
+      {
+        "seed": 91,
+        "boss": false,
+        "multi": false,
+        "skip": false,
+        "alive": [
+          "leon",
+          "fia",
+          "glen",
+          "lucia"
+        ],
+        "dead": [],
+        "distinct": {
+          "leon": 2,
+          "fia": 3,
+          "glen": 2,
+          "lucia": 2
+        }
+      }
+    ],
+    "failures": 0
+  },
+  "newAsset": "eda7602627cef0b3cdeb874f77477f5ec277cf01",
+  "scope": "Actual engine and pose functions; new image inspected against R57. Full equipped atlas Canvas/DOM/iPhone/public HTTP not tested. Fia existing frames reused, others one new fist-up keyframe each."
+}
