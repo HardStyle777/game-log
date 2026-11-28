@@ -37,7 +37,7 @@ export function rectanglePlan(raw, width, height, texture, tile, placement, mode
   return {paint: Uint32Array.from(paint), mode};
 }
 
-export function weaponPlan(raw, texture, segment, {tile, kind, pose, slot, fallen = false, result = false}) {
+export function weaponPlan(raw, texture, segment, {tile, kind, pose, slot, fallen = false, result = false, fit}) {
   const [rootX, rootY, tipX, tipY] = segment;
   const dx = tipX - rootX, dy = tipY - rootY, length = Math.hypot(dx, dy);
   const leon = slot === undefined;
@@ -54,12 +54,12 @@ export function weaponPlan(raw, texture, segment, {tile, kind, pose, slot, falle
     }
     if (t < -.30 || t > 1.22 || Math.abs(across) > 17) continue;
     // Leave the hand and any wrapped hilt in front of the new weapon.
-    const start = leon ? (fallen ? .13 : .06) : .06;
+    const start = fit?.start ?? (leon ? (fallen ? .13 : .06) : .06);
     if (raw[i + 3] && t >= start && (leon ? t <= 1.17 && Math.abs(across) < (t < .22 ? 10 : 8) : exposed?.[pixel])) {
       remove.push(i);
     }
-    const u = (leon ? .83 : slot === 0 ? .80 : .735) - t * (result ? .82 : .76);
-    const band = leon ? 22 : slot === 0 ? 19 : 22;
+    const u = (fit?.root ?? (leon ? .83 : slot === 0 ? .80 : .735)) - t * (fit?.length ?? (result ? .82 : .76));
+    const band = fit?.width ?? (leon ? 22 : slot === 0 ? 19 : 22);
     const q = sampleArt(tile, u, .5 + across / band, texture);
     if (q >= 0) paint.push(i, q);
   }

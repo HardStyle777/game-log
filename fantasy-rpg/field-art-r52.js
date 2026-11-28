@@ -50,10 +50,10 @@ function water(c,o,t){
  c.fillStyle='#b7dedbaa';c.fillRect(o.x-18+spread,o.y-7,5,2/3)
 }
 
-function player(c,s,images,anim,run,actor,idleAnim){
+function player(c,s,images,anim,run,actor,idleAnim,drawActor){
  const x=Math.round(s.x),y=Math.round(s.y);
  shadow(c,x,y,9,3);
- drawFieldActor(c,s,images,anim,run,actor,idleAnim);
+ drawActor(c,s,images,anim,run,actor,idleAnim);
 }
 
 function drawObject(c,o,cam,t,images,cleared,inTown){
@@ -70,7 +70,7 @@ function drawObject(c,o,cam,t,images,cleared,inTown){
  else decorateTownProp(c,o,t)
 }
 
-export function render(c,s,cam,t,images,anim,run,actor='fia',idleAnim=0){
+export function render(c,s,cam,t,images,anim,run,actor='fia',idleAnim=0,drawActor=drawFieldActor){
  const map=MAPS[s.map], scale=images.art.scale,inTown=s.map==='town';
  const ground=inTown?townGround(images.town,map,scale):images[s.map];
  c.fillStyle='#1a2826';c.fillRect(0,0,W,H);
@@ -81,9 +81,9 @@ export function render(c,s,cam,t,images,anim,run,actor='fia',idleAnim=0){
  if(inTown)sunOnStreet(c,cam,t);
  let drawn=false;
  for(const o of scene[s.map]){
-  if(!drawn&&o.depth>s.y){player(c,s,images,anim,run,actor,idleAnim);drawn=true}
+  if(!drawn&&o.depth>s.y){player(c,s,images,anim,run,actor,idleAnim,drawActor);drawn=true}
   drawObject(c,o,cam,t,images,s.cleared,inTown);
  }
- if(!drawn)player(c,s,images,anim,run,actor,idleAnim);
+ if(!drawn)player(c,s,images,anim,run,actor,idleAnim,drawActor);
  c.restore()
 }
